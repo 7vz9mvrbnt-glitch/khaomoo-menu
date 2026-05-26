@@ -269,13 +269,20 @@ const saveOrderHistory = (phone, orders) => _storage.set("history_"+phone, order
 const getAllStats = () => _storage.get("stats") || { totalOrders:0, totalRevenue:0, dailyRevenue:{} };
 const saveStats = (s) => _storage.set("stats", s);
 
-// LINE Notify mock (logs to console; ใน production ใช้ API จริง)
-const lineNotify = (msg) => {
-  console.log("📱 LINE Notify:", msg);
-  // fetch("https://notify-api.line.me/api/notify", { method:"POST", headers:{"Authorization":"Bearer <TOKEN>"}, body: new URLSearchParams({message: msg}) });
-};
-
 const C = { red:"#8B2635", cream:"#FAF7F2", dark:"#1A1A1A", gold:"#F0B030", border:"#EDE8DF", muted:"#B08060" };
+
+// ── LINE Notify ──────────────────────────────────────────────
+const lineNotify = async (message) => {
+  try {
+    await fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
+  } catch (e) {
+    console.error("LINE notify error:", e);
+  }
+};
 
 export default function App() {
   const [view, setView]               = useState("home");
@@ -1138,6 +1145,9 @@ function DeliveryView({ setView, cart, setCart, placeOrder, cartTotal, cartSubto
     };
     _orders = [order,..._orders];
     setCurrentOrder(order);
+    // LINE Notify
+    const itemList = cart.map(e=>`• ${e.item.name} ×${e.qty}`).join("\n");
+    lineNotify(`\n🛵 Delivery ออเดอร์ใหม่ #${order.id}\n👤 ${address.name}\n📱 ${address.phone}\n📍 ${address.place}\n⏰ ${deliveryTime==="morning"?"ช่วงเช้า 09:00":"ช่วงบ่าย 14:00"}\n${itemList}\n💰 รวม ${total}฿`);
     setCart([]);
     setStep("status");
   };
