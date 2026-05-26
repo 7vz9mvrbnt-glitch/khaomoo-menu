@@ -251,6 +251,7 @@ const _urlTable = (() => {
   try { return new URLSearchParams(window.location.search).get("table") || ""; }
   catch { return ""; }
 })();
+const tableNum = _urlTable; // legacy compat
 
 // ── Phase 2: Member & Points System ─────────────────────────
 const POINTS_PER_BAHT = 1;      // 1 แต้มต่อ 1 บาท
@@ -282,7 +283,7 @@ export default function App() {
   const [currentOrder, setCurrentOrder] = useState(null);
   const [upsell, setUpsell]           = useState(null);
   const [notif, setNotif]             = useState(null);
-  const [tableNum, setTableNum]       = useState(_urlTable);
+  const [tableNumState, setTableNum]  = useState(_urlTable); // โต๊ะที่เลือก
   // Phase 2 — Member
   const [member, setMember]           = useState(null); // { phone, name, points, joined }
   const [pointsUsed, setPointsUsed]   = useState(0);   // แต้มที่ใช้ในบิลนี้
@@ -377,30 +378,29 @@ export default function App() {
 
       {notif && <div className="ktoast" style={{ background: notif.ok ? "#16A34A" : C.dark, color:"white" }}>{notif.msg}</div>}
 
-      {!tableNum && <TableSelectView onSelect={t => { if(t==="delivery"){ setTableNum("delivery"); setView("delivery"); } else { setTableNum(t); setView("home"); } }} />}
-      {tableNum && view === "home"    && <HomeView    setView={setView} cartCount={cartCount} member={member} tableNum={tableNum} setTableNum={setTableNum} />}
-      {tableNum && view === "delivery" && <DeliveryView setView={setView} cart={cart} setCart={setCart} placeOrder={placeOrder} cartTotal={cartTotal} cartSubtotal={cartSubtotal} discount={discount} member={member} pointsUsed={pointsUsed} setPointsUsed={setPointsUsed} addToCart={addToCart} upsell={upsell} cartCount={cartCount} tableNum={tableNum} />}
-      {tableNum && view === "menu"    && <MenuView    addToCart={addToCart} cart={cart} setCart={setCart} setView={setView} upsell={upsell} cartCount={cartCount} cartTotal={cartTotal} tableNum={tableNum} />}
-      {tableNum && view === "cart"    && <CartView    cart={cart} setCart={setCart} setView={setView} cartTotal={cartTotal} cartSubtotal={cartSubtotal} discount={discount} member={member} pointsUsed={pointsUsed} setPointsUsed={setPointsUsed} tableNum={tableNum} />}
-      {tableNum && view === "payment" && <PaymentView cart={cart} cartTotal={cartTotal} setView={setView} placeOrder={placeOrder} member={member} discount={discount} tableNum={tableNum} />}
-      {tableNum && view === "status"  && <StatusView  currentOrder={currentOrder} setView={setView} member={member} tableNum={tableNum} />}
-      {tableNum && view === "member"  && <MemberView  member={member} setMember={setMember} setView={setView} showNotif={showNotif} />}
-      {tableNum && view === "kitchen" && <KitchenView setView={setView} updateStatus={updateStatus} />}
+      {!tableNumState && <TableSelectView onSelect={t => { if(t==="delivery"){ setTableNum("delivery"); setView("delivery"); } else { setTableNum(t); setView("home"); } }} />}
+      {tableNumState && view === "home"    && <HomeView    setView={setView} cartCount={cartCount} member={member} tableNum={tableNumState} setTableNum={setTableNum} />}
+      {tableNumState && view === "delivery" && <DeliveryView setView={setView} cart={cart} setCart={setCart} placeOrder={placeOrder} cartTotal={cartTotal} cartSubtotal={cartSubtotal} discount={discount} member={member} pointsUsed={pointsUsed} setPointsUsed={setPointsUsed} addToCart={addToCart} upsell={upsell} cartCount={cartCount} tableNum={tableNumState} />}
+      {tableNumState && view === "menu"    && <MenuView    addToCart={addToCart} cart={cart} setCart={setCart} setView={setView} upsell={upsell} cartCount={cartCount} cartTotal={cartTotal} tableNum={tableNumState} />}
+      {tableNumState && view === "cart"    && <CartView    cart={cart} setCart={setCart} setView={setView} cartTotal={cartTotal} cartSubtotal={cartSubtotal} discount={discount} member={member} pointsUsed={pointsUsed} setPointsUsed={setPointsUsed} tableNum={tableNumState} />}
+      {tableNumState && view === "payment" && <PaymentView cart={cart} cartTotal={cartTotal} setView={setView} placeOrder={placeOrder} member={member} discount={discount} tableNum={tableNumState} />}
+      {tableNumState && view === "status"  && <StatusView  currentOrder={currentOrder} setView={setView} member={member} tableNum={tableNumState} />}
+      {tableNumState && view === "member"  && <MemberView  member={member} setMember={setMember} setView={setView} showNotif={showNotif} />}
+      {tableNumState && view === "kitchen" && <KitchenView setView={setView} updateStatus={updateStatus} />}
     </div>
   );
 }
 
+// ── HOME ──────────────────────────────────────────────────────
 // ── TABLE SELECT ──────────────────────────────────────────────
 function TableSelectView({ onSelect }) {
   return (
-    <div className="kfade" style={{ minHeight:"100vh", background:C.cream, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32 }}>
+    <div className="kfade" style={{ minHeight:"100vh", background:"#FAF7F2", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32 }}>
       <div style={{ textAlign:"center", marginBottom:24 }}>
         <div style={{ fontSize:48, marginBottom:12 }}>🍖</div>
-        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:26, fontWeight:900, color:C.dark, marginBottom:6 }}>ขาหมูนาย ต.</h2>
-        <p style={{ fontSize:14, color:C.muted }}>เลือกประเภทการสั่งอาหาร</p>
+        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:26, fontWeight:900, color:"#1A1A1A", marginBottom:6 }}>ขาหมูนาย ต.</h2>
+        <p style={{ fontSize:14, color:"#B08060" }}>เลือกประเภทการสั่งอาหาร</p>
       </div>
-
-      {/* Delivery & Takeaway — ลดขนาด 5% */}
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:11, width:"100%", maxWidth:304, marginBottom:26 }}>
         <button className="kbtn" onClick={() => onSelect("delivery")}
           style={{ padding:"17px 11px", borderRadius:19, background:"#1E3A5F", color:"white", boxShadow:"0 6px 20px rgba(30,58,95,.4)", display:"flex", flexDirection:"column", alignItems:"center", gap:5, fontSize:12.35, fontWeight:700 }}>
@@ -415,28 +415,23 @@ function TableSelectView({ onSelect }) {
           <span style={{ fontSize:10.45, opacity:.7, fontWeight:400 }}>Takeaway</span>
         </button>
       </div>
-
-      {/* Divider */}
       <div style={{ display:"flex", alignItems:"center", gap:12, width:"100%", maxWidth:304, marginBottom:20 }}>
-        <div style={{ flex:1, height:1, background:C.border }} />
-        <span style={{ fontSize:12, color:C.muted, fontWeight:600 }}>หรือนั่งทานที่ร้าน</span>
-        <div style={{ flex:1, height:1, background:C.border }} />
+        <div style={{ flex:1, height:1, background:"#EDE8DF" }} />
+        <span style={{ fontSize:12, color:"#B08060", fontWeight:600 }}>หรือนั่งทานที่ร้าน</span>
+        <div style={{ flex:1, height:1, background:"#EDE8DF" }} />
       </div>
-
-      {/* Table Select — หมายเลขโต๊ะอยู่ตรงกลาง */}
       <div style={{ width:"100%", maxWidth:304, textAlign:"center" }}>
-        <div style={{ fontSize:12, color:C.muted, fontWeight:600, marginBottom:14 }}>🪑 เลือกหมายเลขโต๊ะ</div>
+        <div style={{ fontSize:12, color:"#B08060", fontWeight:600, marginBottom:14 }}>🪑 เลือกหมายเลขโต๊ะ</div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
           {[1,2,3,4,5,6].map(t => (
             <button key={t} className="kbtn" onClick={() => onSelect(String(t))}
-              style={{ aspectRatio:"1", fontSize:28, fontWeight:900, borderRadius:20, background:"white", color:C.dark, boxShadow:"0 4px 16px rgba(0,0,0,.1)", border:"2px solid "+C.border, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:4, margin:"0 auto", width:"100%" }}>
-              <span style={{ fontSize:11, color:C.muted, fontWeight:600 }}>โต๊ะ</span>
-              <span style={{ color:C.red }}>{t}</span>
+              style={{ aspectRatio:"1", fontSize:28, fontWeight:900, borderRadius:20, background:"white", color:"#1A1A1A", boxShadow:"0 4px 16px rgba(0,0,0,.1)", border:"2px solid #EDE8DF", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:4, width:"100%" }}>
+              <span style={{ fontSize:11, color:"#B08060", fontWeight:600 }}>โต๊ะ</span>
+              <span style={{ color:"#8B2635" }}>{t}</span>
             </button>
           ))}
         </div>
       </div>
-
       <p style={{ marginTop:20, fontSize:11, color:"#C0A882", textAlign:"center" }}>สแกน QR Code ที่โต๊ะ · ไม่ต้องโหลดแอป</p>
     </div>
   );
@@ -572,9 +567,9 @@ function MenuView({ addToCart, cart, setCart, setView, upsell, cartCount, cartTo
       {cartCount > 0 && (
         <div style={{ position:"fixed", bottom:16, left:16, right:16, zIndex:30 }}>
           <button className="kbtn" style={{ width:"100%", padding:"15px 20px", fontSize:15, borderRadius:20, background:C.red, color:"white", display:"flex", justifyContent:"space-between", alignItems:"center", boxShadow:"0 8px 28px rgba(139,38,53,.4)" }} onClick={() => setView("cart")}>
-            <span style={{ background:"rgba(255,255,255,.25)", borderRadius:12, padding:"3px 12px", fontSize:13 }}>{cartCount} รายการ</span>
+            <span style={{ background:C.red, borderRadius:12, padding:"3px 12px", fontSize:13 }}>{cartCount} รายการ</span>
             <span>ดูตะกร้า →</span>
-            <span style={{ opacity:.9, fontSize:14 }}>{cartTotal}฿</span>
+            <span style={{ opacity:.8, fontSize:14 }}>{cartTotal}฿</span>
           </button>
         </div>
       )}
@@ -751,7 +746,7 @@ function CartView({ cart, setCart, setView, cartTotal, cartSubtotal, discount, m
 }
 
 // ── PAYMENT ──────────────────────────────────────────────────
-function PaymentView({ cart, cartTotal, setView, placeOrder }) {
+function PaymentView({ cart, cartTotal, setView, placeOrder, member, discount, tableNum }) {
   const [pay, setPay] = useState("promptpay");
   const [note, setNote] = useState("");
   const [slip, setSlip] = useState(false);
@@ -799,13 +794,14 @@ function PaymentView({ cart, cartTotal, setView, placeOrder }) {
               <div style={{ fontSize:13, color:"#888", marginBottom:2 }}>นาย ชนินทร์ ปิติวงษ์</div>
               <div style={{ fontSize:22, fontWeight:900, color:C.red, marginTop:8 }}>{cartTotal}฿</div>
             </div>
-            {!slip ? (
-              <button className="kbtn" style={{ width:"100%", padding:14, fontSize:14, borderRadius:16, background:C.dark, color:"white" }} onClick={() => setSlip(true)}>📎 แนบสลิปการโอน</button>
-            ) : (
-              <div style={{ background:"#F0FFF4", border:"2px solid #16A34A", borderRadius:16, padding:14, textAlign:"center" }}>
-                <div style={{ fontSize:20 }}>✅</div><div style={{ fontSize:14, fontWeight:700, color:"#16A34A" }}>อัปโหลดสลิปแล้ว</div>
+            {/* กล่องแจ้งส่งสลิป */}
+            <div style={{ background:"#FFF8E7", border:"2px solid #F0B030", borderRadius:16, padding:14, marginTop:8, display:"flex", gap:12, alignItems:"flex-start" }}>
+              <span style={{ fontSize:24, flexShrink:0 }}>📢</span>
+              <div>
+                <div style={{ fontSize:13, fontWeight:800, color:"#854F0B", marginBottom:4 }}>โปรดส่งหลักฐานการโอนเงิน</div>
+                <div style={{ fontSize:12, color:"#92600A", lineHeight:1.7 }}>กรุณาส่งสลิปการโอนเงินมาที่<br/><strong>LINE: ขาหมูนาย ต.</strong><br/>ID Line: <strong>@kamoonaitoa</strong><br/>หลังจากโอนเงินเรียบร้อยแล้วครับ</div>
               </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -827,14 +823,14 @@ function PaymentView({ cart, cartTotal, setView, placeOrder }) {
               <span style={{ color:"#888" }}>ยอดโอน</span>
               <span style={{ color:C.red }}>{cartTotal}฿</span>
             </div>
-            <button className="kbtn" style={{ width:"100%", padding:12, fontSize:13, borderRadius:14, background:C.dark, color:"white", marginTop:10 }} onClick={() => setSlip(true)}>
-              📎 แนบสลิปการโอน
-            </button>
-            {slip && (
-              <div style={{ background:"#F0FFF4", border:"2px solid #16A34A", borderRadius:14, padding:12, textAlign:"center", marginTop:12 }}>
-                <div style={{ fontSize:14, fontWeight:700, color:"#16A34A" }}>✅ อัปโหลดสลิปแล้ว</div>
+            {/* กล่องแจ้งส่งสลิป */}
+            <div style={{ background:"#FFF8E7", border:"2px solid #F0B030", borderRadius:14, padding:14, marginTop:10, display:"flex", gap:12, alignItems:"flex-start" }}>
+              <span style={{ fontSize:24, flexShrink:0 }}>📢</span>
+              <div>
+                <div style={{ fontSize:13, fontWeight:800, color:"#854F0B", marginBottom:4 }}>โปรดส่งหลักฐานการโอนเงิน</div>
+                <div style={{ fontSize:12, color:"#92600A", lineHeight:1.7 }}>กรุณาส่งสลิปการโอนเงินมาที่<br/><strong>LINE: ขาหมูนาย ต.</strong><br/>ID Line: <strong>@kamoonaitoa</strong><br/>หลังจากโอนเงินเรียบร้อยแล้วครับ</div>
               </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -1115,8 +1111,8 @@ function MemberView({ member, setMember, setView, showNotif }) {
 }
 
 // ── DELIVERY VIEW ───────────────────────────────────────────
-function DeliveryView({ setView, cart, setCart, placeOrder, cartTotal, cartSubtotal, discount, member, pointsUsed, setPointsUsed, addToCart, upsell, cartCount }) {
-  const [step, setStep]       = useState("menu");  // menu | address | confirm | status
+function DeliveryView({ setView, cart, setCart, placeOrder, cartTotal, cartSubtotal, discount, member, pointsUsed, setPointsUsed, addToCart, upsell, cartCount, tableNum }) {
+  const [step, setStep]       = useState("menu");
   const [address, setAddress] = useState({
     name: "", place: "", phone: "", note: ""
   });
@@ -1125,6 +1121,7 @@ function DeliveryView({ setView, cart, setCart, placeOrder, cartTotal, cartSubto
   const [cat, setCat]         = useState("ทั้งหมด");
   const [search, setSearch]   = useState("");
   const [currentOrder, setCurrentOrder] = useState(null);
+  const [slipSent, setSlipSent] = useState(false);
 
   const filtered = MENU.filter(m =>
     (cat==="ทั้งหมด" || m.cat===cat) &&
@@ -1281,6 +1278,16 @@ function DeliveryView({ setView, cart, setCart, placeOrder, cartTotal, cartSubto
       </div>
 
       <div style={{ position:"fixed",bottom:16,left:16,right:16 }}>
+        {/* กล่องแจ้งส่งสลิป Delivery */}
+        {canProceed && (
+          <div style={{ background:"#FFF8E7", border:"2px solid #F0B030", borderRadius:18, padding:12, marginBottom:8, display:"flex", gap:10, alignItems:"flex-start" }}>
+            <span style={{ fontSize:22, flexShrink:0 }}>📢</span>
+            <div>
+              <div style={{ fontSize:13, fontWeight:800, color:"#854F0B", marginBottom:2 }}>โปรดส่งหลักฐานการโอนเงิน</div>
+              <div style={{ fontSize:12, color:"#92600A", lineHeight:1.6 }}>กรุณาส่งสลิปมาที่ <strong>LINE: ขาหมูนาย ต.</strong> ID: <strong>@kamoonaitoa</strong> หลังโอนเงินครับ</div>
+            </div>
+          </div>
+        )}
         <button className="kbtn" style={{ width:"100%",padding:18,fontSize:16,borderRadius:20,background:canProceed?C.red:"#AAA",color:"white",boxShadow:canProceed?"0 8px 28px rgba(139,38,53,.35)":"none",opacity:canProceed?1:0.7 }}
           onClick={canProceed?handlePlaceDelivery:undefined} disabled={!canProceed}>
           {canProceed?"✅ ยืนยันออเดอร์ Delivery":"กรุณากรอกข้อมูลให้ครบ"}
