@@ -724,12 +724,24 @@ function DeliveryView({ setView, cart, setCart, cartTotal, addToCart, upsell, ca
         <h2 style={{ fontFamily:"'Noto Serif Thai',serif",fontSize:20,fontWeight:900 }}>📍 ที่อยู่จัดส่ง</h2>
       </div>
       <div style={{ padding:"16px 18px" }}>
-        <div style={{ background:"linear-gradient(135deg,#1E3A5F,#2563EB)", borderRadius:18, padding:16, marginBottom:16, color:"white" }}>
-          <div style={{ fontSize:14, fontWeight:800, marginBottom:8 }}>🛵 ข้อมูลการจัดส่ง</div>
-          <div style={{ fontSize:13, lineHeight:1.8, opacity:.9 }}>
-            <div>✅ ฟรีค่าส่ง ภายใน 5 กม. ในเขตตัวเมืองเชียงราย</div>
-            <div>🗺️ ไกลกว่า 5 กม. เริ่มต้นค่าส่ง 30 บาท</div>
+        <div style={{ background:"linear-gradient(135deg,#1E3A5F,#2563EB)", borderRadius:18, padding:16, marginBottom:12, color:"white" }}>
+          <div style={{ fontSize:14, fontWeight:800, marginBottom:10 }}>🛵 ข้อมูลการจัดส่ง</div>
+          <div style={{ fontSize:13, lineHeight:1.9, opacity:.95 }}>
             <div>⏰ รอบเช้า 09:00 น. | รอบบ่าย 14:00 น.</div>
+          </div>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
+          <div style={{ background:"#F0FDF4", border:"2px solid #22C55E", borderRadius:16, padding:"14px 12px", textAlign:"center" }}>
+            <div style={{ fontSize:22, marginBottom:4 }}>✅</div>
+            <div style={{ fontSize:13, fontWeight:900, color:"#16A34A", marginBottom:4 }}>ฟรีค่าส่ง</div>
+            <div style={{ fontSize:12, fontWeight:700, color:"#15803D" }}>ในเขตตัวเมือง</div>
+            <div style={{ fontSize:11, color:"#166534", marginTop:4, lineHeight:1.5 }}>ระยะ ≤ 5 กม.<br/>ขั้นต่ำ <span style={{ fontWeight:900, fontSize:13 }}>300฿</span> ขึ้นไป</div>
+          </div>
+          <div style={{ background:"#FFF7ED", border:"2px solid #F97316", borderRadius:16, padding:"14px 12px", textAlign:"center" }}>
+            <div style={{ fontSize:22, marginBottom:4 }}>🗺️</div>
+            <div style={{ fontSize:13, fontWeight:900, color:"#EA580C", marginBottom:4 }}>นอกเขต</div>
+            <div style={{ fontSize:12, fontWeight:700, color:"#C2410C" }}>ไกลกว่า 5 กม.</div>
+            <div style={{ fontSize:11, color:"#9A3412", marginTop:4, lineHeight:1.5 }}>เริ่มต้น <span style={{ fontWeight:900, fontSize:13 }}>50฿+</span><br/>ตามระยะทาง</div>
           </div>
         </div>
         <div style={{ background:"white",borderRadius:18,padding:18,marginBottom:14 }}>
@@ -791,7 +803,7 @@ function DeliveryView({ setView, cart, setCart, cartTotal, addToCart, upsell, ca
           </button>
         </div>
         <div style={{ display:"flex",gap:8,overflowX:"auto",scrollbarWidth:"none" }}>
-          {["✅ ฟรี 5 กม.","🗺️ >5 กม. = 30฿+","⏰ 09:00 | 14:00"].map(t=>(
+          {["✅ ฟรี ≤5กม. ขั้นต่ำ 300฿","🗺️ >5กม. = 50฿+","⏰ 09:00 | 14:00"].map(t=>(
             <span key={t} style={{ whiteSpace:"nowrap",background:"rgba(255,255,255,.15)",borderRadius:20,padding:"5px 12px",fontSize:11,fontWeight:600 }}>{t}</span>
           ))}
         </div>
