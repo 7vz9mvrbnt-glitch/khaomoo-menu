@@ -87,6 +87,7 @@ export const MENU = [
       { id: "jumbo",     label: "จัมโบ้",          price: 20, group: "size" },
       { id: "meat_only", label: "เนื้อล้วน",      price: 0,  group: "type" },
       { id: "skin",      label: "เนื้อหนัง",      price: 0,  group: "type" },
+      { id: "guts_only", label: "ไส้ล้วน",        price: 0,  group: "type" },
       { id: "kaki",      label: "ขาหมู + คากิ",   price: 0,  group: "type" },
       { id: "guts",      label: "ขาหมู + ไส้",    price: 0,  group: "type" },
       { id: "kaki_guts", label: "ขาหมู คากิ ไส้", price: 0,  group: "type" },
