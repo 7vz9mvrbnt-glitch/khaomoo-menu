@@ -34,14 +34,21 @@ npm install
 ## ขั้นตอนที่ 3 — ตั้งค่า Supabase
 
 1. สร้าง Supabase project ใหม่ที่ [supabase.com](https://supabase.com)
-2. ไปที่ **Settings → API** → copy URL และ anon key
-3. สร้างไฟล์ `.env`:
+2. ไปที่ **Settings → API Keys → Legacy anon, service_role API keys** (ไม่ใช่ Settings → API เหมือนเดิม — UI เปลี่ยนแล้ว)
+3. copy **Project URL** และ **anon public key** (format: `eyJhbGciOi...` ยาว ไม่ใช่ `sb_publishable_xxx`)
+4. สร้างไฟล์ `.env` (ห้าม commit — ต้องอยู่ใน `.gitignore`):
 ```env
 VITE_SUPABASE_URL=https://xxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=sb_publishable_xxxx
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
-4. รัน `supabase/seed.sql` ใน Supabase Dashboard → SQL Editor
-5. **แชร์ Supabase project** ให้ลูกค้า (Settings → Team) ด้วย email ของลูกค้า
+5. สร้าง `.env.example` ไว้เป็นแม่แบบ (commit ได้):
+```env
+VITE_SUPABASE_URL=https://xxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key_here
+```
+6. รัน `supabase/seed.sql` ใน Supabase Dashboard → SQL Editor → Run
+7. **แชร์ Supabase project** ให้ลูกค้า (Settings → Team) ด้วย email ของลูกค้า
+8. ถ้า project ขึ้น status **"Unhealthy"** → กด Resume แล้วรอ 1-2 นาที (เกิดจาก Free tier pause อัตโนมัติ)
 
 ## ขั้นตอนที่ 4 — ใส่ข้อมูลเมนู (2 ภาษา)
 
@@ -112,11 +119,17 @@ npm run build
 # หรือส่ง URL ให้ลูกค้าพิมพ์ผ่านเบราว์เซอร์ Ctrl+P → Save as PDF
 ```
 
-## ขั้นตอนที่ 9 — Deploy
+## ขั้นตอนที่ 9 — Deploy บน Vercel
 
 ```bash
-npx vercel --prod   # หรือ Netlify
+npx vercel --prod
 ```
+
+> ⚠️ **สำคัญ:** ต้องตั้ง Environment Variables ใน **Vercel Dashboard → Settings → Environment Variables** ด้วย:
+> - `VITE_SUPABASE_URL`
+> - `VITE_SUPABASE_ANON_KEY`
+>
+> ถ้าไม่ตั้ง แอปบน production จะไม่เชื่อม Supabase
 
 สร้าง QR Code จาก URL → ส่งไฟล์ QR (PNG 300dpi) + link ให้ลูกค้า
 

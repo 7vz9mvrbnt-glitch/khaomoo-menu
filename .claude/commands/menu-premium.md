@@ -37,13 +37,22 @@ npm install
 
 ## ขั้นตอนที่ 3 — ตั้งค่า LINE OA
 
-ใน `.env` เพิ่ม:
+สร้าง `.env` (ห้าม commit — ต้องอยู่ใน `.gitignore`):
 ```env
 VITE_SUPABASE_URL=https://xxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=sb_publishable_xxxx
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 LINE_CHANNEL_ACCESS_TOKEN=xxxx
-LINE_CHANNEL_SECRET=xxxx
 ```
+
+สร้าง `.env.example` ไว้เป็นแม่แบบ (commit ได้):
+```env
+VITE_SUPABASE_URL=https://xxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key_here
+LINE_CHANNEL_ACCESS_TOKEN=your_line_token_here
+```
+
+> **หมายเหตุ LINE Token:** ขอ **Long-lived token** จาก LINE Developer Console → Messaging API → Issue token
+> (Long-lived token ไม่หมดอายุ ไม่ต้อง renew ทุก 30 วัน)
 
 ตรวจสอบ `api/notify.js` — ไฟล์นี้คือ serverless function ที่รับออเดอร์แล้วส่ง push message ไปยัง LINE OA:
 ```js
@@ -59,8 +68,11 @@ const LINE_OA_ID = "%40<ชื่อ LINE OA ลูกค้า>";
 
 ## ขั้นตอนที่ 4 — ตั้งค่า Supabase
 
-1. สร้าง Supabase project ใหม่
-2. รัน `supabase/seed.sql` ใน SQL Editor
+1. สร้าง Supabase project ใหม่ที่ [supabase.com](https://supabase.com)
+2. ไปที่ **Settings → API Keys → Legacy anon key** (ไม่ใช่ Settings → API — UI เปลี่ยนแล้ว)
+3. copy URL + anon key (format JWT: `eyJhbGciOi...`) ใส่ใน `.env`
+4. ถ้า project ขึ้น **"Unhealthy"** → กด Resume รอ 1-2 นาที
+5. รัน `supabase/seed.sql` ใน SQL Editor
 3. เพิ่ม **orders table** สำหรับเก็บประวัติออเดอร์:
 ```sql
 CREATE TABLE public.orders (
@@ -117,18 +129,20 @@ CREATE POLICY "allow_read"   ON public.orders FOR SELECT USING (true);
 3. ตรวจสอบ format ข้อความออเดอร์ถูกต้อง (โต๊ะ/เมนู/ราคา/หมายเหตุ)
 4. ทดสอบ Delivery flow ด้วย
 
-## ขั้นตอนที่ 8 — Deploy Production
+## ขั้นตอนที่ 8 — Deploy Production บน Vercel
 
 ```bash
 npm run build
-
-# Vercel (แนะนำ — รองรับ serverless api/notify.js)
 npx vercel --prod
-
-# ตั้งค่า environment variables ใน Vercel Dashboard:
-# LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET,
-# VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
 ```
+
+> ⚠️ **สำคัญมาก:** ตั้ง Environment Variables ใน **Vercel Dashboard → Settings → Environment Variables**
+> ต้องครบทุกตัว ไม่งั้น LINE และ Supabase จะใช้งานไม่ได้บน production:
+> - `VITE_SUPABASE_URL`
+> - `VITE_SUPABASE_ANON_KEY`
+> - `LINE_CHANNEL_ACCESS_TOKEN`
+>
+> หลังเพิ่ม env vars แล้วต้อง **Redeploy** ใน Vercel ด้วย
 
 **ถ้าลูกค้ามี custom domain:**
 ```bash
@@ -169,6 +183,9 @@ vercel domains add <domain> --prod
 ## หมายเหตุ
 
 - **Vercel** แนะนำมากกว่า Netlify เพราะรองรับ `api/notify.js` (serverless) โดยตรง
-- LINE OA Token หมดอายุทุก 30 วัน → ถ้าใช้ Long-lived token ให้ตั้งค่าใน LINE Developer Console
+- **LINE Token:** ขอ Long-lived token — ไม่หมดอายุ ไม่ต้อง renew ทุก 30 วัน
+- **ความปลอดภัย:** `.env` ต้องอยู่ใน `.gitignore` เสมอ สร้าง `.env.example` ไว้แทน
+- **Vercel env vars:** ต้องตั้งใน Dashboard แยกต่างหาก — ไฟล์ `.env` local ไม่ถูกส่งขึ้น Vercel
+- **Supabase Free tier:** pause อัตโนมัติหลัง 1 สัปดาห์ / ขึ้น "Unhealthy" → กด Resume
+  แนะนำ upgrade Supabase Pro ($25/เดือน) สำหรับร้านที่เปิดทุกวัน
 - แก้ไขฟรี 5 ครั้ง — ครั้งที่ 6 เป็นต้นไปคิดเพิ่ม
-- **Supabase Free tier** pause อัตโนมัติ → แนะนำลูกค้า upgrade Pro ($25/เดือน) สำหรับร้านที่ใช้งานจริง

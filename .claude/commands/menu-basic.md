@@ -89,15 +89,17 @@ npm run build
 
 ## ขั้นตอนที่ 7 — Deploy และส่ง QR Code
 
+**ใช้ Vercel (แนะนำ — ฟรี + เร็ว + deploy อัตโนมัติเมื่อ push)**
 ```bash
-# Deploy บน Netlify (ฟรี)
-npx netlify-cli deploy --prod --dir=dist
-
-# หรือ Vercel
 npx vercel --prod
 ```
+- Vercel จะถามชื่อ project และ directory → กด Enter ตามค่า default
+- ได้ URL เช่น `https://ชื่อร้าน.vercel.app`
 
-หลัง deploy ได้ URL → สร้าง QR Code ที่ [qr-code-generator.com](https://www.qr-code-generator.com) แล้วส่งให้ลูกค้า
+> ⚠️ **สำคัญ:** ถ้าแอปใช้ `.env` → ต้องตั้ง Environment Variables ใน Vercel Dashboard ด้วย
+> (Settings → Environment Variables) ไม่งั้น Supabase/LINE จะใช้งานไม่ได้บน production
+
+หลัง deploy ได้ URL → สร้าง QR Code ดาวน์โหลดเป็น PNG/SVG ความละเอียดสูงแล้วส่งให้ลูกค้าพิมพ์ติดโต๊ะ
 
 ## Checklist ก่อนส่งงาน
 
@@ -115,3 +117,5 @@ npx vercel --prod
 - **ไม่รวม** Supabase / LINE OA / ตัวเลือกเมนู → อยู่ในแพ็ก 2 และ 3
 - ถ้าลูกค้าอยากแก้ราคาเองในอนาคต → แนะนำ upgrade แพ็ก 2 (Standard)
 - แก้ไขฟรี 1 ครั้ง — ครั้งที่ 2 เป็นต้นไปคิดเพิ่ม
+- `.env` ต้องอยู่ใน `.gitignore` เสมอ — ห้าม commit key จริงขึ้น git
+- สร้าง `.env.example` ไว้เป็นแม่แบบ (ใส่แค่ชื่อ key ไม่ใส่ค่าจริง)

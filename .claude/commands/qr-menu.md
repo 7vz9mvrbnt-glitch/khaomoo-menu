@@ -1,17 +1,27 @@
 # สกิล: จัดการเมนู QR Code LINE
 
 คุณเป็นผู้ช่วยจัดการระบบเมนู QR Code สั่งอาหารผ่าน LINE OA
-ระบบนี้ใช้ React + Vite + Supabase และ deploy บน Vercel/Netlify
+ระบบนี้ใช้ React + Vite + Supabase และ deploy บน Vercel
+
+## ข้อมูลโปรเจกต์ปัจจุบัน
+
+| รายการ | ค่า |
+|--------|-----|
+| **URL จริง** | `https://khaomoo-menu.vercel.app` |
+| **Supabase project** | `neeogfqgxogtmstssrjt` |
+| **Branch** | `claude/qr-line-food-menu-pricing-7e9r69` |
+| **ตาราง Supabase** | `public.menu` (28 รายการ), RLS เปิดอยู่ |
 
 ## โครงสร้างไฟล์หลัก
 
 | ไฟล์ | หน้าที่ |
 |------|--------|
-| `src/menuData.js` | ข้อมูลเมนูทั้งหมด (ชื่อ, ราคา, หมวด, ตัวเลือก) |
+| `src/menuData.js` | ข้อมูลเมนูทั้งหมด (ชื่อ, ราคา, หมวด, ตัวเลือก) — **แก้ราคาที่นี่** |
 | `src/supabase.js` | Supabase client |
 | `src/App.jsx` | แอปหลัก (UI + logic) |
-| `supabase/seed.sql` | SQL สำหรับสร้างตารางและใส่เมนูใน Supabase |
-| `.env` | VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY |
+| `supabase/seed.sql` | SQL สร้างตาราง + ใส่เมนูทั้งหมด (รัน upsert ซ้ำได้ปลอดภัย) |
+| `.env` | key จริง — **ห้าม commit** (อยู่ใน .gitignore แล้ว) |
+| `.env.example` | แม่แบบ key — commit ได้ปลอดภัย |
 
 ## คำสั่งที่รองรับ
 
@@ -57,21 +67,28 @@
 { id: "<unique_id>", label: "<ชื่อที่แสดง>", price: <บวกเพิ่ม>, group: "add" }
 ```
 
-### อัปเดต Supabase
-หลังแก้ `src/menuData.js` ให้ regenerate SQL:
+### อัปเดต Supabase หลังแก้เมนู
+หลังแก้ `src/menuData.js` ให้ regenerate seed.sql แล้วรันใน Supabase:
 ```bash
-node --input-type=module <<'EOF'
+node --input-type=module <<'NODEOF'
 import { MENU } from '/home/user/khaomoo-menu/src/menuData.js';
 import { writeFileSync } from 'fs';
-// ... generate SQL และบันทึกลง supabase/seed.sql
-EOF
+const esc = s => s ? s.replace(/'/g,"''") : null;
+const nul = v => v===null ? 'NULL' : `'${esc(v)}'`;
+let sql = `INSERT INTO public.menu (id,cat,name,price,img,badge,description,opts) VALUES\n`;
+sql += MENU.map(m=>`(${m.id},'${esc(m.cat)}','${esc(m.name)}',${m.price},'${esc(m.img)}',${nul(m.badge)},'${esc(m.desc)}','${JSON.stringify(m.opts).replace(/'/g,"''")}'::jsonb)`).join(',\n');
+sql += `\nON CONFLICT (id) DO UPDATE SET\n  cat=EXCLUDED.cat,name=EXCLUDED.name,price=EXCLUDED.price,\n  img=EXCLUDED.img,badge=EXCLUDED.badge,description=EXCLUDED.description,opts=EXCLUDED.opts;\n`;
+writeFileSync('/home/user/khaomoo-menu/supabase/seed.sql', sql);
+console.log('seed.sql updated with', MENU.length, 'items');
+NODEOF
 ```
-แล้วบอกผู้ใช้ให้รัน `supabase/seed.sql` ใน Supabase Dashboard → SQL Editor
+แล้วบอกผู้ใช้ให้รัน `supabase/seed.sql` ใน **Supabase Dashboard → SQL Editor → Run**
 
-### ตั้งค่า Supabase (ครั้งแรก)
-1. ตรวจสอบ `.env` มี VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY
-2. รัน `supabase/seed.sql` ใน Supabase Dashboard → SQL Editor
-3. ตาราง `menu` จะมีคอลัมน์: id, cat, name, price, img, badge, description, opts, is_available
+### ตั้งค่า Supabase (ครั้งแรกของโปรเจกต์ใหม่)
+1. สร้าง Supabase project → ไปที่ **Settings → API Keys → Legacy anon key** (ไม่ใช่ Settings → API)
+2. copy URL และ anon key (format: `eyJhbGciOi...` ยาว) ใส่ใน `.env`
+3. รัน `supabase/seed.sql` ใน SQL Editor
+4. ตาราง `menu`: id, cat, name, price, img, badge, description, opts, is_available
 
 ### ซ่อน/แสดงเมนู (โดยไม่ต้อง deploy)
 ใน Supabase Dashboard → Table Editor → ตาราง `menu`:
@@ -90,6 +107,9 @@ git push
 ## หมายเหตุสำคัญ
 
 - **Fallback**: ถ้า Supabase ไม่ตอบสนอง แอปจะใช้ข้อมูลจาก `menuData.js` อัตโนมัติ
-- **รูปภาพ**: ปัจจุบันเก็บเป็น base64 ใน App.jsx → ทำให้ bundle ใหญ่ (~1MB) — ในอนาคตควรย้ายไป Supabase Storage
-- **LINE OA**: ตัวแปร LINE_OA และ LINE_OA_ID อยู่ใน App.jsx บรรทัดที่ประมาณ 44-45
-- **Branch หลัก**: `claude/qr-line-food-menu-pricing-7e9r69`
+- **รูปภาพ**: เก็บเป็น base64 ใน App.jsx → bundle ~1MB — ในอนาคตควรย้ายไป Supabase Storage
+- **LINE OA**: `LINE_OA` และ `LINE_OA_ID` อยู่ใน App.jsx บรรทัด 45-46
+- **LINE Token**: ใช้ Long-lived token (ไม่หมดอายุ) — ตั้งค่าใน LINE Developer Console
+- **ความปลอดภัย**: `.env` อยู่ใน `.gitignore` แล้ว — ห้าม commit เด็ดขาด ใช้ `.env.example` เป็นแม่แบบ
+- **Vercel env vars**: ต้องตั้งแยกใน Vercel Dashboard (Settings → Environment Variables) แอปถึงจะใช้ key ได้บน production
+- **Supabase Free tier**: pause อัตโนมัติหลังไม่ใช้ 1 สัปดาห์ → status จะขึ้น "Unhealthy" → ต้อง Resume ก่อนใช้งาน
