@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { supabase } from './supabase.js';
 import { MENU, CATS, UPSELL, GROUP_LABEL } from './menuData.js';
 
 const IMGS = {
@@ -165,11 +166,11 @@ function HomeView({ setView, cartCount, tableNum, setTableNum }) {
 }
 
 // ── MENU ──────────────────────────────────────────────────────
-function MenuView({ addToCart, cart, setCart, setView, upsell, cartCount, cartTotal, tableNum }) {
+function MenuView({ menu, addToCart, cart, setCart, setView, upsell, cartCount, cartTotal, tableNum }) {
   const [cat, setCat] = useState("ทั้งหมด");
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null);
-  const filtered = MENU.filter(m => (cat==="ทั้งหมด" || m.cat===cat) && (!search || m.name.includes(search)));
+  const filtered = menu.filter(m => (cat==="ทั้งหมด" || m.cat===cat) && (!search || m.name.includes(search)));
   return (
     <div style={{ minHeight:"100vh", paddingBottom:110 }}>
       <div style={{ position:"sticky", top:0, zIndex:20, background:C.cream, borderBottom:"1px solid "+C.border }}>
@@ -513,7 +514,7 @@ function StatusView({ currentOrder, setView, tableNum }) {
 }
 
 // ── DELIVERY ──────────────────────────────────────────────────
-function DeliveryView({ setView, cart, setCart, cartTotal, addToCart, upsell, cartCount }) {
+function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upsell, cartCount }) {
   const [step, setStep] = useState("menu");
   const [address, setAddress] = useState({ name:"", place:"", phone:"", note:"" });
   const [deliveryTime, setDeliveryTime] = useState("morning");
@@ -521,7 +522,7 @@ function DeliveryView({ setView, cart, setCart, cartTotal, addToCart, upsell, ca
   const [cat, setCat] = useState("ทั้งหมด");
   const [search, setSearch] = useState("");
   const [sent, setSent] = useState(false);
-  const filtered = MENU.filter(m => (cat==="ทั้งหมด"||m.cat===cat)&&(!search||m.name.includes(search))&&!_soldOut.has(m.id));
+  const filtered = menu.filter(m => (cat==="ทั้งหมด"||m.cat===cat)&&(!search||m.name.includes(search))&&!_soldOut.has(m.id));
   const canProceed = address.name.trim()&&address.place.trim()&&address.phone.trim();
 
   const getDeliverySummary = () => {
@@ -737,6 +738,23 @@ function DeliveryView({ setView, cart, setCart, cartTotal, addToCart, upsell, ca
 
 // ── APP ROOT ──────────────────────────────────────────────────
 export default function App() {
+  const [menuItems, setMenuItems] = useState(MENU);
+
+  useEffect(() => {
+    supabase
+      .from('menu')
+      .select('*')
+      .eq('is_available', true)
+      .order('id')
+      .then(({ data, error }) => {
+        if (error) { console.warn('Supabase fetch failed, using local data', error); return; }
+        if (data && data.length > 0) {
+          // map description → desc เพื่อให้ตรงกับโครงสร้างเดิม
+          setMenuItems(data.map(r => ({ ...r, desc: r.description })));
+        }
+      });
+  }, []);
+
   const [view, setView]               = useState("home");
   const [cart, setCart]               = useState([]);
   const [currentOrder, setCurrentOrder] = useState(null);
@@ -793,11 +811,11 @@ export default function App() {
       `}</style>
       {notif && <div className="ktoast" style={{ background:notif.ok?"#16A34A":"#DC2626", color:"white" }}>{notif.msg}</div>}
       {view==="home"    && <HomeView setView={setView} cartCount={cartCount} tableNum={tableNum} setTableNum={setTableNum} />}
-      {view==="menu"    && <MenuView addToCart={addToCart} cart={cart} setCart={setCart} setView={setView} upsell={upsell} cartCount={cartCount} cartTotal={cartTotal} tableNum={tableNum} />}
+      {view==="menu"    && <MenuView menu={menuItems} addToCart={addToCart} cart={cart} setCart={setCart} setView={setView} upsell={upsell} cartCount={cartCount} cartTotal={cartTotal} tableNum={tableNum} />}
       {view==="cart"    && <CartView cart={cart} setCart={setCart} setView={setView} cartTotal={cartTotal} tableNum={tableNum} />}
       {view==="payment" && <PaymentView cart={cart} cartTotal={cartTotal} setView={setView} placeOrder={placeOrder} tableNum={tableNum} />}
       {view==="status"  && <StatusView currentOrder={currentOrder} setView={setView} tableNum={tableNum} />}
-      {view==="delivery"&& <DeliveryView setView={setView} cart={cart} setCart={setCart} cartTotal={cartTotal} addToCart={addToCart} upsell={upsell} cartCount={cartCount} />}
+      {view==="delivery"&& <DeliveryView menu={menuItems} setView={setView} cart={cart} setCart={setCart} cartTotal={cartTotal} addToCart={addToCart} upsell={upsell} cartCount={cartCount} />}
     </div>
   );
 }
