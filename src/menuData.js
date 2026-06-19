@@ -3,23 +3,28 @@
 // แก้ไขราคาได้ที่นี่เลย โดยไม่ต้องไปแตะ App.jsx
 //
 // โครงสร้างแต่ละรายการ:
-//   id       : หมายเลขเมนู (ห้ามซ้ำ)
-//   cat      : หมวดหมู่  → "ขาหมู" | "ข้าวขาหมู" | "เครื่องเคียง" | "กาแฟ Premium" | "เครื่องดื่ม"
-//   name     : ชื่อเมนู
-//   price    : ราคาตั้งต้น (บาท)  ← แก้ตรงนี้เพื่อเปลี่ยนราคา
-//   img      : key รูปภาพ (อย่าแก้ถ้าไม่ได้เปลี่ยนรูป)
-//   badge    : ป้ายกำกับ เช่น "Best Seller" | null = ไม่มีป้าย
-//   desc     : คำอธิบายเมนู
-//   opts     : ตัวเลือกเสริม (size, type, add-on) — price ในนี้คือราคาที่บวกเพิ่มจากราคาตั้งต้น
+//   id      : หมายเลขเมนู (ห้ามซ้ำ)
+//   cat     : หมวดหมู่ (ภาษาไทย)
+//   cat_en  : หมวดหมู่ (ภาษาอังกฤษ)
+//   name    : ชื่อเมนู (ภาษาไทย)
+//   name_en : ชื่อเมนู (ภาษาอังกฤษ)
+//   price   : ราคาตั้งต้น (บาท)  ← แก้ตรงนี้เพื่อเปลี่ยนราคา
+//   img     : key รูปภาพ (อย่าแก้ถ้าไม่ได้เปลี่ยนรูป)
+//   badge   : ป้ายกำกับ เช่น "Best Seller" | null = ไม่มีป้าย
+//   desc    : คำอธิบายเมนู (ภาษาไทย)
+//   desc_en : คำอธิบายเมนู (ภาษาอังกฤษ)
+//   opts    : ตัวเลือกเสริม (size, type, add-on) — price ในนี้คือราคาที่บวกเพิ่มจากราคาตั้งต้น
 // ================================================================
 
 export const MENU = [
 
   // ── ขาหมู ─────────────────────────────────────────────────────
   {
-    id: 1, cat: "ขาหมู", name: "ชุดขาหมูพะโล้", price: 400,
-    img: "khaomoo_set", badge: "แชร์ได้",
+    id: 1, cat: "ขาหมู", cat_en: "Pork Knuckle",
+    name: "ชุดขาหมูพะโล้", name_en: "Pork Knuckle Braised Set",
+    price: 400, img: "khaomoo_set", badge: "แชร์ได้",
     desc: "ขาหมูพะโล้สูตรร้าน เนื้อนุ่ม หนังฉ่ำ เสิร์ฟพร้อมน้ำจิ้มและผักกาดดอง",
+    desc_en: "Whole pork knuckle in house palo spices, tender & juicy skin, served with dipping sauce and pickled cabbage",
     opts: [
       { id: "khamoo",  label: "ชุดขาหมู (1 ขา)", price: 0,  group: "type" },
       { id: "kaki",    label: "ชุดคากิ",          price: 0,  group: "type" },
@@ -30,9 +35,11 @@ export const MENU = [
   },
 
   {
-    id: 2, cat: "ขาหมู", name: "ชุดขาหมูพะโล้สับ", price: 100,
-    img: "khaomoo_chop", badge: "Best Seller",
+    id: 2, cat: "ขาหมู", cat_en: "Pork Knuckle",
+    name: "ชุดขาหมูพะโล้สับ", name_en: "Chopped Pork Knuckle Set",
+    price: 100, img: "khaomoo_chop", badge: "Best Seller",
     desc: "ขาหมูสับพร้อมเสิร์ฟ เลือกขนาดและเนื้อตามชอบ",
+    desc_en: "Chopped pork knuckle in palo braise, choose your size and meat preference",
     opts: [
       { id: "size100",    label: "ชุด 100 บาท",   price: 0,  group: "size" },
       { id: "size150",    label: "ชุด 150 บาท",   price: 50, group: "size" },
@@ -47,9 +54,11 @@ export const MENU = [
   },
 
   {
-    id: 3, cat: "ขาหมู", name: "ชุดคากิพะโล้สับ", price: 100,
-    img: "kaki_chop", badge: "สายหนัง",
+    id: 3, cat: "ขาหมู", cat_en: "Pork Knuckle",
+    name: "ชุดคากิพะโล้สับ", name_en: "Chopped Pork Skin Set",
+    price: 100, img: "kaki_chop", badge: "สายหนัง",
     desc: "คากินุ่มหนึบ เคี่ยวจนเข้าเนื้อ หอมเครื่องพะโล้",
+    desc_en: "Melt-in-your-mouth pork skin, braised until tender and fragrant with palo spices",
     opts: [
       { id: "size100",      label: "ชุด 100 บาท",   price: 0,  group: "size" },
       { id: "size150",      label: "ชุด 150 บาท",   price: 50, group: "size" },
@@ -62,9 +71,11 @@ export const MENU = [
   },
 
   {
-    id: 26, cat: "ขาหมู", name: "ชุดไส้พะโล้เตาถ่าน", price: 100,
-    img: "guts_palo", badge: null,
+    id: 26, cat: "ขาหมู", cat_en: "Pork Knuckle",
+    name: "ชุดไส้พะโล้เตาถ่าน", name_en: "Charcoal Pork Innards Set",
+    price: 100, img: "guts_palo", badge: null,
     desc: "ไส้พะโล้เตาถ่านเคี่ยวจนเข้าเนื้อ หอมเครื่อง นุ่มหนึบ สูตรต้นตำรับ",
+    desc_en: "Charcoal-braised pork innards in palo spices, tender and deeply aromatic, classic recipe",
     opts: [
       { id: "size100",      label: "ชุด 100 บาท",   price: 0,  group: "size" },
       { id: "size150",      label: "ชุด 150 บาท",   price: 50, group: "size" },
@@ -78,9 +89,11 @@ export const MENU = [
 
   // ── ข้าวขาหมู ─────────────────────────────────────────────────
   {
-    id: 4, cat: "ข้าวขาหมู", name: "ข้าวขาหมูพะโล้เตาถ่าน", price: 60,
-    img: "rice_khaomoo", badge: "Best Seller",
+    id: 4, cat: "ข้าวขาหมู", cat_en: "Rice Dishes",
+    name: "ข้าวขาหมูพะโล้เตาถ่าน", name_en: "Charcoal Pork Knuckle Rice",
+    price: 60, img: "rice_khaomoo", badge: "Best Seller",
     desc: "ข้าวขาหมูสูตรเตาถ่าน เสิร์ฟพร้อมน้ำจิ้มและผักกาดดอง",
+    desc_en: "Charcoal-braised pork knuckle over jasmine rice, served with dipping sauce and pickled cabbage",
     opts: [
       { id: "normal",    label: "ธรรมดา",         price: 0,  group: "size" },
       { id: "special",   label: "พิเศษ",          price: 10, group: "size" },
@@ -98,9 +111,11 @@ export const MENU = [
   },
 
   {
-    id: 5, cat: "ข้าวขาหมู", name: "ข้าวคากิพะโล้เตาถ่าน", price: 60,
-    img: "rice_kaki", badge: "ขายดี",
+    id: 5, cat: "ข้าวขาหมู", cat_en: "Rice Dishes",
+    name: "ข้าวคากิพะโล้เตาถ่าน", name_en: "Charcoal Pork Skin Rice",
+    price: 60, img: "rice_kaki", badge: "ขายดี",
     desc: "คากินุ่มละลายในปาก เสิร์ฟพร้อมข้าวหอมร้อนๆ",
+    desc_en: "Melt-in-your-mouth pork skin served over hot steamed rice",
     opts: [
       { id: "normal",    label: "ธรรมดา",        price: 0,  group: "size" },
       { id: "special",   label: "พิเศษ",         price: 10, group: "size" },
@@ -115,22 +130,24 @@ export const MENU = [
   },
 
   // ── เครื่องเคียง ──────────────────────────────────────────────
-  { id: 6,  cat: "เครื่องเคียง", name: "ข้าวเปล่า",        price: 10, img: "rice_plain",     badge: null,          desc: "ข้าวสวยร้อนๆ หอมนุ่ม",                         opts: [] },
-  { id: 7,  cat: "เครื่องเคียง", name: "หมั่นโถว (1 ลูก)", price: 10, img: "mantou_new",     badge: "Best Seller",  desc: "หมั่นโถวนึ่งเนื้อนุ่ม ทานคู่พะโล้",             opts: [] },
-  { id: 19, cat: "เครื่องเคียง", name: "ผักกาดดอง",         price: 20, img: "pickle_cab",     badge: null,          desc: "ผักกาดดองรสเปรี้ยวหวาน ทานคู่ขาหมูลงตัว",       opts: [] },
-  { id: 20, cat: "เครื่องเคียง", name: "ไชเท้า",            price: 20, img: "daikon",         badge: null,          desc: "ไชเท้าดองกรอบหวาน เคียงขาหมู",                  opts: [] },
-  { id: 21, cat: "เครื่องเคียง", name: "ไข่เป็ดต้ม",        price: 10, img: "duck_egg",       badge: null,          desc: "ไข่เป็ดต้มสดใหม่ เนื้อนุ่มหอม",                 opts: [] },
-  { id: 22, cat: "เครื่องเคียง", name: "หมั่นโถววอฟเฟิล",   price: 15, img: "waffle_mantou",  badge: null,          desc: "หมั่นโถววอฟเฟิลอบกรอบ หอมหวาน",                opts: [] },
-  { id: 23, cat: "เครื่องเคียง", name: "น้ำจิ้มพริกส้ม",    price: 20, img: "orange_sauce",   badge: null,          desc: "น้ำจิ้มพริกส้มสูตรร้าน รสจัดจ้าน",              opts: [] },
-  { id: 24, cat: "เครื่องเคียง", name: "พริกกระเทียม",       price: 10, img: "chili_garlic",   badge: null,          desc: "พริกกระเทียมสดๆ เข้มข้น กลมกล่อม",              opts: [] },
-  { id: 25, cat: "เครื่องเคียง", name: "น้ำเปล่า",          price: 10, img: "water",          badge: null,          desc: "น้ำดื่มสิงห์ ขวดเย็น สะอาด",                    opts: [] },
-  { id: 27, cat: "เครื่องเคียง", name: "ไอศกรีมลุงชม",      price: 45, img: "icecream_lungchom", badge: null,       desc: "ไอศกรีมลุงชมเชียงราย รสกะทิ หอมมะพร้าวแท้",    opts: [] },
+  { id: 6,  cat: "เครื่องเคียง", cat_en: "Sides", name: "ข้าวเปล่า",        name_en: "Steamed Rice",            price: 10, img: "rice_plain",     badge: null,          desc: "ข้าวสวยร้อนๆ หอมนุ่ม",                         desc_en: "Hot steamed jasmine rice, soft and fragrant",            opts: [] },
+  { id: 7,  cat: "เครื่องเคียง", cat_en: "Sides", name: "หมั่นโถว (1 ลูก)", name_en: "Mantou Bun (1 pc)",       price: 10, img: "mantou_new",     badge: "Best Seller",  desc: "หมั่นโถวนึ่งเนื้อนุ่ม ทานคู่พะโล้",             desc_en: "Steamed mantou bun, soft texture, perfect with palo braise", opts: [] },
+  { id: 19, cat: "เครื่องเคียง", cat_en: "Sides", name: "ผักกาดดอง",         name_en: "Pickled Cabbage",         price: 20, img: "pickle_cab",     badge: null,          desc: "ผักกาดดองรสเปรี้ยวหวาน ทานคู่ขาหมูลงตัว",       desc_en: "Sweet-sour pickled cabbage, pairs perfectly with pork knuckle", opts: [] },
+  { id: 20, cat: "เครื่องเคียง", cat_en: "Sides", name: "ไชเท้า",            name_en: "Pickled Radish",          price: 20, img: "daikon",         badge: null,          desc: "ไชเท้าดองกรอบหวาน เคียงขาหมู",                  desc_en: "Crispy sweet-pickled radish, great alongside pork knuckle", opts: [] },
+  { id: 21, cat: "เครื่องเคียง", cat_en: "Sides", name: "ไข่เป็ดต้ม",        name_en: "Boiled Duck Egg",         price: 10, img: "duck_egg",       badge: null,          desc: "ไข่เป็ดต้มสดใหม่ เนื้อนุ่มหอม",                 desc_en: "Fresh boiled duck egg, tender and savory",               opts: [] },
+  { id: 22, cat: "เครื่องเคียง", cat_en: "Sides", name: "หมั่นโถววอฟเฟิล",   name_en: "Waffle Mantou",           price: 15, img: "waffle_mantou",  badge: null,          desc: "หมั่นโถววอฟเฟิลอบกรอบ หอมหวาน",                desc_en: "Crispy baked waffle mantou, lightly sweet",              opts: [] },
+  { id: 23, cat: "เครื่องเคียง", cat_en: "Sides", name: "น้ำจิ้มพริกส้ม",    name_en: "Chili Orange Sauce",      price: 20, img: "orange_sauce",   badge: null,          desc: "น้ำจิ้มพริกส้มสูตรร้าน รสจัดจ้าน",              desc_en: "House-recipe chili orange dipping sauce, bold and tangy", opts: [] },
+  { id: 24, cat: "เครื่องเคียง", cat_en: "Sides", name: "พริกกระเทียม",       name_en: "Chili Garlic",            price: 10, img: "chili_garlic",   badge: null,          desc: "พริกกระเทียมสดๆ เข้มข้น กลมกล่อม",              desc_en: "Fresh chili garlic, rich and savory",                    opts: [] },
+  { id: 25, cat: "เครื่องเคียง", cat_en: "Sides", name: "น้ำเปล่า",          name_en: "Water",                   price: 10, img: "water",          badge: null,          desc: "น้ำดื่มสิงห์ ขวดเย็น สะอาด",                    desc_en: "Singha drinking water, chilled",                         opts: [] },
+  { id: 27, cat: "เครื่องเคียง", cat_en: "Sides", name: "ไอศกรีมลุงชม",      name_en: "Uncle Chom Ice Cream",    price: 45, img: "icecream_lungchom", badge: null,       desc: "ไอศกรีมลุงชมเชียงราย รสกะทิ หอมมะพร้าวแท้",    desc_en: "Uncle Chom Chiang Rai coconut ice cream, authentic coconut flavour", opts: [] },
 
   // ── กาแฟ Premium ──────────────────────────────────────────────
   {
-    id: 8, cat: "กาแฟ Premium", name: "กาแฟขี้ชะมดร้อน", price: 199,
-    img: "civet_hot", badge: "Signature",
+    id: 8, cat: "กาแฟ Premium", cat_en: "Premium Coffee",
+    name: "กาแฟขี้ชะมดร้อน", name_en: "Hot Kopi Luwak Coffee",
+    price: 199, img: "civet_hot", badge: "Signature",
     desc: "Hot Civet Coffee หอมเข้ม รสนุ่มละมุน จากเชียงราย",
+    desc_en: "Hot Kopi Luwak — rich aroma, exceptionally smooth, sourced from Chiang Rai",
     opts: [
       { id: "espresso",  label: "Espresso",  price: 0, group: "style" },
       { id: "americano", label: "Americano", price: 0, group: "style" },
@@ -140,9 +157,11 @@ export const MENU = [
   },
 
   {
-    id: 9, cat: "กาแฟ Premium", name: "กาแฟขี้ชะมดเย็น", price: 299,
-    img: "civet_iced", badge: "Signature",
+    id: 9, cat: "กาแฟ Premium", cat_en: "Premium Coffee",
+    name: "กาแฟขี้ชะมดเย็น", name_en: "Iced Kopi Luwak Coffee",
+    price: 299, img: "civet_iced", badge: "Signature",
     desc: "Iced Civet Coffee หอมเข้ม สดชื่น ดื่มเพลิน",
+    desc_en: "Iced Kopi Luwak — rich aroma, refreshing and smooth over ice",
     opts: [
       { id: "espresso",  label: "Espresso",  price: 0, group: "style" },
       { id: "americano", label: "Americano", price: 0, group: "style" },
@@ -155,9 +174,11 @@ export const MENU = [
   // ── เครื่องดื่ม ───────────────────────────────────────────────
   // หมายเหตุ: ราคาตั้งต้น = เย็น, ถ้าเลือก "ร้อน" จะหัก 10฿ (price: -10)
   {
-    id: 10, cat: "เครื่องดื่ม", name: "Espresso", price: 40,
-    img: "espresso_new", badge: null,
+    id: 10, cat: "เครื่องดื่ม", cat_en: "Beverages",
+    name: "Espresso", name_en: "Espresso",
+    price: 40, img: "espresso_new", badge: null,
     desc: "เอสเพรสโซ่เข้มข้น | ร้อน 30฿",
+    desc_en: "Concentrated espresso shot | Hot 30฿",
     opts: [
       { id: "cold",    label: "เย็น",       price: 0,   group: "temp"  },
       { id: "hot",     label: "ร้อน",       price: -10, group: "temp"  },
@@ -168,9 +189,11 @@ export const MENU = [
     ],
   },
   {
-    id: 11, cat: "เครื่องดื่ม", name: "Americano", price: 40,
-    img: "americano", badge: null,
+    id: 11, cat: "เครื่องดื่ม", cat_en: "Beverages",
+    name: "Americano", name_en: "Americano",
+    price: 40, img: "americano", badge: null,
     desc: "อเมริกาโน่รสนุ่ม | ร้อน 30฿",
+    desc_en: "Smooth americano | Hot 30฿",
     opts: [
       { id: "cold",    label: "เย็น",      price: 0,   group: "temp"  },
       { id: "hot",     label: "ร้อน",      price: -10, group: "temp"  },
@@ -181,9 +204,11 @@ export const MENU = [
     ],
   },
   {
-    id: 12, cat: "เครื่องดื่ม", name: "Cappuccino", price: 40,
-    img: "latte", badge: null,
+    id: 12, cat: "เครื่องดื่ม", cat_en: "Beverages",
+    name: "Cappuccino", name_en: "Cappuccino",
+    price: 40, img: "latte", badge: null,
     desc: "คาปูชิโน่ฟองนมนุ่ม | ร้อน 30฿",
+    desc_en: "Cappuccino with silky milk foam | Hot 30฿",
     opts: [
       { id: "cold",    label: "เย็น",      price: 0,   group: "temp"  },
       { id: "hot",     label: "ร้อน",      price: -10, group: "temp"  },
@@ -194,9 +219,11 @@ export const MENU = [
     ],
   },
   {
-    id: 13, cat: "เครื่องดื่ม", name: "Coffee Latte", price: 40,
-    img: "latte", badge: null,
+    id: 13, cat: "เครื่องดื่ม", cat_en: "Beverages",
+    name: "Coffee Latte", name_en: "Coffee Latte",
+    price: 40, img: "latte", badge: null,
     desc: "ลาเต้นมหอมละมุน | ร้อน 30฿",
+    desc_en: "Creamy milk latte | Hot 30฿",
     opts: [
       { id: "cold",    label: "เย็น",      price: 0,   group: "temp"  },
       { id: "hot",     label: "ร้อน",      price: -10, group: "temp"  },
@@ -207,9 +234,11 @@ export const MENU = [
     ],
   },
   {
-    id: 14, cat: "เครื่องดื่ม", name: "Mocha Coffee", price: 40,
-    img: "mocha", badge: null,
+    id: 14, cat: "เครื่องดื่ม", cat_en: "Beverages",
+    name: "Mocha Coffee", name_en: "Mocha Coffee",
+    price: 40, img: "mocha", badge: null,
     desc: "มอคค่าช็อกโกแลต | ร้อน 30฿",
+    desc_en: "Chocolate mocha coffee | Hot 30฿",
     opts: [
       { id: "cold",    label: "เย็น",      price: 0,   group: "temp"  },
       { id: "hot",     label: "ร้อน",      price: -10, group: "temp"  },
@@ -220,9 +249,11 @@ export const MENU = [
     ],
   },
   {
-    id: 15, cat: "เครื่องดื่ม", name: "ชาไทย", price: 40,
-    img: "thai_tea", badge: null,
+    id: 15, cat: "เครื่องดื่ม", cat_en: "Beverages",
+    name: "ชาไทย", name_en: "Thai Tea",
+    price: 40, img: "thai_tea", badge: null,
     desc: "ชาไทยหอมนมสด | ร้อน 30฿",
+    desc_en: "Thai tea with fresh milk | Hot 30฿",
     opts: [
       { id: "cold",    label: "เย็น",      price: 0,   group: "temp"  },
       { id: "hot",     label: "ร้อน",      price: -10, group: "temp"  },
@@ -233,9 +264,11 @@ export const MENU = [
     ],
   },
   {
-    id: 16, cat: "เครื่องดื่ม", name: "ชาเขียว", price: 40,
-    img: "green_tea", badge: null,
+    id: 16, cat: "เครื่องดื่ม", cat_en: "Beverages",
+    name: "ชาเขียว", name_en: "Green Tea",
+    price: 40, img: "green_tea", badge: null,
     desc: "ชาเขียวญี่ปุ่นนมสด | ร้อน 30฿",
+    desc_en: "Japanese green tea with fresh milk | Hot 30฿",
     opts: [
       { id: "cold",    label: "เย็น",      price: 0,   group: "temp"  },
       { id: "hot",     label: "ร้อน",      price: -10, group: "temp"  },
@@ -246,9 +279,11 @@ export const MENU = [
     ],
   },
   {
-    id: 17, cat: "เครื่องดื่ม", name: "นมเย็น", price: 40,
-    img: "milk_cold", badge: null,
+    id: 17, cat: "เครื่องดื่ม", cat_en: "Beverages",
+    name: "นมเย็น", name_en: "Fresh Milk",
+    price: 40, img: "milk_cold", badge: null,
     desc: "นมสดเย็นสดชื่น | ร้อน 30฿",
+    desc_en: "Fresh cold milk | Hot 30฿",
     opts: [
       { id: "cold",    label: "เย็น",      price: 0,   group: "temp"  },
       { id: "hot",     label: "ร้อน",      price: -10, group: "temp"  },
@@ -259,9 +294,11 @@ export const MENU = [
     ],
   },
   {
-    id: 18, cat: "เครื่องดื่ม", name: "โกโก้", price: 40,
-    img: "cocoa_new", badge: null,
+    id: 18, cat: "เครื่องดื่ม", cat_en: "Beverages",
+    name: "โกโก้", name_en: "Cocoa",
+    price: 40, img: "cocoa_new", badge: null,
     desc: "โกโก้ครีมท็อป ช็อกโกแลตแท้ | ร้อน 30฿",
+    desc_en: "Cocoa with cream top, real chocolate | Hot 30฿",
     opts: [
       { id: "cold",    label: "เย็น",      price: 0,   group: "temp"  },
       { id: "hot",     label: "ร้อน",      price: -10, group: "temp"  },
@@ -271,12 +308,13 @@ export const MENU = [
       { id: "normal",  label: "หวานปกติ", price: 0,   group: "sweet" },
     ],
   },
-  { id: 28, cat: "เครื่องดื่ม", name: "น้ำอัดลม", price: 15, img: "soda", badge: null, desc: "น้ำอัดลม (โค้ก/เป๊ปซี่/สไปรท์)", opts: [] },
+  { id: 28, cat: "เครื่องดื่ม", cat_en: "Beverages", name: "น้ำอัดลม", name_en: "Soft Drink", price: 15, img: "soda", badge: null, desc: "น้ำอัดลม (โค้ก/เป๊ปซี่/สไปรท์)", desc_en: "Soft drink (Coke / Pepsi / Sprite)", opts: [] },
 
 ];
 
 // ── หมวดหมู่ ──────────────────────────────────────────────────
-export const CATS = ["ทั้งหมด", "ขาหมู", "ข้าวขาหมู", "เครื่องเคียง", "กาแฟ Premium", "เครื่องดื่ม"];
+export const CATS    = ["ทั้งหมด", "ขาหมู", "ข้าวขาหมู", "เครื่องเคียง", "กาแฟ Premium", "เครื่องดื่ม"];
+export const CATS_EN = ["All",     "Pork Knuckle", "Rice Dishes", "Sides", "Premium Coffee", "Beverages"];
 
 // ── ข้อความแนะนำสินค้า (upsell) ──────────────────────────────
 export const UPSELL = {
@@ -285,6 +323,13 @@ export const UPSELL = {
   1: "รับกาแฟขี้ชะมดเย็นด้วยไหมคะ? ☕",
   2: "รับข้าวเปล่าเพิ่มไหมคะ? 🍚",
   8: "รับขาหมูทานคู่กาแฟไหมครับ? 🍖",
+};
+export const UPSELL_EN = {
+  4: "Most people add a duck egg too 🥚 +10฿",
+  5: "Add mantou buns on the side? 🥟",
+  1: "How about a cold Kopi Luwak? ☕",
+  2: "Add a bowl of steamed rice? 🍚",
+  8: "Pair your pork knuckle with coffee? 🍖",
 };
 
 // ── ชื่อกลุ่มตัวเลือก ─────────────────────────────────────────
@@ -295,4 +340,12 @@ export const GROUP_LABEL = {
   style: "สไตล์กาแฟ",
   sweet: "ความหวาน",
   temp:  "อุณหภูมิ / แบบ",
+};
+export const GROUP_LABEL_EN = {
+  size:  "Size",
+  type:  "Meat Choice",
+  add:   "Add-ons",
+  style: "Coffee Style",
+  sweet: "Sweetness",
+  temp:  "Temperature / Type",
 };
