@@ -126,7 +126,7 @@ function TableSelectView({ onSelect, lang, setLang }) {
 }
 
 // ── HOME ──────────────────────────────────────────────────────
-function HomeView({ setView, cartCount, tableNum, setTableNum }) {
+function HomeView({ setView, cartCount, tableNum, setTableNum, lang }) {
   const isTakeaway = tableNum === "takeaway";
   const isDelivery = tableNum === "delivery";
   return (
@@ -137,47 +137,63 @@ function HomeView({ setView, cartCount, tableNum, setTableNum }) {
         <div style={{ position:"absolute", bottom:24, left:24, right:24 }}>
           <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:3 }}>
             <div style={{ fontSize:10, fontWeight:800, letterSpacing:3, color:"rgba(255,255,255,.6)", textTransform:"uppercase" }}>
-              {isDelivery ? "🛵 Delivery" : isTakeaway ? "🥡 สั่งกลับบ้าน" : `🪑 โต๊ะที่ ${tableNum}`}
+              {isDelivery ? "🛵 Delivery" : isTakeaway ? (lang==="en" ? "🥡 Takeaway" : "🥡 สั่งกลับบ้าน") : `🪑 ${lang==="en" ? "Table" : "โต๊ะที่"} ${tableNum}`}
             </div>
-            <button className="kbtn" onClick={() => setTableNum("")} style={{ fontSize:10, padding:"2px 8px", borderRadius:10, background:"rgba(255,255,255,.2)", color:"rgba(255,255,255,.8)", fontWeight:600 }}>เปลี่ยน</button>
+            <button className="kbtn" onClick={() => setTableNum("")} style={{ fontSize:10, padding:"2px 8px", borderRadius:10, background:"rgba(255,255,255,.2)", color:"rgba(255,255,255,.8)", fontWeight:600 }}>{lang==="en" ? "Change" : "เปลี่ยน"}</button>
           </div>
           <h1 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:34, fontWeight:900, color:"white", lineHeight:1.2 }}>ขาหมูนาย ต.</h1>
-          <p style={{ color:"rgba(255,255,255,.75)", fontSize:13, marginTop:4 }}>ต้นตำรับขาหมูพะโล้เตาถ่าน · เคี่ยวนาน 8 ชั่วโมง</p>
+          <p style={{ color:"rgba(255,255,255,.75)", fontSize:13, marginTop:4 }}>{lang==="en" ? "Authentic Charcoal Pork Knuckle · Slow-braised 8 hours" : "ต้นตำรับขาหมูพะโล้เตาถ่าน · เคี่ยวนาน 8 ชั่วโมง"}</p>
         </div>
       </div>
       <div style={{ padding:"22px 20px 32px" }}>
         <div style={{ display:"flex", gap:8, marginBottom:22, overflowX:"auto", scrollbarWidth:"none" }}>
-          {["🏆 ต้นตำรับ","⚡ สั่งง่าย","☕ กาแฟขี้ชะมด","🛵 ส่งถึงบ้าน"].map(t => (
-            <span key={t} style={{ whiteSpace:"nowrap", background:"white", border:"1px solid "+C.border, borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:600, color:"#6B5B4B" }}>{t}</span>
-          ))}
+          {lang==="en"
+            ? ["🏆 Original Recipe","⚡ Easy Order","☕ Kopi Luwak Coffee","🛵 Home Delivery"].map(t => (
+                <span key={t} style={{ whiteSpace:"nowrap", background:"white", border:"1px solid "+C.border, borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:600, color:"#6B5B4B" }}>{t}</span>
+              ))
+            : ["🏆 ต้นตำรับ","⚡ สั่งง่าย","☕ กาแฟขี้ชะมด","🛵 ส่งถึงบ้าน"].map(t => (
+                <span key={t} style={{ whiteSpace:"nowrap", background:"white", border:"1px solid "+C.border, borderRadius:20, padding:"6px 14px", fontSize:12, fontWeight:600, color:"#6B5B4B" }}>{t}</span>
+              ))
+          }
         </div>
-        <div style={{ fontSize:11, fontWeight:800, letterSpacing:2.5, color:C.muted, textTransform:"uppercase", marginBottom:12 }}>เมนูแนะนำ</div>
+        <div style={{ fontSize:11, fontWeight:800, letterSpacing:2.5, color:C.muted, textTransform:"uppercase", marginBottom:12 }}>{lang==="en" ? "Featured Menu" : "เมนูแนะนำ"}</div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:26 }}>
-          {[{img:"khaomoo_set",name:"ชุดขาหมู",price:"400฿"},{img:"rice_khaomoo",name:"ข้าวขาหมู",price:"60฿+"},{img:"civet_hot",name:"กาแฟขี้ชะมด",price:"199฿"}].map(item => (
-            <div key={item.name} className="kcard" onClick={() => setView(isDelivery ? "delivery" : "menu")} style={{ borderRadius:16 }}>
-              <img src={IMGS[item.img]} style={{ width:"100%", height:80, objectFit:"cover" }} alt="" />
-              <div style={{ padding:"8px 10px" }}>
-                <div style={{ fontSize:11, fontWeight:700, color:C.dark }}>{item.name}</div>
-                <div style={{ fontSize:12, fontWeight:900, color:C.red, marginTop:2 }}>{item.price}</div>
-              </div>
-            </div>
-          ))}
+          {lang==="en"
+            ? [{img:"khaomoo_set",name:"Pork Knuckle Set",price:"400฿"},{img:"rice_khaomoo",name:"Pork Knuckle Rice",price:"60฿+"},{img:"civet_hot",name:"Kopi Luwak Coffee",price:"199฿"}].map(item => (
+                <div key={item.name} className="kcard" onClick={() => setView(isDelivery ? "delivery" : "menu")} style={{ borderRadius:16 }}>
+                  <img src={IMGS[item.img]} style={{ width:"100%", height:80, objectFit:"cover" }} alt="" />
+                  <div style={{ padding:"8px 10px" }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:C.dark }}>{item.name}</div>
+                    <div style={{ fontSize:12, fontWeight:900, color:C.red, marginTop:2 }}>{item.price}</div>
+                  </div>
+                </div>
+              ))
+            : [{img:"khaomoo_set",name:"ชุดขาหมู",price:"400฿"},{img:"rice_khaomoo",name:"ข้าวขาหมู",price:"60฿+"},{img:"civet_hot",name:"กาแฟขี้ชะมด",price:"199฿"}].map(item => (
+                <div key={item.name} className="kcard" onClick={() => setView(isDelivery ? "delivery" : "menu")} style={{ borderRadius:16 }}>
+                  <img src={IMGS[item.img]} style={{ width:"100%", height:80, objectFit:"cover" }} alt="" />
+                  <div style={{ padding:"8px 10px" }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:C.dark }}>{item.name}</div>
+                    <div style={{ fontSize:12, fontWeight:900, color:C.red, marginTop:2 }}>{item.price}</div>
+                  </div>
+                </div>
+              ))
+          }
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
           <button className="kbtn" style={{ padding:17, fontSize:16, borderRadius:20, background:C.red, color:"white", boxShadow:"0 6px 20px rgba(139,38,53,.32)", display:"flex", flexDirection:"column", alignItems:"center", gap:4 }} onClick={() => setView("menu")}>
-            <span>🍽️</span><span style={{ fontSize:13 }}>สั่งที่ร้าน</span>
+            <span>🍽️</span><span style={{ fontSize:13 }}>{lang==="en" ? "Dine In" : "สั่งที่ร้าน"}</span>
           </button>
           <button className="kbtn" style={{ padding:17, fontSize:16, borderRadius:20, background:"#1E3A5F", color:"white", boxShadow:"0 6px 20px rgba(30,58,95,.4)", display:"flex", flexDirection:"column", alignItems:"center", gap:4 }} onClick={() => setView("delivery")}>
-            <span>🛵</span><span style={{ fontSize:13 }}>Delivery</span>
+            <span>🛵</span><span style={{ fontSize:13 }}>{lang==="en" ? "Home Delivery" : "Delivery"}</span>
           </button>
         </div>
         {cartCount > 0 && (
           <button className="kbtn" style={{ width:"100%", padding:15, fontSize:15, borderRadius:18, background:C.dark, color:"white", marginBottom:12, display:"flex", justifyContent:"space-between", alignItems:"center" }} onClick={() => setView("cart")}>
-            <span>🛒 ตะกร้าของฉัน</span>
+            <span>🛒 {lang==="en" ? "My Cart" : "ตะกร้าของฉัน"}</span>
             <span style={{ background:C.red, borderRadius:12, padding:"2px 10px", fontSize:13 }}>{cartCount}</span>
           </button>
         )}
-        <p style={{ textAlign:"center", marginTop:16, fontSize:11, color:"#C0A882" }}>สแกน QR Code ที่โต๊ะ · ไม่ต้องโหลดแอป</p>
+        <p style={{ textAlign:"center", marginTop:16, fontSize:11, color:"#C0A882" }}>{lang==="en" ? "Scan QR Code at your table · No app needed" : "สแกน QR Code ที่โต๊ะ · ไม่ต้องโหลดแอป"}</p>
       </div>
     </div>
   );
@@ -219,8 +235,8 @@ function MenuView({ menu, addToCart, cart, setCart, setView, upsell, cartCount, 
           <div key={item.id} className="kcard kfade" onClick={() => setModal(item)}>
             <div style={{ position:"relative" }}>
               <img src={IMGS[item.img]} style={{ width:"100%", height:148, objectFit:"cover", filter:_soldOut.has(item.id)?"grayscale(100%)":"none" }} alt={item.name} />
-              {item.badge && !_soldOut.has(item.id) && <span style={{ position:"absolute", top:8, left:8, background:C.red, color:"white", fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>{item.badge}</span>}
-              {_soldOut.has(item.id) && <div style={{ position:"absolute", inset:0, background:"rgba(0,0,0,.55)", display:"flex", alignItems:"center", justifyContent:"center" }}><span style={{ background:"#333", color:"#AAA", fontSize:12, fontWeight:800, padding:"5px 12px", borderRadius:20 }}>หมดแล้ว</span></div>}
+              {item.badge && !_soldOut.has(item.id) && <span style={{ position:"absolute", top:8, left:8, background:C.red, color:"white", fontSize:10, fontWeight:800, padding:"3px 8px", borderRadius:20 }}>{lang==="en" ? (item.badge_en ?? item.badge) : item.badge}</span>}
+              {_soldOut.has(item.id) && <div style={{ position:"absolute", inset:0, background:"rgba(0,0,0,.55)", display:"flex", alignItems:"center", justifyContent:"center" }}><span style={{ background:"#333", color:"#AAA", fontSize:12, fontWeight:800, padding:"5px 12px", borderRadius:20 }}>{lang==="en" ? "Sold Out" : "หมดแล้ว"}</span></div>}
             </div>
             <div style={{ padding:"11px 13px 13px" }}>
               <div style={{ fontSize:10, fontWeight:700, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:3 }}>{lang==="en" ? (item.cat_en||item.cat) : item.cat}</div>
@@ -239,8 +255,8 @@ function MenuView({ menu, addToCart, cart, setCart, setView, upsell, cartCount, 
       {cartCount > 0 && (
         <div style={{ position:"fixed", bottom:16, left:16, right:16, zIndex:30 }}>
           <button className="kbtn" style={{ width:"100%", padding:"15px 20px", fontSize:15, borderRadius:20, background:C.red, color:"white", display:"flex", justifyContent:"space-between", alignItems:"center", boxShadow:"0 8px 28px rgba(139,38,53,.4)" }} onClick={() => setView("cart")}>
-            <span style={{ background:C.red, borderRadius:12, padding:"3px 12px", fontSize:13 }}>{cartCount} รายการ</span>
-            <span>ดูตะกร้า →</span>
+            <span style={{ background:C.red, borderRadius:12, padding:"3px 12px", fontSize:13 }}>{cartCount} {lang==="en" ? "items" : "รายการ"}</span>
+            <span>{lang==="en" ? "View Cart →" : "ดูตะกร้า →"}</span>
             <span style={{ opacity:.8, fontSize:14 }}>{cartTotal}฿</span>
           </button>
         </div>
@@ -270,7 +286,7 @@ function ItemModal({ item, onClose, onAdd, lang }) {
       <div className="kslide" style={{ position:"absolute", bottom:0, left:0, right:0, background:C.cream, borderRadius:"28px 28px 0 0", maxHeight:"90vh", overflowY:"auto" }}>
         <img src={IMGS[item.img]} style={{ width:"100%", height:200, objectFit:"cover", borderRadius:"28px 28px 0 0" }} alt="" />
         <div style={{ padding:"20px 20px 28px" }}>
-          {item.badge && <span style={{ display:"inline-block", background:C.red, color:"white", borderRadius:20, padding:"3px 12px", fontSize:11, fontWeight:800, marginBottom:10 }}>{item.badge}</span>}
+          {item.badge && <span style={{ display:"inline-block", background:C.red, color:"white", borderRadius:20, padding:"3px 12px", fontSize:11, fontWeight:800, marginBottom:10 }}>{lang==="en" ? (item.badge_en ?? item.badge) : item.badge}</span>}
           <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:21, fontWeight:900, marginBottom:5 }}>{lang==="en" ? (item.name_en||item.name) : item.name}</h2>
           <p style={{ color:"#8B6B55", fontSize:13, lineHeight:1.7, marginBottom:16 }}>{lang==="en" ? (item.desc_en||item.desc) : item.desc}</p>
           {Object.entries(groups).map(([gk, opts]) => {
@@ -284,7 +300,7 @@ function ItemModal({ item, onClose, onAdd, lang }) {
                 <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
                   {opts.map(opt => { const on=!!sel.find(o=>o.id===opt.id); return (
                     <div key={opt.id} className={"opt-chip"+(on?" on":"")} onClick={() => toggle(opt, isSingle)}>
-                      <span>{opt.label}</span>{opt.price!==0&&<span style={{ fontSize:11, opacity:.8 }}>{opt.price>0?"+":""}{opt.price}฿</span>}
+                      <span>{lang==="en" ? (opt.label_en ?? opt.label) : opt.label}</span>{opt.price!==0&&<span style={{ fontSize:11, opacity:.8 }}>{opt.price>0?"+":""}{opt.price}฿</span>}
                     </div>
                   ); })}
                 </div>
@@ -298,7 +314,7 @@ function ItemModal({ item, onClose, onAdd, lang }) {
           </div>
           <button className="kbtn" style={{ width:"100%", padding:17, fontSize:16, borderRadius:18, background:C.red, color:"white", display:"flex", justifyContent:"space-between", boxShadow:"0 6px 20px rgba(139,38,53,.3)" }}
             onClick={() => { for(let i=0;i<qty;i++) onAdd(sel); }}>
-            <span>เพิ่มลงตะกร้า ×{qty}</span><span>{total}฿</span>
+            <span>{lang==="en" ? "Add to Cart" : "เพิ่มลงตะกร้า"} ×{qty}</span><span>{total}฿</span>
           </button>
         </div>
       </div>
@@ -307,20 +323,20 @@ function ItemModal({ item, onClose, onAdd, lang }) {
 }
 
 // ── CART ──────────────────────────────────────────────────────
-function CartView({ cart, setCart, setView, cartTotal, tableNum }) {
+function CartView({ cart, setCart, setView, cartTotal, tableNum, lang }) {
   const upd = (key, d) => setCart(p => p.map(e=>e.key===key?{...e,qty:Math.max(0,e.qty+d)}:e).filter(e=>e.qty>0));
   return (
     <div className="kfade" style={{ minHeight:"100vh", paddingBottom:120 }}>
       <div style={{ padding:"20px 18px 16px", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid "+C.border }}>
         <button className="kbtn" style={{ background:C.border, borderRadius:12, width:38, height:38, fontSize:16, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setView("menu")}>←</button>
-        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:20, fontWeight:900 }}>ตะกร้าสินค้า</h2>
-        <span style={{ marginLeft:"auto", fontSize:13, color:"#999" }}>{tableNum==="delivery"?"🛵 Delivery":tableNum==="takeaway"?"🥡 Takeaway":"โต๊ะ "+tableNum}</span>
+        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:20, fontWeight:900 }}>{lang==="en" ? "Your Cart" : "ตะกร้าสินค้า"}</h2>
+        <span style={{ marginLeft:"auto", fontSize:13, color:"#999" }}>{tableNum==="delivery"?"🛵 Delivery":tableNum==="takeaway"?"🥡 Takeaway":(lang==="en"?"Table ":"โต๊ะ ")+tableNum}</span>
       </div>
       {cart.length===0 ? (
         <div style={{ textAlign:"center", padding:"70px 24px" }}>
           <div style={{ fontSize:60, marginBottom:16 }}>🛒</div>
-          <p style={{ color:"#999", marginBottom:20 }}>ตะกร้าว่างเปล่า</p>
-          <button className="kbtn" style={{ background:C.red, color:"white", padding:"12px 28px", borderRadius:14, fontSize:15 }} onClick={() => setView("menu")}>เลือกเมนู</button>
+          <p style={{ color:"#999", marginBottom:20 }}>{lang==="en" ? "Cart is Empty" : "ตะกร้าว่างเปล่า"}</p>
+          <button className="kbtn" style={{ background:C.red, color:"white", padding:"12px 28px", borderRadius:14, fontSize:15 }} onClick={() => setView("menu")}>{lang==="en" ? "Back to Menu" : "เลือกเมนู"}</button>
         </div>
       ) : (
         <div style={{ padding:"14px 16px" }}>
@@ -328,8 +344,8 @@ function CartView({ cart, setCart, setView, cartTotal, tableNum }) {
             <div key={e.key} style={{ background:"white", borderRadius:18, marginBottom:12, display:"flex", overflow:"hidden", boxShadow:"0 2px 10px rgba(0,0,0,.06)" }}>
               <img src={IMGS[e.item.img]} style={{ width:88, height:88, objectFit:"cover", flexShrink:0 }} alt="" />
               <div style={{ padding:"11px 12px", flex:1, overflow:"hidden" }}>
-                <div style={{ fontWeight:700, fontSize:14, marginBottom:2 }}>{e.item.name}</div>
-                {e.opts.length>0 && <div style={{ fontSize:11, color:"#8B6B55", marginBottom:4, lineHeight:1.4 }}>{e.opts.map(o=>o.label).join(" · ")}</div>}
+                <div style={{ fontWeight:700, fontSize:14, marginBottom:2 }}>{lang==="en" ? (e.item.name_en||e.item.name) : e.item.name}</div>
+                {e.opts.length>0 && <div style={{ fontSize:11, color:"#8B6B55", marginBottom:4, lineHeight:1.4 }}>{e.opts.map(o=>lang==="en"?(o.label_en??o.label):o.label).join(" · ")}</div>}
                 <div style={{ fontSize:15, fontWeight:900, color:C.red }}>{e.unitPrice}฿</div>
               </div>
               <div style={{ display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:6, padding:"0 12px" }}>
@@ -341,7 +357,7 @@ function CartView({ cart, setCart, setView, cartTotal, tableNum }) {
           ))}
           <div style={{ background:"white", borderRadius:18, padding:18, marginBottom:16 }}>
             <div style={{ display:"flex", justifyContent:"space-between", fontSize:20, fontWeight:900 }}>
-              <span>ยอดรวม</span><span style={{ color:C.red }}>{cartTotal}฿</span>
+              <span>{lang==="en" ? "Total" : "ยอดรวม"}</span><span style={{ color:C.red }}>{cartTotal}฿</span>
             </div>
           </div>
         </div>
@@ -349,7 +365,7 @@ function CartView({ cart, setCart, setView, cartTotal, tableNum }) {
       {cart.length>0 && (
         <div style={{ position:"fixed", bottom:16, left:16, right:16 }}>
           <button className="kbtn" style={{ width:"100%", padding:18, fontSize:16, borderRadius:20, background:C.red, color:"white", display:"flex", justifyContent:"space-between", boxShadow:"0 8px 28px rgba(139,38,53,.3)" }} onClick={() => setView("payment")}>
-            <span>ชำระเงิน</span><span>{cartTotal}฿</span>
+            <span>{lang==="en" ? "Payment" : "ชำระเงิน"}</span><span>{cartTotal}฿</span>
           </button>
         </div>
       )}
@@ -358,7 +374,7 @@ function CartView({ cart, setCart, setView, cartTotal, tableNum }) {
 }
 
 // ── PAYMENT ──────────────────────────────────────────────────
-function PaymentView({ cart, cartTotal, setView, placeOrder, tableNum }) {
+function PaymentView({ cart, cartTotal, setView, placeOrder, tableNum, lang }) {
   const [pay, setPay] = useState("promptpay");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
@@ -367,24 +383,24 @@ function PaymentView({ cart, cartTotal, setView, placeOrder, tableNum }) {
     <div className="kfade" style={{ minHeight:"100vh", paddingBottom:120 }}>
       <div style={{ padding:"20px 18px 16px", display:"flex", alignItems:"center", gap:12, borderBottom:"1px solid "+C.border }}>
         <button className="kbtn" style={{ background:C.border, borderRadius:12, width:38, height:38, fontSize:16, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={() => setView("cart")}>←</button>
-        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:20, fontWeight:900 }}>ชำระเงิน</h2>
+        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:20, fontWeight:900 }}>{lang==="en" ? "Payment" : "ชำระเงิน"}</h2>
       </div>
       <div style={{ padding:"16px 18px" }}>
         <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:16 }}>
-          <div style={{ fontSize:11, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>สรุปออเดอร์</div>
+          <div style={{ fontSize:11, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>{lang==="en" ? "Order Summary" : "สรุปออเดอร์"}</div>
           {cart.map(e => (
             <div key={e.key} style={{ display:"flex", justifyContent:"space-between", fontSize:14, padding:"5px 0", borderBottom:"1px solid #F5F0EA" }}>
-              <span style={{ flex:1, paddingRight:8 }}>{e.item.name} ×{e.qty}{e.opts.length>0?" ("+e.opts.map(o=>o.label).join(",")+")" :""}</span>
+              <span style={{ flex:1, paddingRight:8 }}>{lang==="en"?(e.item.name_en||e.item.name):e.item.name} ×{e.qty}{e.opts.length>0?" ("+e.opts.map(o=>lang==="en"?(o.label_en??o.label):o.label).join(",")+")" :""}</span>
               <span style={{ fontWeight:700, flexShrink:0 }}>{e.unitPrice*e.qty}฿</span>
             </div>
           ))}
           <div style={{ display:"flex", justifyContent:"space-between", fontSize:18, fontWeight:900, marginTop:10 }}>
-            <span>รวมทั้งหมด</span><span style={{ color:C.red }}>{cartTotal}฿</span>
+            <span>{lang==="en" ? "Total Amount" : "รวมทั้งหมด"}</span><span style={{ color:C.red }}>{cartTotal}฿</span>
           </div>
         </div>
-        <div style={{ fontSize:11, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:12 }}>วิธีชำระเงิน</div>
+        <div style={{ fontSize:11, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:12 }}>{lang==="en" ? "Payment Method" : "วิธีชำระเงิน"}</div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:20 }}>
-          {[{id:"promptpay",label:"PromptPay QR",icon:"📱"},{id:"transfer",label:"โอนธนาคาร",icon:"🏦"},{id:"cash",label:"เงินสด",icon:"💵"}].map(m => (
+          {[{id:"promptpay",label:lang==="en"?"PromptPay QR":"PromptPay QR",icon:"📱"},{id:"transfer",label:lang==="en"?"Bank Transfer":"โอนธนาคาร",icon:"🏦"},{id:"cash",label:lang==="en"?"Cash":"เงินสด",icon:"💵"}].map(m => (
             <div key={m.id} onClick={() => setPay(m.id)} style={{ background:"white", borderRadius:16, padding:"14px 8px", textAlign:"center", cursor:"pointer", border:"2px solid "+(pay===m.id?C.red:"transparent"), boxShadow:"0 2px 8px rgba(0,0,0,.06)", transition:"all .2s" }}>
               <div style={{ fontSize:24, marginBottom:6 }}>{m.icon}</div>
               <div style={{ fontSize:11, fontWeight:700, color:pay===m.id?C.red:"#555" }}>{m.label}</div>
@@ -405,18 +421,18 @@ function PaymentView({ cart, cartTotal, setView, placeOrder, tableNum }) {
         {pay==="cash" && (
           <div style={{ background:"white", borderRadius:20, padding:18, marginBottom:16, textAlign:"center" }}>
             <div style={{ fontSize:48, marginBottom:8 }}>💵</div>
-            <div style={{ fontSize:15, fontWeight:700 }}>ชำระเงินสดกับพนักงาน</div>
+            <div style={{ fontSize:15, fontWeight:700 }}>{lang==="en" ? "Pay Cash to Staff" : "ชำระเงินสดกับพนักงาน"}</div>
             <div style={{ fontSize:22, fontWeight:900, color:C.red, marginTop:8 }}>{cartTotal}฿</div>
           </div>
         )}
         <div style={{ background:"white", borderRadius:18, padding:16, marginBottom:16 }}>
-          <div style={{ fontSize:11, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>หมายเหตุ</div>
-          <textarea className="kinp" rows={3} placeholder="เช่น ไม่เผ็ด / แพ้อาหาร / ไม่ใส่ผัก..." value={note} onChange={e => setNote(e.target.value)} style={{ resize:"none", lineHeight:1.6 }} />
+          <div style={{ fontSize:11, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:10 }}>{lang==="en" ? "Notes" : "หมายเหตุ"}</div>
+          <textarea className="kinp" rows={3} placeholder={lang==="en" ? "e.g. No spicy / Food allergies / No vegetables..." : "เช่น ไม่เผ็ด / แพ้อาหาร / ไม่ใส่ผัก..."} value={note} onChange={e => setNote(e.target.value)} style={{ resize:"none", lineHeight:1.6 }} />
         </div>
       </div>
       <div style={{ position:"fixed", bottom:16, left:16, right:16 }}>
         <button className="kbtn" style={{ width:"100%", padding:18, fontSize:16, borderRadius:20, background:C.red, color:"white", opacity:loading?0.7:1, boxShadow:"0 8px 28px rgba(139,38,53,.3)" }} onClick={confirm} disabled={loading}>
-          {loading ? "⏳ กำลังส่งออเดอร์..." : `✅ ยืนยันออเดอร์ ${cartTotal}฿`}
+          {loading ? (lang==="en" ? "⏳ Sending order..." : "⏳ กำลังส่งออเดอร์...") : `✅ ${lang==="en" ? "Confirm Order" : "ยืนยันออเดอร์"} ${cartTotal}฿`}
         </button>
       </div>
     </div>
@@ -424,7 +440,7 @@ function PaymentView({ cart, cartTotal, setView, placeOrder, tableNum }) {
 }
 
 // ── STATUS (ส่งออเดอร์ผ่าน LINE) ─────────────────────────────
-function StatusView({ currentOrder, setView, tableNum }) {
+function StatusView({ currentOrder, setView, tableNum, lang }) {
   const [sent, setSent] = useState(false);
   if (!currentOrder) return null;
   const tableType = tableNum==="delivery"?"delivery":tableNum==="takeaway"?"takeaway":"table";
@@ -435,9 +451,9 @@ function StatusView({ currentOrder, setView, tableNum }) {
       {/* Header */}
       <div style={{ background:"linear-gradient(135deg,"+C.red+",#A83248)", padding:"40px 24px 28px", textAlign:"center" }}>
         <div style={{ fontSize:64, marginBottom:8 }}>✅</div>
-        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:24, fontWeight:900, color:"white", marginBottom:4 }}>ออเดอร์พร้อมแล้ว!</h2>
+        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:24, fontWeight:900, color:"white", marginBottom:4 }}>{lang==="en" ? "Order Ready!" : "ออเดอร์พร้อมแล้ว!"}</h2>
         <div style={{ color:"rgba(255,255,255,.75)", fontSize:13 }}>
-          {tableType==="delivery"?"🛵 Delivery":tableType==="takeaway"?"🥡 Takeaway":"🪑 โต๊ะ "+tableNum}
+          {tableType==="delivery"?"🛵 Delivery":tableType==="takeaway"?"🥡 Takeaway":`🪑 ${lang==="en"?"Table ":"โต๊ะ "}${tableNum}`}
         </div>
       </div>
 
@@ -448,29 +464,29 @@ function StatusView({ currentOrder, setView, tableNum }) {
             <div key={e.key} style={{ display:"flex", alignItems:"center", borderBottom:"1px solid #F5F0EA" }}>
               <img src={IMGS[e.item.img]} style={{ width:70, height:70, objectFit:"cover", flexShrink:0 }} alt="" />
               <div style={{ padding:"10px 12px", flex:1 }}>
-                <div style={{ fontSize:13, fontWeight:700 }}>{e.item.name}</div>
-                {e.opts.length>0 && <div style={{ fontSize:11, color:"#8B6B55", marginTop:2 }}>{e.opts.map(o=>o.label).join(" · ")}</div>}
+                <div style={{ fontSize:13, fontWeight:700 }}>{lang==="en"?(e.item.name_en||e.item.name):e.item.name}</div>
+                {e.opts.length>0 && <div style={{ fontSize:11, color:"#8B6B55", marginTop:2 }}>{e.opts.map(o=>lang==="en"?(o.label_en??o.label):o.label).join(" · ")}</div>}
                 <div style={{ fontSize:12, color:"#999" }}>×{e.qty}</div>
               </div>
               <div style={{ padding:"0 14px", fontWeight:800, color:C.red, fontSize:14 }}>{e.unitPrice*e.qty}฿</div>
             </div>
           ))}
           <div style={{ padding:"12px 16px", display:"flex", justifyContent:"space-between", fontSize:16, fontWeight:900 }}>
-            <span>รวม</span><span style={{ color:C.red }}>{currentOrder.total}฿</span>
+            <span>{lang==="en" ? "Total" : "รวม"}</span><span style={{ color:C.red }}>{currentOrder.total}฿</span>
           </div>
         </div>
 
         {/* NOTE */}
         {currentOrder.note && (
           <div style={{ background:"#FFFBF0", border:"1px solid #F0D080", borderRadius:16, padding:14, marginBottom:16, fontSize:13 }}>
-            <span style={{ fontWeight:700, color:"#8B6B30" }}>📝 หมายเหตุ: </span>{currentOrder.note}
+            <span style={{ fontWeight:700, color:"#8B6B30" }}>📝 {lang==="en" ? "Note: " : "หมายเหตุ: "}</span>{currentOrder.note}
           </div>
         )}
 
         {/* PAYMENT - QR if online */}
         {isPayOnline && (
           <div style={{ background:"white", borderRadius:20, padding:"18px", marginBottom:16, textAlign:"center" }}>
-            <div style={{ fontSize:12, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:12 }}>💳 ชำระเงิน</div>
+            <div style={{ fontSize:12, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:12 }}>💳 {lang==="en" ? "Payment" : "ชำระเงิน"}</div>
             <img src={IMGS.qr_promptpay} style={{ width:180, height:"auto", borderRadius:14, border:"3px solid #F0D080", display:"inline-block" }} alt="QR PromptPay" />
             <div style={{ fontSize:13, color:"#888", marginTop:8 }}>SCB · 566-542401-3 · ชนินทร์ ปิติวงษ์</div>
             <div style={{ fontSize:22, fontWeight:900, color:C.red, marginTop:6 }}>{currentOrder.total}฿</div>
@@ -481,24 +497,25 @@ function StatusView({ currentOrder, setView, tableNum }) {
         <div style={{ background:"#F0FFF4", border:"2px solid #06C755", borderRadius:22, padding:18, marginBottom:16 }}>
           <div style={{ textAlign:"center", marginBottom:14 }}>
             <div style={{ fontSize:28, marginBottom:4 }}>💬</div>
-            <div style={{ fontSize:15, fontWeight:900, color:"#16A34A", marginBottom:4 }}>ส่งออเดอร์ให้ร้านผ่าน LINE</div>
+            <div style={{ fontSize:15, fontWeight:900, color:"#16A34A", marginBottom:4 }}>{lang==="en" ? "Send Order via LINE" : "ส่งออเดอร์ให้ร้านผ่าน LINE"}</div>
             <div style={{ fontSize:12, color:"#555", lineHeight:1.6 }}>
-              กดปุ่มด้านล่างเพื่อส่งรายการอาหารเข้า LINE OA ของร้าน
-              {isPayOnline && " และแนบสลิปการโอนด้วย"}
-              {tableType==="delivery" && " พร้อมส่งโลเคชั่น"}
+              {lang==="en"
+                ? <>Tap below to send your order to the restaurant's LINE OA{isPayOnline && " and attach your payment slip"}{tableType==="delivery" && " with your location"}</>
+                : <>กดปุ่มด้านล่างเพื่อส่งรายการอาหารเข้า LINE OA ของร้าน{isPayOnline && " และแนบสลิปการโอนด้วย"}{tableType==="delivery" && " พร้อมส่งโลเคชั่น"}</>
+              }
             </div>
           </div>
           {!sent ? (
             <button className="kbtn" style={{ width:"100%", padding:"15px 20px", fontSize:16, borderRadius:16, background:"#06C755", color:"white", display:"flex", alignItems:"center", justifyContent:"center", gap:10, fontWeight:800, boxShadow:"0 6px 20px rgba(6,199,85,.4)" }}
               onClick={() => { sendOrderToLine(summary); setSent(true); }}>
-              <span style={{ fontSize:22 }}>💬</span> ส่งออเดอร์ผ่าน LINE
+              <span style={{ fontSize:22 }}>💬</span> {lang==="en" ? "Send Order via LINE" : "ส่งออเดอร์ผ่าน LINE"}
             </button>
           ) : (
             <div style={{ textAlign:"center" }}>
-              <div style={{ background:"#16A34A", color:"white", borderRadius:14, padding:"12px 20px", marginBottom:10, fontWeight:800, fontSize:14 }}>✅ ส่งออเดอร์แล้ว!</div>
+              <div style={{ background:"#16A34A", color:"white", borderRadius:14, padding:"12px 20px", marginBottom:10, fontWeight:800, fontSize:14 }}>✅ {lang==="en" ? "Order Sent!" : "ส่งออเดอร์แล้ว!"}</div>
               <button className="kbtn" style={{ fontSize:13, padding:"8px 20px", borderRadius:12, background:"rgba(6,199,85,.15)", color:"#16A34A", border:"1px solid #06C755" }}
                 onClick={() => { sendOrderToLine(summary); }}>
-                ส่งอีกครั้ง
+                {lang==="en" ? "Send Again" : "ส่งอีกครั้ง"}
               </button>
             </div>
           )}
@@ -508,24 +525,32 @@ function StatusView({ currentOrder, setView, tableNum }) {
         {(tableType==="takeaway"||tableType==="delivery") && (
           <div style={{ background:"#EFF6FF", border:"1px solid #BFDBFE", borderRadius:16, padding:14, marginBottom:16, fontSize:13, lineHeight:1.8 }}>
             <div style={{ fontWeight:800, color:"#1D4ED8", marginBottom:6 }}>
-              {tableType==="takeaway"?"🥡 ขั้นตอนถัดไป":"🛵 ขั้นตอนถัดไป"}
+              {tableType==="takeaway"?`🥡 ${lang==="en"?"Next Steps":"ขั้นตอนถัดไป"}`:`🛵 ${lang==="en"?"Next Steps":"ขั้นตอนถัดไป"}`}
             </div>
-            {tableType==="takeaway" && <>
+            {tableType==="takeaway" && (lang==="en" ? <>
+              <div>1. Send order via LINE above</div>
+              <div>2. Transfer payment via QR Code</div>
+              <div>3. Attach slip in restaurant's LINE OA</div>
+            </> : <>
               <div>1. ส่งออเดอร์ผ่าน LINE ด้านบน</div>
               <div>2. โอนเงินตาม QR Code</div>
               <div>3. แนบสลิปใน LINE OA ของร้าน</div>
-            </>}
-            {tableType==="delivery" && <>
+            </>)}
+            {tableType==="delivery" && (lang==="en" ? <>
+              <div>1. Send order via LINE above</div>
+              <div>2. Transfer payment via QR Code</div>
+              <div>3. Attach slip + share your location in LINE OA</div>
+            </> : <>
               <div>1. ส่งออเดอร์ผ่าน LINE ด้านบน</div>
               <div>2. โอนเงินตาม QR Code</div>
               <div>3. แนบสลิป + ส่งโลเคชั่นใน LINE OA</div>
-            </>}
+            </>)}
           </div>
         )}
 
         <div style={{ display:"flex", gap:10 }}>
-          <button className="kbtn" style={{ flex:1, padding:14, borderRadius:16, border:"2px solid "+C.border, color:"#666", fontSize:14 }} onClick={() => setView("menu")}>+ สั่งเพิ่ม</button>
-          <button className="kbtn" style={{ flex:1, padding:14, borderRadius:16, border:"2px solid "+C.border, color:"#666", fontSize:14 }} onClick={() => setView("home")}>🏠 หน้าหลัก</button>
+          <button className="kbtn" style={{ flex:1, padding:14, borderRadius:16, border:"2px solid "+C.border, color:"#666", fontSize:14 }} onClick={() => setView("menu")}>+ {lang==="en" ? "Order More" : "สั่งเพิ่ม"}</button>
+          <button className="kbtn" style={{ flex:1, padding:14, borderRadius:16, border:"2px solid "+C.border, color:"#666", fontSize:14 }} onClick={() => setView("home")}>🏠 {lang==="en" ? "Home" : "หน้าหลัก"}</button>
         </div>
       </div>
     </div>
@@ -725,7 +750,7 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
           <div key={item.id} className="kcard kfade" onClick={()=>setModal(item)}>
             <div style={{ position:"relative" }}>
               <img src={IMGS[item.img]} style={{ width:"100%",height:148,objectFit:"cover" }} alt={lang==="en" ? (item.name_en||item.name) : item.name} />
-              {item.badge&&<span style={{ position:"absolute",top:8,left:8,background:C.red,color:"white",fontSize:10,fontWeight:800,padding:"3px 8px",borderRadius:20 }}>{item.badge}</span>}
+              {item.badge&&<span style={{ position:"absolute",top:8,left:8,background:C.red,color:"white",fontSize:10,fontWeight:800,padding:"3px 8px",borderRadius:20 }}>{lang==="en" ? (item.badge_en ?? item.badge) : item.badge}</span>}
             </div>
             <div style={{ padding:"11px 13px 13px" }}>
               <div style={{ fontSize:10,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:3 }}>{lang==="en" ? (item.cat_en||item.cat) : item.cat}</div>
@@ -743,8 +768,8 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
       {cartCount>0&&(
         <div style={{ position:"fixed",bottom:16,left:16,right:16,zIndex:30 }}>
           <button className="kbtn" style={{ width:"100%",padding:"15px 20px",fontSize:15,borderRadius:20,background:C.red,color:"white",display:"flex",justifyContent:"space-between",alignItems:"center",boxShadow:"0 8px 28px rgba(139,38,53,.4)" }} onClick={()=>setStep("address")}>
-            <span style={{ background:"rgba(255,255,255,.25)",borderRadius:12,padding:"3px 12px",fontSize:13 }}>{cartCount} รายการ</span>
-            <span>ระบุที่อยู่ส่ง →</span>
+            <span style={{ background:"rgba(255,255,255,.25)",borderRadius:12,padding:"3px 12px",fontSize:13 }}>{cartCount} {lang==="en" ? "items" : "รายการ"}</span>
+            <span>{lang==="en" ? "Enter Delivery Address →" : "ระบุที่อยู่ส่ง →"}</span>
             <span style={{ opacity:.85,fontSize:14 }}>{cartTotal}฿</span>
           </button>
         </div>
@@ -835,11 +860,11 @@ export default function App() {
         .opt-chip.on{background:#8B2635;border-color:#8B2635;color:white}
       `}</style>
       {notif && <div className="ktoast" style={{ background:notif.ok?"#16A34A":"#DC2626", color:"white" }}>{notif.msg}</div>}
-      {view==="home"    && <HomeView setView={setView} cartCount={cartCount} tableNum={tableNum} setTableNum={setTableNum} />}
+      {view==="home"    && <HomeView setView={setView} cartCount={cartCount} tableNum={tableNum} setTableNum={setTableNum} lang={lang} />}
       {view==="menu"    && <MenuView menu={menuItems} addToCart={addToCart} cart={cart} setCart={setCart} setView={setView} upsell={upsell} cartCount={cartCount} cartTotal={cartTotal} tableNum={tableNum} lang={lang} />}
-      {view==="cart"    && <CartView cart={cart} setCart={setCart} setView={setView} cartTotal={cartTotal} tableNum={tableNum} />}
-      {view==="payment" && <PaymentView cart={cart} cartTotal={cartTotal} setView={setView} placeOrder={placeOrder} tableNum={tableNum} />}
-      {view==="status"  && <StatusView currentOrder={currentOrder} setView={setView} tableNum={tableNum} />}
+      {view==="cart"    && <CartView cart={cart} setCart={setCart} setView={setView} cartTotal={cartTotal} tableNum={tableNum} lang={lang} />}
+      {view==="payment" && <PaymentView cart={cart} cartTotal={cartTotal} setView={setView} placeOrder={placeOrder} tableNum={tableNum} lang={lang} />}
+      {view==="status"  && <StatusView currentOrder={currentOrder} setView={setView} tableNum={tableNum} lang={lang} />}
       {view==="delivery"&& <DeliveryView menu={menuItems} setView={setView} cart={cart} setCart={setCart} cartTotal={cartTotal} addToCart={addToCart} upsell={upsell} cartCount={cartCount} lang={lang} />}
     </div>
   );
