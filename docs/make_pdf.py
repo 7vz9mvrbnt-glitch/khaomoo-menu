@@ -1,715 +1,778 @@
+#!/usr/bin/env python3
 """
-Generate E-book PDFs directly with fpdf2 (no HTML/weasyprint).
-Produces clean Thai-language PDFs with no text overlap.
+Generate 3 E-book PDFs for QR Menu service packages.
+Uses fpdf2 with Sarabun Thai fonts -- no HTML/weasyprint.
+Fixes: (1) increased line heights for Thai tone marks, (2) accurate tip_box sizing.
 """
+
 from fpdf import FPDF
 from fpdf.enums import RenderStyle
-import os
 
-FONTS = "/tmp/fonts"
-OUT   = os.path.dirname(os.path.abspath(__file__))
-
-# Colors (R,G,B)
+# ---------------------------------------------------------------------------
+# Color palette
+# ---------------------------------------------------------------------------
 SAGE   = (135, 160, 128)
 SAGE_L = (236, 242, 235)
 SAGE_D = (85,  114,  82)
 CREAM  = (248, 245, 239)
 WHITE  = (255, 255, 255)
-DARK   = (42,  42,   42)
-MID    = (94,  94,   94)
+DARK   = (42,   42,  42)
+MID    = (94,   94,  94)
 BORDER = (212, 226, 210)
-CODE_BG= (240, 244, 240)
 
-M = 18          # left/right margin mm
-CW = 174        # content width mm (210 - 2*18)
+FONT_REG  = '/tmp/fonts/Sarabun-Regular.ttf'
+FONT_BOLD = '/tmp/fonts/Sarabun-Bold.ttf'
 
 
 class EbookPDF(FPDF):
+    """fpdf2 subclass with helpers for the QR Menu e-book series."""
+
     def __init__(self):
-        super().__init__(format="A4")
-        self.add_font("SB",  "",  f"{FONTS}/Sarabun-Regular.ttf")
-        self.add_font("SB",  "B", f"{FONTS}/Sarabun-Bold.ttf")
+        super().__init__(orientation='P', unit='mm', format='A4')
+        self.add_font('SB', '',  FONT_REG)
+        self.add_font('SB', 'B', FONT_BOLD)
+        self.set_auto_page_break(auto=True, margin=20)
+        self.set_margins(18, 18, 18)
+
+    # ------------------------------------------------------------------
+    # Cover page
+    # ------------------------------------------------------------------
+    def cover(self, badge, title1, title2, subtitle, line2, price, days):
+        self.add_page()
+        self.set_auto_page_break(False)
+
+        # Full sage green background rect
+        self.set_fill_color(*SAGE)
+        self.rect(0, 0, 210, 260, 'F')
+
+        # White footer
+        self.set_fill_color(*WHITE)
+        self.rect(0, 260, 210, 37, 'F')
+
+        # Badge -- y=30
+        self.set_text_color(*WHITE)
+        self.set_font('SB', '', 11)
+        self.set_xy(0, 30)
+        self.cell(210, 8, badge, align='C')
+
+        # Title1 -- y=55
+        self.set_font('SB', 'B', 36)
+        self.set_xy(0, 55)
+        self.cell(210, 12, title1, align='C')
+
+        # Title2 -- y=78
+        self.set_xy(0, 78)
+        self.cell(210, 12, title2, align='C')
+
+        # Subtitle -- y=105
+        self.set_font('SB', '', 15)
+        self.set_xy(0, 105)
+        self.cell(210, 8, subtitle, align='C')
+
+        # Line2 -- y=118
+        self.set_font('SB', '', 13)
+        self.set_xy(0, 118)
+        self.cell(210, 8, line2, align='C')
+
+        # White pill for price -- x=60, y=150, w=90, h=18, r=9
+        self.set_fill_color(*WHITE)
+        self.set_draw_color(*WHITE)
+        self._draw_rounded_rect(60, 150, 90, 18, RenderStyle.DF, round_corners=True, r=9)
+
+        # Price text centered in pill -- y=155
+        self.set_text_color(*SAGE_D)
+        self.set_font('SB', 'B', 20)
+        self.set_xy(0, 155)
+        self.cell(210, 8, price, align='C')
+
+        # Days -- y=175
+        self.set_text_color(*WHITE)
+        self.set_font('SB', '', 12)
+        self.set_xy(0, 175)
+        self.cell(210, 8, days, align='C')
+
+        # Footer disclaimer -- y=265
+        self.set_text_color(*MID)
+        self.set_font('SB', '', 11)
+        self.set_xy(0, 265)
+        self.cell(210, 8, 'คู่มือนี้จัดทำขึ้นสำหรับลูกค้าเท่านั้น', align='C')
+
+        # Reset for next pages
         self.set_auto_page_break(auto=True, margin=20)
 
-    # ── helpers ──────────────────────────────────────────────────
-
-    def _fg(self, c): self.set_text_color(*c)
-    def _fill(self, c): self.set_fill_color(*c)
-    def _draw(self, c): self.set_draw_color(*c)
-
-    def _line(self, x1, y1, x2, y2, c=BORDER):
-        self._draw(c)
-        self.line(x1, y1, x2, y2)
-
-    def _rect(self, x, y, w, h, c, style="F"):
-        self._fill(c)
-        self._draw(c)
-        self.rect(x, y, w, h, style)
-
-    def body(self, txt, size=13, bold=False, color=DARK, align="L", lh=7.5):
-        self.set_font("SB", "B" if bold else "", size)
-        self._fg(color)
-        self.set_x(M)
-        self.multi_cell(CW, lh, txt, align=align)
-
-    def gap(self, h=4): self.ln(h)
-
-    def h2(self, txt, color=DARK):
-        self.gap(6)
-        self.body(txt, size=17, bold=True, color=color)
-        self.gap(3)
-
-    def feature_item(self, title, desc):
-        # Green dot + bold title
-        y = self.get_y()
-        self._rect(M, y + 2.5, 4, 4, SAGE_D)
-        self.set_font("SB", "B", 13)
-        self._fg(DARK)
-        self.set_x(M + 8)
-        self.multi_cell(CW - 8, 7, title)
-        self.set_font("SB", "", 12)
-        self._fg(MID)
-        self.set_x(M + 8)
-        self.multi_cell(CW - 8, 6.5, desc)
-        self.gap(3)
-
-    def step_item(self, num, title, desc):
-        y = self.get_y()
-        # Circle bg
-        self._rect(M, y, 9, 9, SAGE)
-        self.set_font("SB", "B", 10)
-        self._fg(WHITE)
-        self.set_xy(M, y + 0.5)
-        self.cell(9, 8, str(num), align="C")
-        # Title
-        self.set_font("SB", "B", 13)
-        self._fg(DARK)
-        self.set_xy(M + 12, y)
-        self.multi_cell(CW - 12, 7, title)
-        # Desc
-        self.set_font("SB", "", 12)
-        self._fg(MID)
-        self.set_x(M + 12)
-        self.multi_cell(CW - 12, 6.5, desc)
-        self.gap(4)
-
-    def check_item(self, label, desc):
-        y = self.get_y()
-        # Checkbox outline
-        self._draw(SAGE_D)
-        self._fill(WHITE)
-        self.rect(M, y + 1, 5, 5, "D")
-        self.set_font("SB", "B", 13)
-        self._fg(DARK)
-        self.set_xy(M + 8, y)
-        self.multi_cell(CW - 8, 7, label)
-        self.set_font("SB", "", 12)
-        self._fg(MID)
-        self.set_x(M + 8)
-        self.multi_cell(CW - 8, 6.5, desc)
-        self.gap(3)
-
-    def faq_item(self, q, a):
-        self.gap(4)
-        self.set_font("SB", "B", 13)
-        self._fg(SAGE_D)
-        self.set_x(M)
-        self.multi_cell(CW, 7, "Q: " + q)
-        self.set_font("SB", "", 12)
-        self._fg(DARK)
-        self.set_x(M)
-        self.multi_cell(CW, 6.5, "A: " + a)
-        self._line(M, self.get_y() + 2, M + CW, self.get_y() + 2)
-        self.gap(4)
-
-    def tip_box(self, txt, title=""):
-        self.gap(4)
-        y = self.get_y()
-        # measure height
-        tmp = FPDF()
-        tmp.add_font("SB", "", f"{FONTS}/Sarabun-Regular.ttf")
-        tmp.add_page()
-        tmp.set_font("SB", "", 12)
-        lines = tmp.multi_cell(CW - 12, 6.5, txt, split_only=True)
-        h = len(lines) * 6.5 + (10 if title else 4) + 10
-        # bg
-        self._fill(SAGE_L)
-        self._draw(SAGE)
-        self.rect(M, y, CW, h, "F")
-        # left bar
-        self._rect(M, y, 3, h, SAGE_D)
-        # title
-        yt = y + 5
-        if title:
-            self.set_font("SB", "B", 12)
-            self._fg(SAGE_D)
-            self.set_xy(M + 7, yt)
-            self.multi_cell(CW - 10, 7, title)
-            yt = self.get_y() + 1
-        # text
-        self.set_font("SB", "", 12)
-        self._fg(DARK)
-        self.set_xy(M + 7, yt)
-        self.multi_cell(CW - 10, 6.5, txt)
-        self.set_y(y + h + 2)
-        self.gap(4)
-
-    def code_box(self, txt):
-        self.gap(3)
-        y = self.get_y()
-        tmp = FPDF()
-        tmp.add_font("SB", "", f"{FONTS}/Sarabun-Regular.ttf")
-        tmp.add_page()
-        tmp.set_font("SB", "", 11)
-        lines = tmp.multi_cell(CW - 8, 6, txt, split_only=True)
-        h = len(lines) * 6 + 10
-        self._rect(M, y, CW, h, CODE_BG)
-        self._draw(BORDER)
-        self.rect(M, y, CW, h, "D")
-        self.set_font("SB", "", 11)
-        self._fg(SAGE_D)
-        self.set_xy(M + 4, y + 5)
-        self.multi_cell(CW - 8, 6, txt)
-        self.set_y(y + h + 2)
-        self.gap(3)
-
-    def contact_box(self):
-        self.gap(6)
-        self._line(M, self.get_y(), M + CW, self.get_y())
-        self.gap(4)
-        self.body("ติดต่อเรา", size=14, bold=True, color=SAGE_D)
-        self.body("มีคำถามหรือปัญหา → ทักเราทาง LINE ได้เลย", size=12, color=MID)
-        self.body("ตอบกลับภายใน 24 ชั่วโมงในวันทำการ (จันทร์–เสาร์)", size=12, color=MID)
-
-    # ── page templates ────────────────────────────────────────────
-
-    def cover(self, badge, title1, title2, sub1, sub2, price, days):
-        self.add_page()
-        self.set_auto_page_break(False)
-        # sage bg
-        self._rect(0, 0, 210, 262, SAGE)
-        # white footer
-        self._rect(0, 262, 210, 35, WHITE)
-        # badge
-        self.set_font("SB", "B", 11)
-        self._fg(WHITE)
-        self.set_xy(0, 32)
-        self.cell(210, 8, badge, align="C")
-        # title line 1
-        self.set_font("SB", "B", 38)
-        self.set_xy(0, 55)
-        self.cell(210, 14, title1, align="C")
-        # title line 2
-        self.set_xy(0, 74)
-        self.cell(210, 14, title2, align="C")
-        # sub1
-        self.set_font("SB", "", 15)
-        self.set_xy(0, 102)
-        self.cell(210, 8, sub1, align="C")
-        # sub2
-        self.set_font("SB", "", 13)
-        self.set_xy(0, 114)
-        self.cell(210, 7, sub2, align="C")
-        # price pill
-        pw, ph, pr = 92, 18, 9
-        px = (210 - pw) / 2
-        py = 148
-        self._fill(WHITE)
-        self._draw(WHITE)
-        self._draw_rounded_rect(px, py, pw, ph, RenderStyle.F,
-                                round_corners=True, r=pr)
-        self.set_font("SB", "B", 20)
-        self._fg(SAGE_D)
-        self.set_xy(px, py)
-        self.cell(pw, ph, price, align="C")
-        # days
-        self.set_font("SB", "", 12)
-        self._fg(WHITE)
-        self.set_xy(0, 174)
-        self.cell(210, 7, days, align="C")
-        # footer text
-        self.set_font("SB", "", 11)
-        self._fg(MID)
-        self.set_xy(0, 271)
-        self.cell(210, 7, "คู่มือนี้จัดทำขึ้นสำหรับลูกค้าเท่านั้น", align="C")
-        self.set_auto_page_break(True, margin=20)
-
+    # ------------------------------------------------------------------
+    # TOC page
+    # ------------------------------------------------------------------
     def toc_page(self, chapters):
+        """chapters = list of (num_str, title, subtitle)"""
         self.add_page()
-        self._rect(0, 0, 210, 297, CREAM)
-        self.set_font("SB", "B", 22)
-        self._fg(SAGE_D)
-        self.set_xy(M, 35)
-        self.cell(CW, 10, "สารบัญ")
-        self._line(M, 52, M + CW, 52, SAGE_D)
-        y = 60
-        for i, (title, sub) in enumerate(chapters, 1):
-            # number circle
-            self._rect(M, y, 9, 9, SAGE)
-            self.set_font("SB", "B", 10)
-            self._fg(WHITE)
-            self.set_xy(M, y + 0.5)
-            self.cell(9, 8, str(i), align="C")
-            # title
-            self.set_font("SB", "B", 14)
-            self._fg(DARK)
-            self.set_xy(M + 14, y)
-            self.multi_cell(CW - 14, 7, title)
-            # sub
-            self.set_font("SB", "", 12)
-            self._fg(MID)
-            self.set_x(M + 14)
-            self.multi_cell(CW - 14, 6.5, sub)
-            y = self.get_y() + 5
-            self._line(M, y, M + CW, y)
-            y += 5
+        # CREAM background
+        self.set_fill_color(*CREAM)
+        self.rect(0, 0, 210, 297, 'F')
 
-    def ch_header(self, num, title, subtitle, ch_sub=""):
-        self.add_page()
-        self._rect(0, 0, 210, 78, SAGE)
-        # chapter label
-        self.set_font("SB", "B", 11)
-        self._fg((255, 255, 255))
-        self.set_xy(M, 20)
-        self.cell(CW, 6, f"0{num}  ·  บทที่{'หนึ่ง สอง สาม สี่ ห้า หก'.split()[num-1]}")
-        # main title
-        self.set_font("SB", "B", 28)
-        self._fg(WHITE)
-        self.set_xy(M, 32)
-        self.multi_cell(CW, 12, title)
-        # subtitle
-        self.set_font("SB", "", 14)
-        self._fg((220, 232, 218))
-        self.set_x(M)
-        self.multi_cell(CW, 7, subtitle)
-        # reset for content
-        self.set_y(90)
+        self.set_text_color(*DARK)
+        self.set_font('SB', 'B', 22)
+        self.set_xy(18, 20)
+        self.cell(174, 12, 'สารบัญ', align='L')
 
-    def thanks_page(self, msg, upgrade=""):
+        # Divider
+        self.set_draw_color(*BORDER)
+        self.line(18, 34, 192, 34)
+
+        y = 42
+        for num, title, subtitle in chapters:
+            # Sage circle for number
+            self.set_fill_color(*SAGE)
+            self.ellipse(18, y, 10, 10, 'F')
+
+            self.set_text_color(*WHITE)
+            self.set_font('SB', 'B', 10)
+            self.set_xy(18, y + 1)
+            self.cell(10, 8, num, align='C')
+
+            # Chapter title
+            self.set_text_color(*DARK)
+            self.set_font('SB', 'B', 13)
+            self.set_xy(32, y)
+            self.cell(160, 6, title, align='L')
+
+            # Chapter subtitle
+            self.set_text_color(*MID)
+            self.set_font('SB', '', 11)
+            self.set_xy(32, y + 6)
+            self.cell(160, 6, subtitle, align='L')
+
+            # Light divider
+            self.set_draw_color(*BORDER)
+            self.line(18, y + 15, 192, y + 15)
+
+            y += 20
+
+    # ------------------------------------------------------------------
+    # Chapter header
+    # ------------------------------------------------------------------
+    def ch_header(self, num, title, subtitle):
+        """New page with sage green header band, content starts at y=85."""
         self.add_page()
+
+        # Sage green header band -- 72mm tall
+        self.set_fill_color(*SAGE)
+        self.rect(0, 0, 210, 72, 'F')
+
+        # Chapter number
+        self.set_text_color(*WHITE)
+        self.set_font('SB', '', 11)
+        self.set_xy(18, 14)
+        self.cell(174, 8, num, align='L')
+
+        # Title
+        self.set_font('SB', 'B', 26)
+        self.set_xy(18, 26)
+        self.cell(174, 12, title, align='L')
+
+        # Subtitle (9mm line height for Thai tone marks)
+        self.set_font('SB', '', 13)
+        self.set_xy(18, 50)
         self.set_auto_page_break(False)
-        self._rect(0, 0, 210, 297, SAGE)
-        self.set_font("SB", "B", 28)
-        self._fg(WHITE)
-        self.set_xy(0, 100)
-        self.cell(210, 12, "ขอบคุณที่ไว้วางใจ", align="C")
-        self.set_font("SB", "", 15)
-        self.set_xy(M, 124)
-        self.multi_cell(CW, 8, msg, align="C")
-        if upgrade:
-            self.gap(8)
-            self.set_font("SB", "B", 13)
-            self._fg((220, 232, 218))
-            self.set_x(M)
-            self.multi_cell(CW, 7, upgrade, align="C")
+        self.multi_cell(174, 9, subtitle, align='L')
         self.set_auto_page_break(True, margin=20)
 
+        # Move to content area
+        self.set_xy(18, 85)
+        self.set_text_color(*DARK)
 
-# ══════════════════════════════════════════════════════════════════
-# Book 1 — Basic
-# ══════════════════════════════════════════════════════════════════
+    # ------------------------------------------------------------------
+    # Section heading
+    # ------------------------------------------------------------------
+    def section_heading(self, text):
+        self.ln(3)
+        self.set_text_color(*SAGE_D)
+        self.set_font('SB', 'B', 14)
+        self.set_x(18)
+        self.cell(174, 8, text, align='L', new_x='LMARGIN', new_y='NEXT')
+        # Small underline
+        y = self.get_y()
+        self.set_draw_color(*SAGE)
+        self.line(18, y, 192, y)
+        self.ln(3)
+        self.set_text_color(*DARK)
 
+    # ------------------------------------------------------------------
+    # Body text  (8.5mm line height prevents Thai tone mark overlap)
+    # ------------------------------------------------------------------
+    def body(self, text):
+        self.set_text_color(*DARK)
+        self.set_font('SB', '', 12)
+        self.set_x(18)
+        self.multi_cell(174, 8.5, text, align='L')
+        self.ln(2)
+
+    # ------------------------------------------------------------------
+    # Feature bullet item
+    # ------------------------------------------------------------------
+    def feature(self, title, desc):
+        y = self.get_y()
+        # Bullet dot
+        self.set_fill_color(*SAGE)
+        self.ellipse(18, y + 3, 4, 4, 'F')
+
+        # Title (8.5mm line height)
+        self.set_text_color(*DARK)
+        self.set_font('SB', 'B', 12)
+        self.set_xy(25, y)
+        self.multi_cell(167, 8.5, title, align='L')
+
+        # Description (7.5mm line height)
+        if desc:
+            self.set_text_color(*MID)
+            self.set_font('SB', '', 11)
+            self.set_x(25)
+            self.multi_cell(167, 7.5, desc, align='L')
+
+        self.ln(2)
+
+    # ------------------------------------------------------------------
+    # Numbered step
+    # ------------------------------------------------------------------
+    def step(self, num, title, desc):
+        y = self.get_y()
+
+        # Circle with number
+        self.set_fill_color(*SAGE_D)
+        self.ellipse(18, y, 8, 8, 'F')
+        self.set_text_color(*WHITE)
+        self.set_font('SB', 'B', 9)
+        self.set_xy(18, y + 0.5)
+        self.cell(8, 7, str(num), align='C')
+
+        # Title (8.5mm line height)
+        self.set_text_color(*DARK)
+        self.set_font('SB', 'B', 12)
+        self.set_xy(29, y)
+        self.multi_cell(163, 8.5, title, align='L')
+
+        # Description (7.5mm line height)
+        if desc:
+            self.set_text_color(*MID)
+            self.set_font('SB', '', 11)
+            self.set_x(29)
+            self.multi_cell(163, 7.5, desc, align='L')
+
+        self.ln(2)
+
+    # ------------------------------------------------------------------
+    # Checklist item
+    # ------------------------------------------------------------------
+    def checklist_item(self, label, desc):
+        y = self.get_y()
+
+        # Checkbox square
+        self.set_draw_color(*SAGE)
+        self.set_fill_color(*SAGE_L)
+        self.rect(18, y + 1, 6, 6, 'FD')
+
+        # Checkmark inside
+        self.set_text_color(*SAGE_D)
+        self.set_font('SB', 'B', 9)
+        self.set_xy(18, y)
+        self.cell(6, 8, 'v', align='C')
+
+        # Label (8.5mm line height)
+        self.set_text_color(*DARK)
+        self.set_font('SB', 'B', 12)
+        self.set_xy(27, y)
+        self.multi_cell(165, 8.5, label, align='L')
+
+        # Description (7.5mm line height)
+        if desc:
+            self.set_text_color(*MID)
+            self.set_font('SB', '', 11)
+            self.set_x(27)
+            self.multi_cell(165, 7.5, desc, align='L')
+
+        self.ln(2)
+
+    # ------------------------------------------------------------------
+    # FAQ item
+    # ------------------------------------------------------------------
+    def faq(self, q, a):
+        # Question
+        self.set_text_color(*SAGE_D)
+        self.set_font('SB', 'B', 12)
+        self.set_x(18)
+        self.multi_cell(174, 8.5, 'Q: ' + q, align='L')
+
+        # Answer
+        self.set_text_color(*DARK)
+        self.set_font('SB', '', 12)
+        self.set_x(18)
+        self.multi_cell(174, 8.5, 'A: ' + a, align='L')
+        self.ln(3)
+
+    # ------------------------------------------------------------------
+    # Tip box (SAGE_L background) — dry_run for accurate height
+    # ------------------------------------------------------------------
+    def tip_box(self, text):
+        LH = 8.0       # line height for tip text (11pt)
+        inner_w = 160  # text width inside left bar
+        PAD = 5        # mm padding top and bottom
+
+        self.set_font('SB', '', 11)
+
+        # Measure exact line count without rendering
+        try:
+            lines = self.multi_cell(inner_w, LH, text, dry_run=True, output='LINES')
+            n_lines = len(lines) if isinstance(lines, list) else text.count('\n') + 2
+        except Exception:
+            n_lines = max(2, text.count('\n') + 1 + len(text) // 60)
+
+        box_h = n_lines * LH + PAD * 2
+
+        y = self.get_y()
+        if y + box_h > 270:
+            self.add_page()
+            y = self.get_y()
+
+        # Draw rounded rect background
+        self.set_fill_color(*SAGE_L)
+        self.set_draw_color(*BORDER)
+        self._draw_rounded_rect(18, y, 174, box_h, RenderStyle.DF, round_corners=True, r=4)
+
+        # Left accent bar
+        self.set_fill_color(*SAGE)
+        self.rect(18, y, 4, box_h, 'F')
+
+        # Write text — disable auto page break to keep within drawn box
+        self.set_auto_page_break(False)
+        self.set_text_color(*DARK)
+        self.set_font('SB', '', 11)
+        self.set_xy(26, y + PAD)
+        self.multi_cell(inner_w, LH, text, align='L')
+        self.set_auto_page_break(True, margin=20)
+
+        # Advance past box
+        self.set_xy(18, y + box_h + 4)
+
+    # ------------------------------------------------------------------
+    # Code box (CREAM background)
+    # ------------------------------------------------------------------
+    def code_box(self, text):
+        LH = 6.5
+        inner_w = 160
+        lines_count = text.count('\n') + 1
+        box_h = lines_count * LH + 10
+
+        y = self.get_y()
+        if y + box_h > 270:
+            self.add_page()
+            y = self.get_y()
+
+        # Draw rounded rect
+        self.set_fill_color(*CREAM)
+        self.set_draw_color(*BORDER)
+        self._draw_rounded_rect(18, y, 174, box_h, RenderStyle.DF, round_corners=True, r=4)
+
+        # Left accent bar (dark)
+        self.set_fill_color(*SAGE_D)
+        self.rect(18, y, 4, box_h, 'F')
+
+        # Write text — disable auto page break to keep within drawn box
+        self.set_auto_page_break(False)
+        self.set_text_color(*DARK)
+        self.set_font('SB', '', 10)
+        self.set_xy(26, y + 5)
+        self.multi_cell(inner_w, LH, text, align='L')
+        self.set_auto_page_break(True, margin=20)
+
+        # Advance past box
+        self.set_xy(18, y + box_h + 4)
+        self.ln(1)
+
+    # ------------------------------------------------------------------
+    # Thank-you page
+    # ------------------------------------------------------------------
+    def thanks_page(self, line1, line2, line3, upgrade=None):
+        self.add_page()
+        self.set_auto_page_break(False)
+
+        # Full sage background
+        self.set_fill_color(*SAGE)
+        self.rect(0, 0, 210, 297, 'F')
+
+        # Star symbol
+        self.set_text_color(*WHITE)
+        self.set_font('SB', 'B', 48)
+        self.set_xy(0, 80)
+        self.cell(210, 20, '*', align='C')
+
+        # line1
+        self.set_font('SB', 'B', 24)
+        self.set_xy(0, 112)
+        self.cell(210, 12, line1, align='C')
+
+        # line2
+        self.set_font('SB', '', 15)
+        self.set_xy(0, 130)
+        self.cell(210, 9, line2, align='C')
+
+        # line3
+        self.set_xy(0, 143)
+        self.cell(210, 9, line3, align='C')
+
+        # Upgrade box if provided
+        if upgrade:
+            self.set_fill_color(*WHITE)
+            self.set_draw_color(*WHITE)
+            self._draw_rounded_rect(25, 168, 160, 32, RenderStyle.DF, round_corners=True, r=6)
+            self.set_text_color(*SAGE_D)
+            self.set_font('SB', '', 11)
+            self.set_xy(28, 172)
+            self.multi_cell(154, 8, upgrade, align='C')
+
+        # Footer
+        self.set_text_color(*WHITE)
+        self.set_font('SB', '', 10)
+        self.set_xy(0, 270)
+        self.cell(210, 8, 'khaomoo-menu.com  |  LINE: @khaomoo', align='C')
+
+        self.set_auto_page_break(auto=True, margin=20)
+
+
+# ===========================================================================
+# Book 1 -- Basic
+# ===========================================================================
 def build_basic():
-    p = EbookPDF()
+    pdf = EbookPDF()
 
-    p.cover(
-        "E-Book  ·  แพ็ก 1  ·  Basic",
-        "คู่มือการใช้งาน",
-        "เมนู QR Code",
-        "เมนูออนไลน์สำหรับร้านอาหาร",
-        "สวยงาม  ·  พิมพ์ได้  ·  ใช้ง่าย",
-        "990 บาท",
-        "ได้งานภายใน 2 วัน  ·  แก้ไขฟรี 1 ครั้ง",
+    pdf.cover(
+        badge='E-Book · แพ็ก 1 · Basic',
+        title1='คู่มือการใช้งาน',
+        title2='เมนู QR Code',
+        subtitle='เมนูออนไลน์สำหรับร้านอาหาร',
+        line2='สวยงาม · พิมพ์ได้ · ใช้ง่าย',
+        price='990 บาท',
+        days='ได้งานภายใน 2 วัน · แก้ไขฟรี 1 ครั้ง',
     )
 
-    p.toc_page([
-        ("ยินดีต้อนรับ! คุณได้อะไรบ้าง?",     "ภาพรวมสิ่งที่ได้รับในแพ็กนี้"),
-        ("ข้อมูลที่ต้องเตรียมส่งให้เรา",        "Checklist ครบชุด ก่อนเริ่มงาน"),
-        ("วิธีใช้ QR Code ที่ร้าน",             "ติดโต๊ะ  →  ลูกค้าสแกน  →  ดูเมนู"),
-        ("คำถามที่พบบ่อย",                      "ปัญหาที่มักเจอ และวิธีแก้ไข"),
+    pdf.toc_page([
+        ('1', 'ยินดีต้อนรับ! คุณได้อะไรบ้าง?', 'ภาพรวมสิ่งที่ได้รับในแพ็กนี้'),
+        ('2', 'ข้อมูลที่ต้องเตรียมส่งให้เรา', 'Checklist ครบชุด ก่อนเริ่มงาน'),
+        ('3', 'วิธีใช้ QR Code ที่ร้าน', 'ติดโต๊ะ -> ลูกค้าสแกน -> ดูเมนู'),
+        ('4', 'คำถามที่พบบ่อย', 'ปัญหาที่มักเจอ และวิธีแก้ไข'),
     ])
 
-    # Ch 1
-    p.ch_header(1, "ยินดีต้อนรับ!\nคุณได้อะไรบ้าง?",
-                "ทำความเข้าใจสิ่งที่คุณได้รับในแพ็ก Basic")
-    p.body("ขอบคุณที่เลือกใช้บริการครับ ในแพ็กนี้คุณจะได้รับเมนูอาหารออนไลน์พร้อมใช้งาน ที่ลูกค้าสแกน QR Code แล้วดูเมนูได้ทันทีบนมือถือ โดยไม่ต้องดาวน์โหลดแอปใด ๆ")
-    p.gap()
-    p.h2("สิ่งที่คุณได้รับในแพ็กนี้")
-    p.feature_item("เมนูออนไลน์สูงสุด 20 รายการ พร้อมรูปภาพ",
-                   "แสดงรูปอาหาร ชื่อ ราคา และคำอธิบาย ดูสวยงามบนมือถือทุกรุ่น")
-    p.feature_item("แยกหมวดหมู่ กรองเมนูได้",
-                   "ลูกค้ากดเลือกหมวดได้ทันที เช่น ของทานเล่น เครื่องดื่ม หาเมนูเจอเร็วขึ้น")
-    p.feature_item("QR Code ความละเอียดสูง พิมพ์ได้ทุกขนาด",
-                   "ไฟล์ PNG ขนาดใหญ่ พิมพ์บนกระดาษ สติกเกอร์ อคริลิค หรือกรอบได้เลย")
-    p.feature_item("ลิงก์เมนูออนไลน์",
-                   "ส่งลิงก์ผ่าน LINE / Facebook ให้ลูกค้าเปิดดูได้โดยไม่ต้องสแกน QR")
-    p.feature_item("แก้ไขฟรี 1 ครั้ง (ภายใน 30 วัน)",
-                   "ขอแก้ชื่อเมนู ราคา หรือรูปภาพได้ 1 รอบ หลังจากนั้นคิดเพิ่มตามงาน")
-    p.tip_box("เมนูสวยงาม ดูมืออาชีพ ลูกค้าดูรูปก่อนสั่ง ตัดสินใจเร็วขึ้น ยอดขายดีขึ้น", "ทำไมต้องเมนู QR Code?")
-    p.tip_box("เมนูกระดาษพอราคาเปลี่ยน → ต้องพิมพ์ใหม่ทั้งเล่ม\nแต่เมนู QR Code → ส่งข้อมูลให้เราแก้ ราคาใหม่ขึ้นทันที ไม่ต้องพิมพ์ซ้ำ ประหยัดค่าพิมพ์ระยะยาว", "เปรียบเทียบกับเมนูกระดาษ")
+    # Chapter 1
+    pdf.ch_header('01 · บทที่หนึ่ง', 'ยินดีต้อนรับ!', 'คุณได้อะไรบ้าง?')
+    pdf.body('ขอบคุณที่เลือกใช้บริการครับ ในแพ็กนี้คุณจะได้รับ เมนูอาหารออนไลน์พร้อมใช้งาน ที่ลูกค้าสแกน QR Code แล้วดูเมนูได้ทันทีบนมือถือ โดยไม่ต้องดาวน์โหลดแอปใด ๆ')
+    pdf.section_heading('สิ่งที่คุณได้รับในแพ็กนี้')
+    pdf.feature('เมนูออนไลน์สูงสุด 20 รายการ พร้อมรูปภาพ', 'แสดงรูปอาหาร ชื่อ ราคา และคำอธิบาย ดูสวยงามบนมือถือทุกรุ่น')
+    pdf.feature('แยกหมวดหมู่ กรองเมนูได้', 'ลูกค้ากดเลือกหมวดได้ทันที เช่น ของทานเล่น เครื่องดื่ม หาเมนูเจอเร็วขึ้น')
+    pdf.feature('QR Code ความละเอียดสูง พิมพ์ได้ทุกขนาด', 'ไฟล์ PNG ขนาดใหญ่ พิมพ์บนกระดาษ สติกเกอร์ อคริลิค หรือกรอบได้เลย')
+    pdf.feature('ลิงก์เมนูออนไลน์', 'ส่งลิงก์ผ่าน LINE / Facebook ให้ลูกค้าเปิดดูได้โดยไม่ต้องสแกน QR')
+    pdf.feature('แก้ไขฟรี 1 ครั้ง (ภายใน 30 วัน)', 'ขอแก้ชื่อเมนู ราคา หรือรูปภาพได้ 1 รอบ หลังจากนั้นคิดเพิ่มตามงาน')
+    pdf.ln(2)
+    pdf.tip_box('เมนูสวยงาม ดูมืออาชีพ ลูกค้าดูรูปก่อนสั่ง ตัดสินใจเร็วขึ้น ยอดขายดีขึ้น')
+    pdf.tip_box('เปรียบเทียบ: เมนูกระดาษพอราคาเปลี่ยน ต้องพิมพ์ใหม่ทั้งเล่ม แต่เมนู QR Code ส่งข้อมูลให้เราแก้ ราคาใหม่ขึ้นทันที ไม่ต้องพิมพ์ซ้ำ ประหยัดค่าพิมพ์ระยะยาว')
 
-    # Ch 2
-    p.ch_header(2, "ข้อมูลที่ต้องเตรียม\nส่งให้เรา",
-                "รวบรวมสิ่งเหล่านี้ก่อน แล้วส่งให้เราทาง LINE")
-    p.body("ก่อนเราเริ่มทำงาน คุณต้องส่งข้อมูลเหล่านี้มาให้ก่อนนะครับ ยิ่งข้อมูลครบ งานยิ่งเสร็จเร็ว")
-    p.gap()
-    p.h2("Checklist ข้อมูลที่ต้องส่ง")
-    p.check_item("ชื่อร้าน", "ชื่อที่ต้องการแสดงในเมนู เช่น ร้านข้าวขาหมูต้นตำรับ")
-    p.check_item("รายการเมนูทั้งหมด (สูงสุด 20 รายการ)", "ชื่อเมนู + ราคา + หมวดหมู่ ส่งเป็น Excel, Note, หรือถ่ายรูปเมนูเดิมมาได้เลย")
-    p.check_item("รูปอาหาร (ถ้ามี)", "รูปละเอียด สว่าง พื้นหลังสะอาด ส่งเป็น JPG/PNG ถ่ายจากมือถือได้เลย")
-    p.check_item("โลโก้ร้าน (ถ้ามี)", "ไฟล์ PNG หรือ JPG โลโก้หน้าร้าน หรือตราสินค้า")
-    p.check_item("สีหลักของร้าน", "สีที่ต้องการใช้ เช่น แดงเลือดหมู น้ำตาลโกโก้ หรือ code สี #XXXXXX ก็ได้")
-    p.tip_box("ถ่ายในที่แสงสว่าง ไม่ต้องมีกล้องแพง — มือถือก็ได้ผลดีมาก\nใส่ในจาน/ชาม ให้เห็นหน้าอาหาร อย่าถ่ายจากมุมต่ำเกินไป\nพื้นหลังสีเรียบหรือโต๊ะไม้ดูดีมาก", "เคล็ดลับถ่ายรูปอาหาร")
-    p.tip_box("ถ้ายังไม่มีรูปอาหาร — ส่งข้อมูลอื่นมาก่อนได้เลยครับ เราจะใส่รูป placeholder ไว้ก่อน แล้วค่อยส่งรูปจริงมาทีหลัง (นับเป็น 1 ครั้งของสิทธิ์แก้ไขฟรี)", "ยังไม่มีรูปก็ส่งได้")
+    # Chapter 2
+    pdf.ch_header('02 · บทที่สอง', 'ข้อมูลที่ต้องเตรียม ส่งให้เรา', 'รวบรวมสิ่งเหล่านี้ก่อน แล้วส่งให้เราทาง LINE')
+    pdf.body('ก่อนเราเริ่มทำงาน คุณต้องส่งข้อมูลเหล่านี้มาให้ก่อนนะครับ ยิ่งข้อมูลครบ งานยิ่งเสร็จเร็ว')
+    pdf.section_heading('Checklist ข้อมูลที่ต้องส่ง')
+    pdf.checklist_item('ชื่อร้าน', 'ชื่อที่ต้องการแสดงในเมนู เช่น ร้านข้าวขาหมูต้นตำรับ')
+    pdf.checklist_item('รายการเมนูทั้งหมด (สูงสุด 20 รายการ)', 'ชื่อเมนู + ราคา + หมวดหมู่ ส่งเป็น Excel, Note, หรือถ่ายรูปเมนูเดิมมาได้เลย')
+    pdf.checklist_item('รูปอาหาร (ถ้ามี)', 'รูปละเอียด สว่าง พื้นหลังสะอาด ส่งเป็น JPG/PNG ถ่ายจากมือถือได้เลย')
+    pdf.checklist_item('โลโก้ร้าน (ถ้ามี)', 'ไฟล์ PNG หรือ JPG โลโก้หน้าร้าน หรือตราสินค้า')
+    pdf.checklist_item('สีหลักของร้าน', 'เช่น แดงเลือดหมู น้ำตาลโกโก้ หรือ code สี #XXXXXX ก็ได้')
+    pdf.ln(2)
+    pdf.tip_box('เคล็ดลับถ่ายรูปอาหาร: ถ่ายในที่แสงสว่าง ไม่ต้องมีกล้องแพง ใส่ในจาน/ชาม ให้เห็นหน้าอาหาร พื้นหลังสีเรียบหรือโต๊ะไม้ดูดีมาก')
+    pdf.tip_box('ยังไม่มีรูปก็ส่งได้: ส่งข้อมูลอื่นมาก่อนได้เลยครับ เราจะใส่รูป placeholder ไว้ก่อน แล้วค่อยส่งรูปจริงมาทีหลัง (นับเป็น 1 ครั้งของสิทธิ์แก้ไขฟรี)')
 
-    # Ch 3
-    p.ch_header(3, "วิธีใช้ QR Code\nที่ร้าน",
-                "ตั้งแต่พิมพ์ QR Code ไปจนถึงลูกค้าสแกนดูเมนู")
-    p.h2("ขั้นตอนฝั่งร้าน — ติดตั้ง QR Code")
-    p.step_item(1, "รับไฟล์ QR Code จากเราทาง LINE", "เราส่งไฟล์ PNG ให้ทาง LINE พร้อมลิงก์เมนูด้วย")
-    p.step_item(2, "พิมพ์ QR Code ออกมา", "พิมพ์บนกระดาษธรรมดา สติกเกอร์ หรืออคริลิคก็ได้ ขนาดแนะนำ 8x8 ซม. ขึ้นไป")
-    p.step_item(3, "ติดที่โต๊ะหรือเคาน์เตอร์", "วางให้ลูกค้าเห็นชัดเจน ไม่อยู่ในที่มืด ใส่กรอบอคริลิคดูดีและทนทาน")
-    p.tip_box("แนะนำติดทุกโต๊ะ: ถ้ามีหลายโต๊ะ พิมพ์หลายแผ่นได้เลย ใช้ QR Code ไฟล์เดิมทั้งหมด ลิงก์เดียวกัน")
-    p.h2("ขั้นตอนฝั่งลูกค้า — สแกนดูเมนู")
-    p.step_item(1, "เปิดกล้องมือถือปกติ (ไม่ต้องโหลดแอปพิเศษ)", "ทั้ง iPhone และ Android ใช้กล้องธรรมดาได้เลย")
-    p.step_item(2, "ชี้กล้องไปที่ QR Code บนโต๊ะ", "กล้องจะจับ QR Code อัตโนมัติ ไม่ต้องกดอะไร")
-    p.step_item(3, "กดลิงก์ที่ขึ้นมาบนหน้าจอ", "กด Open / เปิดลิงก์ → เมนูเปิดในเบราว์เซอร์ทันที")
-    p.step_item(4, "ดูเมนู เลือกรายการ แจ้งพนักงาน", "ดูรูปอาหาร ราคา อ่านคำอธิบาย แล้วแจ้งพนักงานสั่ง")
-    p.tip_box("ถ้าลูกค้าสแกนแล้วไม่ขึ้น:\n- ลองกดค้างที่ QR Code → เปิดลิงก์\n- หรือใช้แอป LINE สแกนก็ได้\n- ตรวจสอบว่า QR Code ไม่เปื้อน ไม่ย่น และอยู่ในที่แสงสว่างพอ", "แก้ปัญหา")
+    # Chapter 3
+    pdf.ch_header('03 · บทที่สาม', 'วิธีใช้ QR Code ที่ร้าน', 'ตั้งแต่พิมพ์ QR Code ไปจนถึงลูกค้าสแกนดูเมนู')
+    pdf.section_heading('ขั้นตอนฝั่งร้าน -- ติดตั้ง QR Code')
+    pdf.step(1, 'รับไฟล์ QR Code จากเราทาง LINE', 'เราส่งไฟล์ PNG ให้ทาง LINE พร้อมลิงก์เมนูด้วย')
+    pdf.step(2, 'พิมพ์ QR Code ออกมา', 'พิมพ์บนกระดาษธรรมดา สติกเกอร์ หรืออคริลิคก็ได้ ขนาดแนะนำ 8x8 ซม. ขึ้นไป')
+    pdf.step(3, 'ติดที่โต๊ะหรือเคาน์เตอร์', 'วางให้ลูกค้าเห็นชัดเจน ไม่อยู่ในที่มืด ใส่กรอบอคริลิคดูดีและทนทาน')
+    pdf.ln(2)
+    pdf.tip_box('แนะนำติดทุกโต๊ะ: ถ้ามีหลายโต๊ะ พิมพ์หลายแผ่นได้เลย ใช้ QR Code ไฟล์เดิมทั้งหมด ลิงก์เดียวกัน')
+    pdf.section_heading('ขั้นตอนฝั่งลูกค้า -- สแกนดูเมนู')
+    pdf.step(1, 'เปิดกล้องมือถือปกติ (ไม่ต้องโหลดแอปพิเศษ)', 'ทั้ง iPhone และ Android ใช้กล้องธรรมดาได้เลย')
+    pdf.step(2, 'ชี้กล้องไปที่ QR Code บนโต๊ะ', 'กล้องจะจับ QR Code อัตโนมัติ ไม่ต้องกดอะไร')
+    pdf.step(3, 'กดลิงก์ที่ขึ้นมาบนหน้าจอ', 'กด Open / เปิดลิงก์ เมนูเปิดในเบราว์เซอร์ทันที')
+    pdf.step(4, 'ดูเมนู เลือกรายการ แจ้งพนักงาน', 'ดูรูปอาหาร ราคา อ่านคำอธิบาย แล้วแจ้งพนักงานสั่ง')
+    pdf.ln(2)
+    pdf.tip_box('ถ้าลูกค้าสแกนแล้วไม่ขึ้น: ลองกดค้างที่ QR Code เปิดลิงก์ หรือใช้แอป LINE สแกนก็ได้ ตรวจสอบว่า QR Code ไม่เปื้อน ไม่ย่น และอยู่ในที่แสงสว่างพอ')
 
-    # Ch 4
-    p.ch_header(4, "คำถามที่พบบ่อย",
-                "ปัญหาที่มักเจอ และวิธีแก้ไขเบื้องต้น")
-    p.faq_item("ลูกค้าสแกน QR แล้วไม่เปิด?",
-               "ใช้กล้องมือถือปกติ (ไม่ต้องโหลดแอปพิเศษ) ถ้ายังไม่ขึ้น → ลองกดค้างที่ QR แล้วเลือก เปิดลิงก์ หรือใช้กล้องใน LINE สแกนแทนได้")
-    p.faq_item("อยากแก้ราคาเมนู ทำได้ไหม?",
-               "ได้ครับ ส่งรายการที่ต้องการแก้ให้เราทาง LINE เราจะอัปเดตให้ภายใน 1 วันทำการ (นับเป็น 1 ครั้งของสิทธิ์แก้ไขฟรี) ถ้าต้องการแก้ราคาเองได้ตลอดเวลา แนะนำอัปเกรดเป็นแพ็ก Standard")
-    p.faq_item("อยากเพิ่มเมนูใหม่ ทำอย่างไร?",
-               "ส่งชื่อเมนู ราคา และรูปภาพมาให้เรา เราจะเพิ่มให้ (ถ้ายังมีสิทธิ์แก้ไขฟรีอยู่ จะใช้สิทธิ์นั้น ถ้าหมดแล้วคิดตามงาน)")
-    p.faq_item("เมนูขาดรูปภาพได้ไหม?",
-               "ได้ครับ ระบบจะแสดงรูป placeholder แทน แต่แนะนำให้ใส่รูปจริง เพราะลูกค้าเห็นรูปแล้วตัดสินใจสั่งได้ง่ายขึ้นมาก")
-    p.faq_item("ใช้สิทธิ์แก้ไขฟรีหมดแล้ว ครั้งต่อไปเสียเท่าไร?",
-               "แก้ข้อความ / ราคา → 150 บาท/ครั้ง  ·  เพิ่มเมนูพร้อมรูป → 200 บาท/รายการ\nทักมาได้เลย เราจะ quote ราคาให้ก่อนเสมอ")
-    p.faq_item("ต้องการลิงก์เป็นชื่อร้านเอง เช่น menu.ชื่อร้าน.com ทำได้ไหม?",
-               "ได้ครับ ต้องซื้อ domain ก่อน (ประมาณ 500–800 บาท/ปี) แจ้งเราแล้วจะตั้งค่าให้ มีค่าบริการเพิ่มเติม ทักมาสอบถามราคาได้เลย")
-    p.contact_box()
+    # Chapter 4
+    pdf.ch_header('04 · บทที่สี่', 'คำถามที่พบบ่อย', 'ปัญหาที่มักเจอ และวิธีแก้ไขเบื้องต้น')
+    pdf.faq('ลูกค้าสแกน QR แล้วไม่เปิด?',
+            'ใช้กล้องมือถือปกติ (ไม่ต้องโหลดแอปพิเศษ) ถ้ายังไม่ขึ้น ลองกดค้างที่ QR แล้วเลือก เปิดลิงก์ หรือใช้กล้องใน LINE สแกนแทนได้')
+    pdf.faq('อยากแก้ราคาเมนู ทำได้ไหม?',
+            'ได้ครับ ส่งรายการที่ต้องการแก้ให้เราทาง LINE เราจะอัปเดตให้ภายใน 1 วันทำการ (นับเป็น 1 ครั้งของสิทธิ์แก้ไขฟรี) ถ้าต้องการแก้ราคาเองได้ตลอดเวลา แนะนำอัปเกรดเป็นแพ็ก Standard')
+    pdf.faq('อยากเพิ่มเมนูใหม่ ทำอย่างไร?',
+            'ส่งชื่อเมนู ราคา และรูปภาพมาให้เรา เราจะเพิ่มให้ (ถ้ายังมีสิทธิ์แก้ไขฟรีอยู่ จะใช้สิทธิ์นั้น ถ้าหมดแล้วคิดตามงาน)')
+    pdf.faq('ใช้สิทธิ์แก้ไขฟรีหมดแล้ว ครั้งต่อไปเสียเท่าไร?',
+            'แก้ข้อความ / ราคา 150 บาท/ครั้ง · เพิ่มเมนูพร้อมรูป 200 บาท/รายการ ทักมาได้เลย เราจะ quote ราคาให้ก่อนเสมอ')
+    pdf.faq('ต้องการลิงก์เป็นชื่อร้านเอง ทำได้ไหม?',
+            'ได้ครับ ต้องซื้อ domain ก่อน (ประมาณ 500-800 บาท/ปี) แจ้งเราแล้วจะตั้งค่าให้ มีค่าบริการเพิ่มเติม ทักมาสอบถามราคาได้เลย')
+    pdf.body('ติดต่อเรา: มีคำถามหรือปัญหาที่ไม่พบใน FAQ ทักเราทาง LINE ได้เลย ตอบกลับภายใน 24 ชั่วโมงในวันทำการ (จันทร์-เสาร์)')
 
-    p.thanks_page(
-        "หวังว่าระบบเมนู QR Code จะช่วยให้ร้านของคุณ\nดูมืออาชีพและให้บริการลูกค้าได้ดียิ่งขึ้นครับ",
-        "ต้องการอัปเกรดเป็นแพ็ก Standard หรือ Premium?\nทักเราได้เลย มีส่วนลดพิเศษสำหรับลูกค้าเดิม"
+    pdf.thanks_page(
+        line1='ขอบคุณที่ไว้วางใจ',
+        line2='หวังว่าระบบเมนู QR Code จะช่วยให้ร้านของคุณ',
+        line3='ดูมืออาชีพและให้บริการลูกค้าได้ดียิ่งขึ้นครับ',
+        upgrade='ต้องการอัปเกรดเป็นแพ็ก Standard หรือ Premium? ทักเราได้เลย มีส่วนลดพิเศษสำหรับลูกค้าเดิม',
     )
 
-    out = f"{OUT}/ebook-basic.pdf"
-    p.output(out)
-    print(f"  Basic:    {os.path.getsize(out)//1024} KB  ({out})")
+    pdf.output('/home/user/khaomoo-menu/docs/ebook-basic.pdf')
+    print('  [OK] ebook-basic.pdf')
 
 
-# ══════════════════════════════════════════════════════════════════
-# Book 2 — Standard
-# ══════════════════════════════════════════════════════════════════
-
+# ===========================================================================
+# Book 2 -- Standard
+# ===========================================================================
 def build_standard():
-    p = EbookPDF()
+    pdf = EbookPDF()
 
-    p.cover(
-        "E-Book  ·  แพ็ก 2  ·  Standard  -  แนะนำ",
-        "คู่มือการใช้งาน",
-        "เมนู QR Code",
-        "2 ภาษา ไทย / อังกฤษ",
-        "แก้ราคา  ·  เพิ่มเมนู  ·  ซ่อนเมนูได้เอง",
-        "2,500 บาท",
-        "ได้งานภายใน 4 วัน  ·  แก้ไขฟรี 3 ครั้ง",
+    pdf.cover(
+        badge='E-Book · แพ็ก 2 · Standard - แนะนำ',
+        title1='คู่มือการใช้งาน',
+        title2='เมนู QR Code',
+        subtitle='2 ภาษา ไทย / อังกฤษ',
+        line2='แก้ราคา · เพิ่มเมนู · ซ่อนเมนูได้เอง',
+        price='2,500 บาท',
+        days='ได้งานภายใน 4 วัน · แก้ไขฟรี 3 ครั้ง',
     )
 
-    p.toc_page([
-        ("ยินดีต้อนรับ! คุณได้อะไรบ้าง?",         "ภาพรวมฟีเจอร์ทั้งหมดในแพ็ก Standard"),
-        ("ข้อมูลที่ต้องเตรียมส่งให้เรา",            "Checklist ก่อนเริ่มงาน"),
-        ("วิธีสลับภาษา ไทย / อังกฤษ",              "ปุ่ม ไทย | EN อยู่ที่ไหน และทำงานอย่างไร"),
-        ("วิธีแก้ราคาและเพิ่มเมนูด้วยตัวเอง",       "เข้า Supabase  ·  แก้ราคา  ·  เพิ่มเมนูใหม่ ทีละขั้น"),
-        ("วิธีซ่อน / แสดงเมนูชั่วคราว + FAQ",       "เมนูหมด ปิดชั่วคราวโดยไม่ต้องลบ"),
+    pdf.toc_page([
+        ('1', 'ยินดีต้อนรับ! คุณได้อะไรบ้าง?', 'ภาพรวมฟีเจอร์ทั้งหมดในแพ็ก Standard'),
+        ('2', 'ข้อมูลที่ต้องเตรียมส่งให้เรา', 'Checklist ก่อนเริ่มงาน'),
+        ('3', 'วิธีสลับภาษา ไทย / อังกฤษ', 'ปุ่ม ไทย/EN อยู่ที่ไหน และทำงานอย่างไร'),
+        ('4', 'วิธีแก้ราคาและเพิ่มเมนูด้วยตัวเอง', 'เข้า Supabase แก้ราคา เพิ่มเมนูใหม่ ทีละขั้น'),
+        ('5', 'วิธีซ่อน / แสดงเมนูชั่วคราว + FAQ', 'เมนูหมด ปิดชั่วคราวโดยไม่ต้องลบ'),
     ])
 
-    # Ch 1
-    p.ch_header(1, "ยินดีต้อนรับ!\nคุณได้อะไรบ้าง?",
-                "สิ่งที่ได้รับเพิ่มเติมจากแพ็ก Basic ในแพ็ก Standard")
-    p.body("แพ็ก Standard เหมาะกับร้านที่อยากให้ลูกค้าต่างชาติดูเมนูได้ และต้องการแก้ราคาหรือเพิ่มเมนูได้ด้วยตัวเอง โดยไม่ต้องรอเรา")
-    p.gap()
-    p.h2("สิ่งที่คุณได้รับทั้งหมด")
-    p.feature_item("เมนูสูงสุด 60 รายการ พร้อมรูปภาพ",
-                   "รองรับร้านที่มีเมนูหลากหลาย ดูสวยงามบนมือถือทุกรุ่น")
-    p.feature_item("2 ภาษา ไทย / อังกฤษ — สลับได้ทันที",
-                   "กดปุ่ม EN ที่มุมขวาบน → ชื่อเมนู หมวด คำอธิบาย เปลี่ยนเป็นอังกฤษทั้งหมด")
-    p.feature_item("ปรับสีและโลโก้ตามแบรนด์ร้าน",
-                   "สีหัวข้อ ปุ่ม และโลโก้ตรงตามแบรนด์ของคุณ")
-    p.feature_item("แก้ราคา ชื่อ คำอธิบาย ด้วยตัวเองผ่านเว็บ",
-                   "ผ่านเว็บ Supabase — คลิก แก้ กด Enter เสร็จ ไม่ต้องรู้โค้ด")
-    p.feature_item("ซ่อน / แสดงเมนูชั่วคราวได้เอง",
-                   "เมนูหมดสต็อก → ซ่อนได้ 1 คลิก โดยไม่ต้องลบออกถาวร")
-    p.feature_item("QR Code + ไฟล์พิมพ์ PNG",
-                   "ทั้ง QR Code และไฟล์ภาพพร้อมพิมพ์ใส่กรอบ")
-    p.feature_item("แก้ไขฟรี 3 ครั้ง (ภายใน 60 วัน)",
-                   "ขอแก้งานที่เราทำให้ได้ 3 รอบ เช่น เปลี่ยนสีใหม่ เพิ่มรูป ปรับดีไซน์")
-    p.tip_box("แก้ราคาเองได้ทันที ไม่ต้องรอเรา ไม่ต้องรู้โค้ด\nลูกค้าต่างชาติก็สั่งได้สบาย", "ข้อดีหลักของแพ็ก Standard")
+    # Chapter 1
+    pdf.ch_header('01', 'ยินดีต้อนรับ! คุณได้อะไรบ้าง?', 'สิ่งที่ได้รับเพิ่มเติมจากแพ็ก Basic ในแพ็ก Standard')
+    pdf.body('แพ็ก Standard เหมาะกับร้านที่อยากให้ลูกค้าต่างชาติดูเมนูได้ และต้องการแก้ราคาหรือเพิ่มเมนูได้ด้วยตัวเอง โดยไม่ต้องรอเรา')
+    pdf.section_heading('สิ่งที่คุณได้รับในแพ็ก Standard')
+    pdf.feature('เมนูสูงสุด 60 รายการ พร้อมรูปภาพ', 'รองรับร้านที่มีเมนูหลากหลาย ดูสวยงามบนมือถือทุกรุ่น')
+    pdf.feature('2 ภาษา ไทย / อังกฤษ -- สลับได้ทันที', 'กดปุ่ม EN ที่มุมขวาบน ชื่อเมนู หมวด คำอธิบาย เปลี่ยนเป็นอังกฤษทั้งหมด')
+    pdf.feature('ปรับสีและโลโก้ตามแบรนด์ร้าน', 'สีหัวข้อ ปุ่ม และโลโก้ตรงตามแบรนด์ของคุณ')
+    pdf.feature('แก้ราคา ชื่อ คำอธิบาย ด้วยตัวเองผ่านเว็บ', 'ผ่านเว็บ Supabase คลิก แก้ กด Enter เสร็จ ไม่ต้องรู้โค้ด')
+    pdf.feature('ซ่อน / แสดงเมนูชั่วคราวได้เอง', 'เมนูหมดสต็อก ซ่อนได้ 1 คลิก โดยไม่ต้องลบออกถาวร')
+    pdf.feature('QR Code + ไฟล์พิมพ์ PNG', 'ทั้ง QR Code และไฟล์ภาพพร้อมพิมพ์ใส่กรอบ')
+    pdf.feature('แก้ไขฟรี 3 ครั้ง (ภายใน 60 วัน)', 'ขอแก้งานที่เราทำให้ได้ 3 รอบ เช่น เปลี่ยนสีใหม่ เพิ่มรูป ปรับดีไซน์')
+    pdf.ln(2)
+    pdf.tip_box('แก้ราคาเองได้ทันที ไม่ต้องรอเรา ไม่ต้องรู้โค้ด ลูกค้าต่างชาติก็สั่งได้สบาย')
 
-    # Ch 2
-    p.ch_header(2, "ข้อมูลที่ต้องเตรียม\nส่งให้เรา",
-                "รวบรวมสิ่งเหล่านี้ก่อน แล้วส่งให้เราทาง LINE")
-    p.body("แพ็ก Standard รองรับ 2 ภาษา ถ้ามีชื่อเมนูภาษาอังกฤษอยู่แล้วก็ยิ่งดี ถ้าไม่มีเราจะแปลให้ครับ")
-    p.gap()
-    p.h2("Checklist ข้อมูลที่ต้องส่ง")
-    p.check_item("ชื่อร้าน (ไทย + อังกฤษถ้ามี)", "เช่น ร้านข้าวขาหมู / Khao Kha Moo Restaurant")
-    p.check_item("รายการเมนูสูงสุด 60 รายการ", "ชื่อไทย + ราคา + หมวดหมู่  ·  ไม่มีชื่ออังกฤษก็ได้ เราจะแปลให้")
-    p.check_item("รูปอาหารทุกรายการ (ถ้ามี)", "ยิ่งครบยิ่งดี ถ่ายจากมือถือแสงสว่างได้เลย")
-    p.check_item("โลโก้ร้าน (PNG หรือ JPG)", "โลโก้จะแสดงในหัวเมนู")
-    p.check_item("สีหลักและสีรองของร้าน", "เช่น แดงเลือดหมู หรือ hex code เช่น #8B2635")
-    p.check_item("อีเมลสำหรับสร้างบัญชี Supabase", "ใช้บัญชีนี้เข้าแก้ราคาเองในภายหลัง เราจะส่งคำเชิญให้")
-    p.tip_box("Supabase คืออะไร?\nSupabase คือเว็บสำหรับจัดการข้อมูลเมนูร้านของคุณ เหมือน Google Sheets แต่เชื่อมกับแอปเมนูโดยตรง แก้ราคาในนั้น → เมนูในแอปอัปเดตทันที ใช้ผ่านเบราว์เซอร์ปกติ ไม่ต้องติดตั้งโปรแกรม")
+    # Chapter 2
+    pdf.ch_header('02', 'ข้อมูลที่ต้องเตรียม ส่งให้เรา', 'รวบรวมสิ่งเหล่านี้ก่อน แล้วส่งให้เราทาง LINE')
+    pdf.body('แพ็ก Standard รองรับ 2 ภาษา ถ้ามีชื่อเมนูภาษาอังกฤษอยู่แล้วก็ยิ่งดี ถ้าไม่มีเราจะแปลให้ครับ')
+    pdf.section_heading('Checklist ข้อมูลที่ต้องส่ง')
+    pdf.checklist_item('ชื่อร้าน (ไทย + อังกฤษถ้ามี)', 'เช่น ร้านข้าวขาหมู / Khao Kha Moo Restaurant')
+    pdf.checklist_item('รายการเมนูสูงสุด 60 รายการ', 'ชื่อไทย + ราคา + หมวดหมู่ ไม่มีชื่ออังกฤษก็ได้ เราจะแปลให้')
+    pdf.checklist_item('รูปอาหารทุกรายการ (ถ้ามี)', 'ยิ่งครบยิ่งดี ถ่ายจากมือถือแสงสว่างได้เลย')
+    pdf.checklist_item('โลโก้ร้าน (PNG หรือ JPG)', 'โลโก้จะแสดงในหัวเมนู')
+    pdf.checklist_item('สีหลักและสีรองของร้าน', 'เช่น แดงเลือดหมู หรือ hex code เช่น #8B2635')
+    pdf.checklist_item('อีเมลสำหรับสร้างบัญชี Supabase', 'ใช้บัญชีนี้เข้าแก้ราคาเองในภายหลัง เราจะส่งคำเชิญให้')
+    pdf.ln(2)
+    pdf.tip_box('Supabase คืออะไร? Supabase คือเว็บสำหรับจัดการข้อมูลเมนูร้านของคุณ เหมือน Google Sheets แต่เชื่อมกับแอปเมนูโดยตรง แก้ราคาในนั้น เมนูในแอปอัปเดตทันที ใช้ผ่านเบราว์เซอร์ปกติ ไม่ต้องติดตั้งโปรแกรม')
 
-    # Ch 3
-    p.ch_header(3, "วิธีสลับภาษา\nไทย / อังกฤษ",
-                "ลูกค้าต่างชาติสั่งได้เอง ไม่ต้องรอพนักงานแปล")
-    p.body("มุมขวาบนของหน้าเลือกโต๊ะ จะเห็นปุ่ม  [ ไทย | EN ]  กดสลับได้ทันที")
-    p.gap(5)
-    p.body("กด EN → เปลี่ยนทั้งหมดทุกหน้า:\nชื่อเมนู  ·  หมวดหมู่  ·  คำอธิบาย  ·  ตัวเลือก — ทุกหน้าในแอปเปลี่ยนเป็นอังกฤษพร้อมกัน\nกด ไทย → กลับมาภาษาไทยทันที  ราคายังถูกต้องเสมอ")
-    p.gap(5)
-    p.h2("เปรียบเทียบก่อน / หลังกด EN")
-    # Two-column comparison using code_box style
-    p.tip_box(
-        "ภาษาไทย (ปกติ):\n"
-        "ขาหมูพะโล้เตาถ่าน\n"
-        "หมวด: ขาหมู  ·  180 บาท\n"
-        "ชุดขาหมู (1ขา) / ไส้ล้วน / คากิล้วน",
-        "ภาษาไทย"
-    )
-    p.tip_box(
-        "English (กด EN):\n"
-        "Charcoal Pork Knuckle\n"
-        "Category: Pork Knuckle  ·  180 Baht\n"
-        "Pork Knuckle Set / Innards Only / Kaki Only",
-        "English"
-    )
-    p.tip_box("ราคาแสดงในหน่วยบาท (฿) ทุกภาษา ไม่มีการแปลงสกุลเงิน")
+    # Chapter 3
+    pdf.ch_header('03', 'วิธีสลับภาษา ไทย / อังกฤษ', 'ลูกค้าต่างชาติสั่งได้เอง ไม่ต้องรอพนักงานแปล')
+    pdf.body('มุมขวาบนของหน้าเลือกโต๊ะ จะเห็นปุ่ม [ไทย | EN] กดสลับได้ทันที')
+    pdf.body('กด EN เปลี่ยนทั้งหมดทุกหน้า: ชื่อเมนู หมวดหมู่ คำอธิบาย ตัวเลือก ทุกหน้าในแอปเปลี่ยนเป็นอังกฤษพร้อมกัน กด ไทย กลับมาภาษาไทยทันที ราคายังถูกต้องเสมอ')
+    pdf.tip_box('ตัวอย่างภาษาไทย: ขาหมูพะโล้เตาถ่าน / หมวด: ขาหมู / 180 บาท\n---\nตัวอย่างภาษาอังกฤษ (กด EN): Charcoal Pork Knuckle / Category: Pork Knuckle / 180 Baht')
+    pdf.body('ราคาแสดงในหน่วยบาท (THB) ทุกภาษา ไม่มีการแปลงสกุลเงิน')
 
-    # Ch 4
-    p.ch_header(4, "วิธีแก้ราคาและ\nเพิ่มเมนูด้วยตัวเอง",
-                "ผ่านเว็บ Supabase — ง่าย ไม่ต้องรู้โค้ด ทำเสร็จภายใน 1 นาที")
-    p.tip_box("ก่อนเริ่ม เตรียม 3 อย่างนี้:\n1. เบราว์เซอร์บนมือถือหรือคอม (Chrome / Safari ได้เลย)\n2. อีเมลและรหัสผ่าน Supabase (เราส่งให้ทาง LINE)\n3. รายการที่ต้องการแก้ไข เช่น ขาหมูใหญ่ เปลี่ยนจาก 180 เป็น 200 บาท")
-    p.h2("วิธีแก้ราคาเมนู")
-    p.step_item(1, "เปิดเบราว์เซอร์ → พิมพ์ supabase.com → กด Sign in", "กรอก email + password ที่เราส่งให้ กด Log in")
-    p.step_item(2, "เลือกโปรเจกต์ร้านของคุณ", "จะเห็นชื่อโปรเจกต์ (ชื่อร้าน) อยู่หน้าแรก กดคลิกเข้าไป")
-    p.step_item(3, "เมนูซ้ายมือ → กด Table Editor", "จะเห็นรายการตาราง → คลิกตาราง menu")
-    p.step_item(4, "หาเมนูที่ต้องการแก้ → คลิกเซลล์ price → พิมพ์ราคาใหม่ → กด Enter", "บันทึกทันที อัปเดตในแอปภายใน 1-2 วินาที")
-    p.tip_box("กด Enter แล้ว → แอปเมนูอัปเดตราคาใหม่ทันที ลูกค้าโหลดหน้าใหม่จะเห็นราคาใหม่ ไม่ต้อง deploy ใหม่ ไม่ต้องแจ้งเรา")
-    p.h2("วิธีเพิ่มเมนูใหม่")
-    p.step_item(1, "Table Editor → menu → กดปุ่ม Insert row (สีเขียว)", "หน้าต่าง New row เปิดขึ้น")
-    p.step_item(2, "กรอกข้อมูลเมนูใหม่", "id (เลขไม่ซ้ำ)  ·  cat (หมวด)  ·  name (ชื่อ)  ·  price (ราคา)  ·  description (คำอธิบาย)")
-    p.step_item(3, "กด Save → เมนูขึ้นในแอปทันที", "หมายเหตุ: รูปภาพต้องให้เราใส่ให้ (นับเป็น 1 ครั้งของสิทธิ์แก้ไขฟรี)")
-    p.h2("แก้หลายรายการพร้อมกันด้วย SQL")
-    p.body("ถ้าต้องการแก้ราคาหลายเมนูพร้อมกัน → เมนูซ้าย → SQL Editor → New query → วางโค้ดนี้ → กด Run", size=12, color=MID)
-    p.code_box(
-        "-- แก้ราคาเมนูเดียว\nUPDATE public.menu SET price = 80 WHERE id = 4;\n\n"
-        "-- แก้ราคาหลายเมนูพร้อมกัน\nUPDATE public.menu SET price = 70 WHERE id IN (4, 5, 6);\n\n"
-        "-- แก้ชื่อเมนู\nUPDATE public.menu SET name = 'ขาหมูพะโล้สูตรใหม่' WHERE id = 1;"
-    )
-    p.tip_box("ถ้า Supabase ขึ้น Paused:\nเข้า supabase.com → คลิกโปรเจกต์ → กด Resume project → รอ 1-2 นาที → ใช้งานได้ปกติ\n(เกิดจาก Free tier หยุดอัตโนมัติเมื่อไม่ใช้งาน 7 วัน)", "แก้ปัญหา Supabase Paused")
+    # Chapter 4
+    pdf.ch_header('04', 'วิธีแก้ราคาและเพิ่มเมนูด้วยตัวเอง', 'ผ่านเว็บ Supabase ง่าย ไม่ต้องรู้โค้ด ทำเสร็จภายใน 1 นาที')
+    pdf.body('ก่อนเริ่ม เตรียม 3 อย่าง: 1. เบราว์เซอร์บนมือถือหรือคอม  2. อีเมลและรหัสผ่าน Supabase (เราส่งให้ทาง LINE)  3. รายการที่ต้องการแก้ไข')
+    pdf.section_heading('วิธีแก้ราคาเมนู')
+    pdf.step(1, 'เปิดเบราว์เซอร์ พิมพ์ supabase.com กด Sign in', 'กรอก email + password ที่เราส่งให้ กด Log in')
+    pdf.step(2, 'เลือกโปรเจกต์ร้านของคุณ', 'จะเห็นชื่อโปรเจกต์ (ชื่อร้าน) อยู่หน้าแรก กดคลิกเข้าไป')
+    pdf.step(3, 'เมนูซ้ายมือ กด Table Editor', 'จะเห็นรายการตาราง คลิกตาราง menu')
+    pdf.step(4, 'หาเมนูที่ต้องการแก้ คลิกเซลล์ price พิมพ์ราคาใหม่ กด Enter', 'บันทึกทันที อัปเดตในแอปภายใน 1-2 วินาที')
+    pdf.ln(2)
+    pdf.tip_box('กด Enter แล้ว แอปเมนูอัปเดตราคาใหม่ภายใน 1-2 วินาที ลูกค้าโหลดหน้าใหม่จะเห็นราคาใหม่ทันที ไม่ต้อง deploy ใหม่ ไม่ต้องแจ้งเรา')
+    pdf.section_heading('วิธีเพิ่มเมนูใหม่')
+    pdf.step(1, 'Table Editor menu กดปุ่ม Insert row (สีเขียว)', 'หน้าต่าง New row เปิดขึ้น')
+    pdf.step(2, 'กรอกข้อมูลเมนูใหม่', 'id (เลขไม่ซ้ำ)  cat (หมวด)  name (ชื่อ)  price (ราคา)  description (คำอธิบาย)')
+    pdf.step(3, 'กด Save เมนูขึ้นในแอปทันที', 'รูปภาพต้องให้เราใส่ให้ (นับเป็น 1 ครั้งของสิทธิ์แก้ไขฟรี)')
+    pdf.ln(2)
+    pdf.code_box("แก้หลายรายการพร้อมกันด้วย SQL:\nUPDATE public.menu SET price = 80 WHERE id = 4;\nUPDATE public.menu SET price = 70 WHERE id IN (4, 5, 6);\nUPDATE public.menu SET name = 'ขาหมูพะโล้สูตรใหม่' WHERE id = 1;")
+    pdf.tip_box('ถ้า Supabase ขึ้น Paused: เข้า supabase.com คลิกโปรเจกต์ กด Resume project รอ 1-2 นาที ใช้งานได้ปกติ')
 
-    # Ch 5
-    p.ch_header(5, "ซ่อน / แสดงเมนู\n+ คำถามที่พบบ่อย",
-                "เมนูหมดชั่วคราว ปิดได้ 1 คลิก โดยไม่ต้องลบ")
-    p.body("เมื่อวัตถุดิบหมด หรืออยากปิดเมนูบางอย่างในวันนั้น ทำได้ง่ายมากครับ ไม่ต้องลบ กลับมาเปิดเมื่อไรก็ได้")
-    p.gap()
-    p.h2("วิธีซ่อนเมนูชั่วคราว")
-    p.step_item(1, "Supabase → Table Editor → ตาราง menu", "หาเมนูที่ต้องการซ่อน")
-    p.step_item(2, "มองหาคอลัมน์ is_available", "ค่าปัจจุบัน = true (แสดงอยู่)")
-    p.step_item(3, "คลิกเซลล์ → เปลี่ยนเป็น false → กด Enter", "เมนูหายจากแอปทันที ลูกค้าจะไม่เห็น")
-    p.step_item(4, "อยากเปิดอีกครั้ง → เปลี่ยนกลับเป็น true → Enter", "เมนูกลับมาแสดงทันที")
-    p.tip_box("การซ่อน (false) ไม่ได้ลบข้อมูลออก แค่ซ่อนจากหน้าแอปเท่านั้น เปลี่ยนกลับ true ได้ตลอดเวลา")
-    p.h2("คำถามที่พบบ่อย")
-    p.faq_item("แก้ราคาแล้วแต่ยังเห็นราคาเดิม?",
-               "โหลดหน้าใหม่ (ดึงหน้าจอลง / กด Refresh) ระบบจะดึงข้อมูลใหม่ทันที ถ้ายังไม่เปลี่ยน → ตรวจว่า Supabase ไม่ได้ Paused")
-    p.faq_item("Supabase ขึ้น Paused ทำอย่างไร?",
-               "เข้า supabase.com → คลิกโปรเจกต์ → กดปุ่ม Resume project สีเขียว → รอ 1-2 นาที → Refresh หน้าแอป")
-    p.faq_item("อยากเพิ่มหมวดหมู่ใหม่ ทำเองได้ไหม?",
-               "ส่วนนี้ต้องให้เราทำให้ครับ เพราะต้องแก้ในโค้ดแอป แจ้งชื่อหมวดใหม่มาได้เลย นับเป็นการแก้ไข 1 ครั้ง")
-    p.faq_item("ใช้สิทธิ์แก้ไขฟรีหมดแล้ว ครั้งต่อไปเสียเท่าไร?",
-               "แก้ข้อความ/ราคา → 150 บาท/ครั้ง  ·  เพิ่มเมนูพร้อมรูป → 200 บาท/รายการ  ·  แก้ดีไซน์ → เริ่มต้น 500 บาท\nทักมาได้เลย เราจะ quote ให้ก่อนเสมอ")
-    p.contact_box()
+    # Chapter 5
+    pdf.ch_header('05', 'ซ่อน / แสดงเมนู + คำถามที่พบบ่อย', 'เมนูหมดชั่วคราว ปิดได้ 1 คลิก โดยไม่ต้องลบ')
+    pdf.body('เมื่อวัตถุดิบหมด หรืออยากปิดเมนูบางอย่างในวันนั้น ทำได้ง่ายมากครับ ไม่ต้องลบ กลับมาเปิดเมื่อไรก็ได้')
+    pdf.section_heading('วิธีซ่อนเมนูชั่วคราว')
+    pdf.step(1, 'Supabase Table Editor ตาราง menu หาเมนูที่ต้องการซ่อน', '')
+    pdf.step(2, 'มองหาคอลัมน์ is_available ค่าปัจจุบัน = true (แสดงอยู่)', '')
+    pdf.step(3, 'คลิกเซลล์ เปลี่ยนเป็น false กด Enter เมนูหายจากแอปทันที', 'ลูกค้าจะไม่เห็น')
+    pdf.step(4, 'อยากเปิดอีกครั้ง เปลี่ยนกลับเป็น true กด Enter', 'เมนูกลับมาแสดงทันที')
+    pdf.ln(2)
+    pdf.tip_box('การซ่อน (false) ไม่ได้ลบข้อมูลออก แค่ซ่อนจากหน้าแอปเท่านั้น เปลี่ยนกลับ true ได้ตลอดเวลา')
+    pdf.section_heading('คำถามที่พบบ่อย')
+    pdf.faq('ลืมรหัสผ่าน Supabase ทำอย่างไร?',
+            'เข้า supabase.com กด Forgot password ระบบส่งลิงก์ reset ให้ทางอีเมล หรือทักมาให้เรารีเซ็ตให้ก็ได้')
+    pdf.faq('แก้ราคาแล้วแต่แอปยังแสดงราคาเดิม?',
+            'ลองรีเฟรชหน้าแอปบนมือถือ หรือปิดแล้วเปิดใหม่ ถ้ายังไม่อัปเดต ทักแจ้งเราได้เลย')
+    pdf.faq('เพิ่มรูปภาพใหม่ได้เองไหม?',
+            'รูปภาพต้องให้เราอัปโหลดขึ้น server ให้ครับ ส่งรูปมาทาง LINE แล้วเราจะอัปเดตให้ (นับเป็น 1 ครั้งของสิทธิ์แก้ไขฟรี)')
+    pdf.faq('Supabase ขึ้น error หรือใช้งานไม่ได้?',
+            'ถ้าโปรเจกต์ถูก pause ให้เข้าไป Resume ก่อน ถ้ายังมีปัญหาทักเราได้เลย จะช่วยแก้ให้')
+    pdf.body('ติดต่อเรา: มีคำถามหรือปัญหาอื่น ทักเราทาง LINE ได้เลย ตอบกลับภายใน 24 ชั่วโมงในวันทำการ (จันทร์-เสาร์)')
 
-    p.thanks_page(
-        "หวังว่าระบบเมนู QR Code จะช่วยให้ร้านของคุณ\nให้บริการลูกค้าได้ดียิ่งขึ้น ทั้งไทยและต่างชาติ",
-        "ต้องการออเดอร์เข้า LINE OA อัตโนมัติ?\nอัปเกรดเป็นแพ็ก Premium ได้เลย มีส่วนลดสำหรับลูกค้าเดิม"
+    pdf.thanks_page(
+        line1='ขอบคุณที่ไว้วางใจ',
+        line2='ต้องการออเดอร์เข้า LINE OA อัตโนมัติ?',
+        line3='อัปเกรดเป็นแพ็ก Premium ได้เลย มีส่วนลดสำหรับลูกค้าเดิม',
     )
 
-    out = f"{OUT}/ebook-standard.pdf"
-    p.output(out)
-    print(f"  Standard: {os.path.getsize(out)//1024} KB  ({out})")
+    pdf.output('/home/user/khaomoo-menu/docs/ebook-standard.pdf')
+    print('  [OK] ebook-standard.pdf')
 
 
-# ══════════════════════════════════════════════════════════════════
-# Book 3 — Premium
-# ══════════════════════════════════════════════════════════════════
-
+# ===========================================================================
+# Book 3 -- Premium
+# ===========================================================================
 def build_premium():
-    p = EbookPDF()
+    pdf = EbookPDF()
 
-    p.cover(
-        "E-Book  ·  แพ็ก 3  ·  Premium",
-        "คู่มือการใช้งาน",
-        "เมนู QR Code",
-        "สั่งผ่าน LINE OA อัตโนมัติ",
-        "รองรับ Delivery  ·  ตัวเลือกเมนูครบ  ·  2 ภาษา",
-        "5,900 บาท",
-        "ได้งานภายใน 7 วัน  ·  แก้ไขฟรี 5 ครั้ง  ·  สอน Zoom 30 นาที",
+    pdf.cover(
+        badge='E-Book · แพ็ก 3 · Premium',
+        title1='คู่มือการใช้งาน',
+        title2='เมนู QR Code',
+        subtitle='สั่งผ่าน LINE OA อัตโนมัติ',
+        line2='รองรับ Delivery · ตัวเลือกเมนูครบ · 2 ภาษา',
+        price='5,900 บาท',
+        days='ได้งานภายใน 7 วัน · แก้ไขฟรี 5 ครั้ง · สอน Zoom 30 นาที',
     )
 
-    p.toc_page([
-        ("ยินดีต้อนรับ! คุณได้อะไรบ้าง?",             "ภาพรวมทุกฟีเจอร์ในแพ็ก Premium"),
-        ("ข้อมูลที่ต้องเตรียมส่งให้เรา",                "Checklist ครบสำหรับ LINE OA และ Supabase"),
-        ("วิธีรับออเดอร์ผ่าน LINE OA (Dine In)",       "ลูกค้าสั่งที่โต๊ะ → ออเดอร์เข้า LINE ร้านทันที"),
-        ("วิธีรับออเดอร์ Delivery (สั่งส่งถึงบ้าน)",   "ลูกค้ากรอกที่อยู่ → ออเดอร์ครบใน LINE"),
-        ("วิธีแก้ราคาและจัดการเมนูเอง",                "Supabase Dashboard  ·  แก้ราคา  ·  ซ่อนเมนู"),
-        ("Zoom สอนงาน + FAQ",                           "หัวข้อที่จะสอน และคำถามที่พบบ่อย"),
+    pdf.toc_page([
+        ('1', 'ยินดีต้อนรับ! คุณได้อะไรบ้าง?', 'ภาพรวมฟีเจอร์ทั้งหมดในแพ็ก Premium'),
+        ('2', 'ข้อมูลที่ต้องเตรียมส่งให้เรา', 'Checklist ก่อนเริ่มงาน -- ครบกว่าแพ็กอื่น'),
+        ('3', 'วิธีรับออเดอร์ผ่าน LINE OA (Dine-in)', 'ลูกค้าสั่ง ออเดอร์เข้า LINE OA ร้านทันที'),
+        ('4', 'วิธีรับออเดอร์ Delivery', 'ลูกค้ากรอกที่อยู่ ออเดอร์เข้าพร้อมข้อมูลจัดส่ง'),
+        ('5', 'วิธีจัดการเมนูผ่าน Supabase', 'แก้ราคา เพิ่มเมนู ซ่อนเมนู ทุกอย่างด้วยตัวเอง'),
+        ('6', 'Zoom Training + คำถามที่พบบ่อย', 'สอนการใช้งานแบบ 1-on-1 ทาง Zoom 30 นาที'),
     ])
 
-    # Ch 1
-    p.ch_header(1, "ยินดีต้อนรับ!\nคุณได้อะไรบ้าง?",
-                "ฟีเจอร์ครบถ้วนที่สุดในแพ็ก Premium")
-    p.body("แพ็ก Premium เหมาะกับร้านที่ต้องการระบบสั่งอาหารครบวงจร ทั้งทานที่ร้านและส่งถึงบ้าน ออเดอร์ทุกรายการเข้า LINE OA ร้านอัตโนมัติ ไม่มีตกหล่น")
-    p.gap()
-    p.h2("สิ่งที่คุณได้รับทั้งหมด")
-    p.feature_item("เมนูไม่จำกัดจำนวน", "ใส่เมนูได้ไม่จำกัด ไม่มีขีดสูงสุด")
-    p.feature_item("ตัวเลือกเมนูครบ", "ขนาด · ประเภทเนื้อ · ท็อปปิ้ง · ความหวาน — เลือกก่อนใส่ตะกร้า ราคาปรับอัตโนมัติ")
-    p.feature_item("2 ภาษา ไทย / อังกฤษ สลับได้ทันที", "ตัวเลือก ชื่อเมนู หมวด คำอธิบาย เปลี่ยนทุกหน้าพร้อมกัน")
-    p.feature_item("ออเดอร์เข้า LINE OA ร้านอัตโนมัติ", "ลูกค้ากดยืนยัน → ร้านได้รับออเดอร์ครบ (โต๊ะ / เมนู / ราคา / วิธีชำระ) ใน LINE ทันที")
-    p.feature_item("รองรับ Delivery ส่งถึงบ้าน", "ลูกค้ากรอกที่อยู่ เลือกรอบส่ง ชำระ PromptPay — ร้านได้ออเดอร์ครบใน LINE")
-    p.feature_item("ดีไซน์เฉพาะแบรนด์เต็มรูปแบบ", "สี + โลโก้ + ฟอนต์ตามแบรนด์ร้านทั้งหมด")
-    p.feature_item("สอนใช้งานผ่าน Zoom 30 นาที", "สอนแก้ราคา ซ่อนเมนู ดูออเดอร์ใน LINE ครบทุกอย่าง")
-    p.feature_item("แก้ไขฟรี 5 ครั้ง (ภายใน 90 วัน)", "ขอแก้งานได้ 5 รอบ ภายใน 3 เดือน")
-    p.tip_box("ลูกค้ากดสั่งเอง ออเดอร์เข้า LINE ทันที\nร้านไม่มีออเดอร์ตก ไม่จดผิด", "ข้อดีหลักของแพ็ก Premium")
+    # Chapter 1
+    pdf.ch_header('01', 'ยินดีต้อนรับ! คุณได้อะไรบ้าง?', 'ภาพรวมฟีเจอร์ Premium -- ครบที่สุด')
+    pdf.body('แพ็ก Premium คือระบบเมนูออนไลน์เต็มรูปแบบ ที่ลูกค้าสั่งอาหารได้ผ่านแอป แล้วออเดอร์ส่งตรงเข้า LINE OA ร้านทันที ไม่ว่าจะเป็น Dine-in หรือ Delivery')
+    pdf.section_heading('สิ่งที่คุณได้รับในแพ็ก Premium')
+    pdf.feature('เมนูไม่จำกัดจำนวน พร้อมรูปภาพ', 'รองรับร้านขนาดใหญ่ที่มีเมนูหลักร้อยรายการ')
+    pdf.feature('2 ภาษา ไทย / อังกฤษ -- สลับได้ทันที', 'ลูกค้าต่างชาติสั่งได้เองโดยไม่ต้องรอพนักงาน')
+    pdf.feature('ตัวเลือกเมนูครบ (Options & Add-ons)', 'เลือกไซส์ ระดับความเผ็ด ท็อปปิ้ง เพิ่ม/ลดราคาอัตโนมัติ')
+    pdf.feature('ระบบสั่งอาหาร Dine-in ออเดอร์เข้า LINE OA', 'ลูกค้าสแกน QR โต๊ะ สั่งอาหาร กด confirm ออเดอร์เข้า LINE OA ทันที')
+    pdf.feature('รองรับ Delivery -- ลูกค้ากรอกที่อยู่จัดส่ง', 'ออเดอร์ Delivery มีข้อมูลชื่อ เบอร์โทร ที่อยู่ครบถ้วน')
+    pdf.feature('แก้ราคา เพิ่มเมนู ซ่อนเมนูด้วยตัวเองผ่าน Supabase', 'เหมือนแพ็ก Standard แต่ทำได้กับเมนูไม่จำกัด')
+    pdf.feature('QR Code แยกต่อโต๊ะ (สูงสุด 30 โต๊ะ)', 'QR แต่ละโต๊ะระบุเลขโต๊ะในออเดอร์อัตโนมัติ')
+    pdf.feature('แก้ไขฟรี 5 ครั้ง (ภายใน 90 วัน)', 'แก้งานที่เราทำให้ได้ 5 รอบ ในช่วง 3 เดือนแรก')
+    pdf.feature('สอนการใช้งาน Zoom 1-on-1 30 นาที', 'นัด Zoom หลังงานเสร็จ เราสอนวิธีแก้เมนู รับออเดอร์ และจัดการระบบ')
+    pdf.ln(2)
+    pdf.tip_box('ออเดอร์เข้า LINE ที่คุณใช้อยู่แล้ว ไม่ต้องเปิดแอปใหม่ ไม่ต้องมีพนักงานรับออเดอร์แยก')
 
-    # Ch 2
-    p.ch_header(2, "ข้อมูลที่ต้องเตรียม\nส่งให้เรา",
-                "เตรียมครบ งานเสร็จเร็ว ไม่ต้องส่งซ้ำ")
-    p.h2("Checklist ข้อมูลที่ต้องส่ง")
-    p.check_item("ชื่อร้าน (ไทย + อังกฤษ)", "เช่น ร้านข้าวขาหมู / Khao Kha Moo Restaurant")
-    p.check_item("รายการเมนูทั้งหมด", "ชื่อ + ราคา + หมวด + ตัวเลือก เช่น ขนาด S/M/L ส่งเป็น Excel หรือรูปถ่ายเมนูได้เลย")
-    p.check_item("รูปอาหารทุกรายการ", "ยิ่งครบยิ่งดี ถ่ายจากมือถือแสงสว่างได้เลย")
-    p.check_item("โลโก้ร้าน (PNG พื้นหลังใส หรือ JPG)", "โลโก้จะแสดงในหัวเมนู")
-    p.check_item("สีหลัก + สีรองของแบรนด์", "เช่น แดงเลือดหมู + ครีม หรือ hex code ก็ได้")
-    p.check_item("LINE OA Channel Access Token", "ขอได้จาก LINE Developer Console → Messaging API → Issue token (ขอแบบ Long-lived ไม่หมดอายุ)")
-    p.check_item("อีเมลสำหรับสร้างบัญชี Supabase", "ใช้ login เข้าแก้ราคาและดูออเดอร์ในภายหลัง")
-    p.tip_box("LINE OA Token คืออะไร?\nคือรหัสลับที่ใช้ให้ระบบเมนูส่งข้อความเข้า LINE OA ร้านของคุณได้\nขอได้ที่ developers.line.biz → Channel → Messaging API → Issue a Longterm channel access token\nถ้าไม่แน่ใจ — ทักเราได้เลย เราจะแนะนำขั้นตอนทีละขั้น")
-    p.tip_box("ส่ง LINE OA Token ให้เราผ่าน LINE Direct (1:1) เท่านั้น อย่าโพสต์ลง Group หรือ Feed เพราะคนอื่นเอาไปใช้ได้", "ข้อควรระวัง")
+    # Chapter 2
+    pdf.ch_header('02', 'ข้อมูลที่ต้องเตรียม ส่งให้เรา', 'ครบกว่าแพ็กอื่น เพราะระบบซับซ้อนกว่า')
+    pdf.body('แพ็ก Premium มีฟีเจอร์เพิ่มขึ้นมาก ข้อมูลที่ต้องเตรียมก็มากกว่าเล็กน้อย แต่เราจะช่วย guide ทีละขั้น')
+    pdf.section_heading('Checklist ข้อมูลที่ต้องส่ง')
+    pdf.checklist_item('ชื่อร้าน (ไทย + อังกฤษ)', 'เช่น ร้านข้าวขาหมู / Khao Kha Moo Restaurant')
+    pdf.checklist_item('รายการเมนูทั้งหมด พร้อมราคาและหมวดหมู่', 'ไม่จำกัดจำนวน ส่งเป็น Excel หรือ Google Sheets ได้เลย')
+    pdf.checklist_item('ตัวเลือกแต่ละเมนู (Options)', 'เช่น ไซส์ S/M/L ระดับความเผ็ด ท็อปปิ้ง พร้อมราคาเพิ่ม/ลด')
+    pdf.checklist_item('รูปอาหารทุกรายการ', 'ยิ่งครบยิ่งดี ถ่ายในแสงสว่าง พื้นหลังสะอาด')
+    pdf.checklist_item('โลโก้ร้าน (PNG พื้นใสหรือ JPG)', 'โลโก้แสดงในหัวเมนูและในออเดอร์ที่ส่งเข้า LINE')
+    pdf.checklist_item('สีหลักและสีรองของร้าน', 'hex code เช่น #8B2635 หรืออธิบายสีได้เลย')
+    pdf.checklist_item('LINE OA ที่ต้องการให้ออเดอร์เข้า', 'เราจะตั้งค่า webhook ให้ออเดอร์เข้า LINE OA ของคุณ')
+    pdf.checklist_item('จำนวนโต๊ะ (สำหรับ Dine-in) และต้องการ Delivery ด้วยไหม', 'บอกจำนวนโต๊ะที่ต้องการ QR และเปิดใช้ Delivery หรือเปล่า')
+    pdf.ln(2)
+    pdf.tip_box('ยังไม่มีข้อมูลทุกอย่างก็ส่งได้ครับ ส่งที่มีก่อน แล้วทยอยส่งที่เหลือ เราจะ hold งานส่วนนั้นไว้ก่อน')
 
-    # Ch 3
-    p.ch_header(3, "วิธีรับออเดอร์\nผ่าน LINE OA",
-                "สำหรับลูกค้าที่ทานที่ร้าน (Dine In)")
-    p.h2("ขั้นตอนฝั่งลูกค้า")
-    p.step_item(1, "สแกน QR ที่โต๊ะ → เลือกหมายเลขโต๊ะ", "เปิดกล้องมือถือ → สแกน QR → เลือกโต๊ะของตัวเอง")
-    p.step_item(2, "เลือกเมนู → เลือกตัวเลือก → เพิ่มลงตะกร้า", "เลือกขนาด / ประเภทเนื้อ / ความหวาน → ราคาปรับอัตโนมัติ")
-    p.step_item(3, "ตรวจรายการในตะกร้า → กดยืนยัน", "เลือกวิธีชำระ: QR PromptPay หรือ เงินสด")
-    p.step_item(4, "ออเดอร์เข้า LINE ร้านทันที!", "ร้านได้รับ: โต๊ะ + รายการ + ราคา + วิธีชำระ ครบ")
-    p.h2("ตัวอย่างออเดอร์ที่เข้า LINE OA ร้าน")
-    p.code_box(
-        "ออเดอร์ใหม่  ·  จากระบบเมนู QR\n"
-        "โต๊ะ 3\n\n"
-        "ขาหมูพะโล้เตาถ่าน (ชุดใหญ่)    180 บาท\n"
-        "ข้าวขาหมูพะโล้ x2                120 บาท\n"
-        "กาแฟลาเต้เย็น (M)                 75 บาท\n\n"
-        "ยอดรวม: 375 บาท\n"
-        "วิธีชำระ: QR PromptPay\n"
-        "หมายเหตุ: ไม่ใส่ผัก"
-    )
-    p.tip_box("ข้อมูลออเดอร์มาครบ ทั้งโต๊ะ เมนู ราคา วิธีชำระ หมายเหตุ — ไม่ต้องรอถามลูกค้าเพิ่ม")
-    p.h2("ลูกค้าเลือกชำระแบบ QR PromptPay")
-    p.step_item(1, "หน้าจอแสดง QR PromptPay ยอดรวม", "ลูกค้าสแกน QR ด้วยแอปธนาคาร → โอนเงิน")
-    p.step_item(2, "แนบสลิปส่งมาใน LINE OA", "ลูกค้าแคปหน้าจอสลิป → ส่งใน LINE OA ร้าน")
-    p.step_item(3, "ร้านตรวจสลิป → เริ่มทำอาหาร", "ยืนยันรับเงินแล้วจัดการออเดอร์ได้เลย")
+    # Chapter 3
+    pdf.ch_header('03', 'วิธีรับออเดอร์ผ่าน LINE OA (Dine-in)', 'ลูกค้าสั่ง ออเดอร์เข้า LINE OA ร้านทันที ไม่ต้องรับออเดอร์ด้วยมือ')
+    pdf.section_heading('ขั้นตอนฝั่งลูกค้า')
+    pdf.step(1, 'ลูกค้านั่งโต๊ะ สแกน QR Code บนโต๊ะ', 'QR แต่ละโต๊ะต่างกัน ระบบจะรู้ว่าโต๊ะอะไร')
+    pdf.step(2, 'เลือกเมนู ปรับตัวเลือก (ถ้ามี)', 'เช่น ไซส์ L ความเผ็ดน้อย ไม่ใส่ผัก เลือกได้ในแอป')
+    pdf.step(3, 'กด เพิ่มไปยังตะกร้า ทำซ้ำจนครบ', 'ดูสรุปในตะกร้าก่อนสั่ง')
+    pdf.step(4, 'กด ยืนยันออเดอร์ ระบบส่งออเดอร์ทันที', 'ไม่ต้องรอพนักงาน ออเดอร์เข้าครัวและ LINE OA พร้อมกัน')
+    pdf.step(5, 'รอพนักงานนำอาหารมาเสิร์ฟ', 'พนักงานเห็นออเดอร์ใน LINE OA และจัดเตรียมอาหาร')
+    pdf.ln(2)
+    pdf.section_heading('ตัวอย่างออเดอร์ที่เข้า LINE OA')
+    pdf.tip_box('[ORDER] โต๊ะ 3 | 14:35\nขาหมูพะโล้เตาถ่าน x1 (ชุดใหญ่) = 280 บาท\nข้าวสวย x2 = 20 บาท\nน้ำเปล่า x1 = 15 บาท\nรวม: 315 บาท\nหมายเหตุ: ไม่ใส่ผักชี')
+    pdf.tip_box('ออเดอร์เข้า LINE OA ที่คุณใช้อยู่แล้ว ไม่ต้องเปิดแอปใหม่ ดูได้ทั้งในมือถือและคอม')
 
-    # Ch 4
-    p.ch_header(4, "วิธีรับออเดอร์\nDelivery",
-                "ลูกค้าสั่งส่งถึงบ้าน — ร้านได้ทุกอย่างใน LINE")
-    p.h2("ขั้นตอนฝั่งลูกค้า")
-    p.step_item(1, "เปิดเมนู → กดปุ่ม ส่งถึงบ้าน", "ปุ่มอยู่หน้าแรก เลือกเมนูตามต้องการได้เลย")
-    p.step_item(2, "เลือกเมนู → เลือกตัวเลือก → เพิ่มลงตะกร้า", "เหมือนการสั่ง Dine In ทุกอย่าง")
-    p.step_item(3, "กรอกข้อมูลจัดส่ง", "ชื่อ  ·  เบอร์โทร  ·  ที่อยู่  ·  เลือกรอบส่ง (เช้า / บ่าย)")
-    p.step_item(4, "ชำระผ่าน QR PromptPay → แนบสลิป + ส่งโลเคชั่น", "โอนเงิน → แคปสลิป → ส่ง Pin โลเคชั่นบ้านผ่าน LINE OA")
-    p.step_item(5, "ร้านได้รับออเดอร์ + ที่อยู่ + สลิป ครบใน LINE", "ยืนยัน → จัดส่งตามรอบที่ลูกค้าเลือก")
-    p.h2("ตัวอย่างออเดอร์ Delivery ที่เข้า LINE OA")
-    p.code_box(
-        "Delivery ใหม่  ·  รอบบ่าย\n\n"
-        "คุณสมหญิง  ·  081-234-5678\n\n"
-        "ขาหมูพะโล้เตาถ่าน (ชุดใหญ่)    180 บาท\n"
-        "ข้าวขาหมูพะโล้ x2                120 บาท\n\n"
-        "ยอดรวม: 300 บาท\n"
-        "ที่อยู่: รอ Pin โลเคชั่น"
-    )
-    p.tip_box("แนะนำตั้ง 2 รอบ: เช้า (ส่ง 11:00) และบ่าย (ส่ง 14:00)\nลูกค้าเลือกรอบได้เลย ร้านรวมออเดอร์ส่งครั้งเดียวประหยัดเวลา", "แนะนำกำหนดรอบส่งชัดเจน")
-    p.tip_box("ระบบแสดงข้อมูลโซน: ≤5km ฟรี / มากกว่า 5km คิดตามระยะ ลูกค้าเห็นก่อนสั่ง เพื่อไม่ให้เกิดความเข้าใจผิด", "ค่าส่งและระยะ")
+    # Chapter 4
+    pdf.ch_header('04', 'วิธีรับออเดอร์ Delivery', 'ลูกค้ากรอกที่อยู่จัดส่ง ออเดอร์เข้า LINE พร้อมข้อมูลครบ')
+    pdf.body('ถ้าเปิดใช้ฟีเจอร์ Delivery ลูกค้าสามารถสั่งอาหารแบบจัดส่งได้โดยตรงจากเมนูออนไลน์')
+    pdf.section_heading('ขั้นตอนฝั่งลูกค้า -- สั่ง Delivery')
+    pdf.step(1, 'เปิดลิงก์เมนูหรือสแกน QR Code ของร้าน', 'ลิงก์เดียวกับ Dine-in แต่เลือก Delivery ที่หน้าแรก')
+    pdf.step(2, 'เลือกเมนูที่ต้องการ ใส่ตะกร้า', 'เหมือนกับ Dine-in เลือกตัวเลือกได้ครบ')
+    pdf.step(3, 'กรอกข้อมูลจัดส่ง: ชื่อ เบอร์โทร ที่อยู่', 'กรอกผ่านแบบฟอร์มในแอป ไม่ต้องโทรมาบอก')
+    pdf.step(4, 'กด ยืนยันออเดอร์ Delivery', 'ระบบส่งออเดอร์พร้อมข้อมูลจัดส่งเข้า LINE OA ทันที')
+    pdf.step(5, 'รอการยืนยันจากร้านทาง LINE', 'ร้านยืนยัน แจ้งเวลาส่ง และติดต่อกลับได้ทาง LINE')
+    pdf.ln(2)
+    pdf.section_heading('ตัวอย่างออเดอร์ Delivery ใน LINE')
+    pdf.tip_box('[DELIVERY] 14:42\nชื่อ: คุณสมชาย โทร: 081-234-5678\nที่อยู่: 123/45 ถ.รัชดา แขวงดินแดง กรุงเทพ\nขาหมูพะโล้เตาถ่าน x1 = 280 บาท\nข้าวสวย x2 = 20 บาท\nรวม: 300 บาท (ยังไม่รวมค่าส่ง)\nหมายเหตุ: ขอเพิ่มซอสพริก')
+    pdf.tip_box('ค่าจัดส่ง: ระบบไม่คำนวณค่าส่งอัตโนมัติ ให้ร้านแจ้งค่าส่งกับลูกค้าทาง LINE ก่อนยืนยัน (สามารถเพิ่มฟีเจอร์คำนวณค่าส่งอัตโนมัติได้ในอนาคต)')
 
-    # Ch 5
-    p.ch_header(5, "วิธีแก้ราคาและ\nจัดการเมนูเอง",
-                "ผ่านเว็บ Supabase  ·  ไม่ต้องรู้โค้ด  ·  เสร็จภายใน 1 นาที")
-    p.tip_box("Supabase คืออะไร?\nSupabase คือเว็บจัดการข้อมูลเมนูร้านของคุณ เหมือน Google Sheets แต่เชื่อมกับแอปเมนูโดยตรง แก้ราคาในนั้น → เมนูในแอปอัปเดตทันที เข้าใช้ผ่านเบราว์เซอร์ปกติ ไม่ต้องติดตั้งโปรแกรม")
-    p.h2("แก้ราคา ชื่อ หรือคำอธิบายเมนู")
-    p.step_item(1, "เปิดเบราว์เซอร์ → supabase.com → Sign in", "ใช้ email + password ที่เราส่งให้")
-    p.step_item(2, "เลือกโปรเจกต์ร้านของคุณ", "กดคลิกชื่อโปรเจกต์ที่หน้าแรก")
-    p.step_item(3, "เมนูซ้ายมือ → Table Editor → ตาราง menu", "จะเห็นรายการเมนูทั้งหมด")
-    p.step_item(4, "คลิกเซลล์ที่ต้องการแก้ → พิมพ์ค่าใหม่ → Enter", "แก้ได้ทั้ง price (ราคา) / name (ชื่อ) / description (คำอธิบาย)")
-    p.tip_box("กด Enter แล้วเมนูในแอปอัปเดตภายใน 1-2 วินาที ไม่ต้อง deploy ใหม่ ไม่ต้องแจ้งเรา")
-    p.h2("ซ่อน / แสดงเมนูชั่วคราว")
-    p.body("เมื่อวัตถุดิบหมด หรืออยากปิดชั่วคราว — ทำได้ใน 3 คลิก โดยไม่ลบเมนูออก", size=12, color=MID)
-    p.step_item(1, "Table Editor → menu → หาเมนูที่ต้องซ่อน", "")
-    p.step_item(2, "คลิกเซลล์ is_available → เปลี่ยนเป็น false → Enter", "เมนูหายจากแอปทันที · เปลี่ยนกลับเป็น true เมื่อต้องการแสดงอีกครั้ง")
-    p.h2("แก้หลายรายการด้วย SQL")
-    p.code_box(
-        "-- แก้ราคาเมนูเดียว\nUPDATE public.menu SET price = 200 WHERE id = 1;\n\n"
-        "-- ซ่อนเมนู (วัตถุดิบหมด)\nUPDATE public.menu SET is_available = false WHERE id = 5;\n\n"
-        "-- แสดงเมนูอีกครั้ง\nUPDATE public.menu SET is_available = true WHERE id = 5;"
-    )
-    p.tip_box("ถ้า Supabase ขึ้น Paused:\nเข้า supabase.com → คลิกโปรเจกต์ → กด Resume project → รอ 1-2 นาที → ใช้งานได้ปกติ", "แก้ปัญหา")
+    # Chapter 5
+    pdf.ch_header('05', 'วิธีจัดการเมนูผ่าน Supabase', 'แก้ราคา เพิ่มเมนู ซ่อนเมนู ทำได้ด้วยตัวเองทั้งหมด')
+    pdf.body('เหมือนแพ็ก Standard ทุกอย่าง แต่รองรับเมนูไม่จำกัด และมีคอลัมน์เพิ่มเติมสำหรับตัวเลือก (options)')
+    pdf.section_heading('การจัดการพื้นฐาน (เหมือนแพ็ก Standard)')
+    pdf.feature('แก้ราคา', 'Table Editor menu คลิก price พิมพ์ราคาใหม่ กด Enter')
+    pdf.feature('เพิ่มเมนู', 'Insert row กรอกข้อมูล กด Save')
+    pdf.feature('ซ่อนเมนู', 'คอลัมน์ is_available เปลี่ยน true/false')
+    pdf.ln(2)
+    pdf.section_heading('การจัดการตัวเลือก (Options) -- เฉพาะแพ็ก Premium')
+    pdf.body('ตัวเลือกเมนู เช่น ไซส์ ความเผ็ด ท็อปปิ้ง เก็บในตาราง menu_options แยกต่างหาก')
+    pdf.step(1, 'Table Editor เลือกตาราง menu_options', 'จะเห็นตัวเลือกทั้งหมดของทุกเมนู')
+    pdf.step(2, 'แก้ชื่อหรือราคาตัวเลือก', 'คลิกเซลล์ แก้ กด Enter เหมือนกับตาราง menu')
+    pdf.step(3, 'เพิ่มตัวเลือกใหม่', 'Insert row ระบุ menu_id ที่เชื่อมกับเมนูหลัก พร้อม name และ price_delta')
+    pdf.ln(2)
+    pdf.tip_box('price_delta คือราคาเพิ่มหรือลด\nเช่น ไซส์ L +20 บาท = price_delta: 20\nไม่เพิ่มลด = price_delta: 0\nลดราคา = price_delta: -10')
 
-    # Ch 6
-    p.ch_header(6, "Zoom สอนงาน\n+ คำถามที่พบบ่อย",
-                "หัวข้อที่จะสอนใน Zoom 30 นาที และ FAQ")
-    p.body("หลังส่งมอบงาน เราจะนัด Zoom สอนการใช้งานจริง 30 นาที")
-    p.gap()
-    p.h2("หัวข้อ Zoom สอนงาน 30 นาที")
-    for topic, detail in [
-        ("วิธีแก้ราคาและชื่อเมนูใน Supabase Dashboard", "ทำให้ดูทีละขั้น จนทำเองได้มั่นใจ"),
-        ("วิธีซ่อน / แสดงเมนู", "เมื่อวัตถุดิบหมดหรืออยากปิดชั่วคราว"),
-        ("วิธีดูและตอบออเดอร์ใน LINE OA", "รับออเดอร์ ยืนยัน และสื่อสารกับลูกค้า"),
-        ("วิธีดูประวัติออเดอร์ทั้งหมด", "เข้าดูออเดอร์ย้อนหลังใน Supabase ได้"),
-        ("วิธีขอแก้ไขงาน", "วิธีทักและแจ้งรายการที่ต้องการแก้ไข"),
-    ]:
-        p.feature_item(topic, detail)
-    p.tip_box("แนะนำขอ Record การสอน Zoom ไว้ด้วย จะได้กลับมาดูทบทวนได้เมื่อไรก็ได้")
-    p.h2("คำถามที่พบบ่อย")
-    p.faq_item("ออเดอร์ไม่เข้า LINE OA ทำอย่างไร?",
-               "ตรวจสอบว่า LINE OA ยังออนไลน์ และ Token ไม่ถูกลบ ถ้ายังผิดปกติ แจ้งเราทาง LINE เราตรวจสอบให้ภายใน 24 ชั่วโมง")
-    p.faq_item("ลูกค้าสแกน QR แล้วไม่เปิด?",
-               "ใช้กล้องมือถือปกติ (ไม่ต้องโหลดแอปพิเศษ) ถ้ายังไม่ขึ้น → ลองกดค้างที่ QR แล้วเลือก เปิดลิงก์ หรือใช้กล้องใน LINE")
-    p.faq_item("LINE Token หมดอายุไหม?",
-               "ถ้าขอแบบ Long-lived token (ตามที่เราแนะนำ) — ไม่หมดอายุ ใช้ได้ตลอด ไม่ต้อง renew ทุกเดือน")
-    p.faq_item("อยากเพิ่มตัวเลือกเมนูใหม่ เช่น ท็อปปิ้งใหม่ ทำเองได้ไหม?",
-               "ส่วนนี้ต้องให้เราทำให้ครับ แจ้งรายละเอียดมาได้เลย นับเป็นการแก้ไข 1 ครั้ง")
-    p.faq_item("ใช้สิทธิ์แก้ไขฟรีหมดแล้ว ครั้งต่อไปเสียเท่าไร?",
-               "แก้ข้อความ/ราคา → 150 บาท/ครั้ง  ·  เพิ่มเมนูพร้อมรูป → 200 บาท/รายการ  ·  เพิ่มตัวเลือก/หมวด → 300 บาท  ·  แก้ดีไซน์ → เริ่มต้น 500 บาท")
-    p.contact_box()
+    # Chapter 6
+    pdf.ch_header('06', 'Zoom Training + คำถามที่พบบ่อย', 'สอน 1-on-1 ทาง Zoom 30 นาที หลังจากงานส่งมอบแล้ว')
+    pdf.body('หลังจากเราส่งมอบงานเรียบร้อยแล้ว เราจะนัด Zoom กับคุณ 1 ครั้ง ระยะเวลา 30 นาที')
+    pdf.section_heading('หัวข้อที่จะสอนใน Zoom')
+    pdf.feature('วิธีดูและจัดการออเดอร์ใน LINE OA', 'ดูออเดอร์ ตอบกลับลูกค้า mark ว่าเสร็จแล้ว')
+    pdf.feature('วิธีแก้ราคาและจัดการเมนูใน Supabase', 'ทำ live demo ให้ดู แล้วให้ลองทำเอง')
+    pdf.feature('วิธีซ่อน/แสดงเมนูและตัวเลือก', 'กรณีของหมด หรืออยากเพิ่มตัวเลือกใหม่')
+    pdf.feature('ถามตอบปัญหาที่สงสัย', 'ตอบทุกคำถามที่มีในช่วง Zoom')
+    pdf.ln(2)
+    pdf.body('วิธีนัด Zoom: หลังรับงานแล้ว ทักเราทาง LINE แจ้งวันเวลาที่สะดวก เราจะส่งลิงก์ Zoom ให้ก่อนเวลานัด 1 ชั่วโมง')
+    pdf.section_heading('คำถามที่พบบ่อย')
+    pdf.faq('ออเดอร์ไม่เข้า LINE OA ทำอย่างไร?',
+            'ตรวจสอบว่า LINE OA ไม่ได้ปิด notification ถ้ายังไม่เข้า ทักเราทันที เราจะตรวจ webhook ให้')
+    pdf.faq('ลูกค้าสั่งแล้วแต่ร้านไม่เห็นออเดอร์?',
+            'เช็คที่ LINE OA ก่อน (บางครั้ง notification ปิดอยู่) ถ้าไม่มีจริง ทักเราให้ตรวจ log ระบบ')
+    pdf.faq('อยากเพิ่มโต๊ะเพิ่ม ทำได้ไหม?',
+            'ได้ครับ แจ้งจำนวนโต๊ะที่ต้องการเพิ่ม เราจะสร้าง QR Code ใหม่ให้ มีค่าบริการเพิ่มเติมตามจำนวน')
+    pdf.faq('อยากเพิ่มฟีเจอร์ใหม่ เช่น โชว์ยอดขาย หรือระบบ loyalty?',
+            'ได้ครับ แต่เป็นงาน custom development ราคาขึ้นอยู่กับ scope งาน ทักมาเล่าให้ฟังก่อนได้เลย')
+    pdf.faq('สิทธิ์แก้ไขฟรี 5 ครั้งหมดแล้ว ราคาครั้งต่อไป?',
+            'แก้ข้อความ/ราคา 150 บาท | เพิ่มเมนูพร้อมรูป 200 บาท | แก้ตัวเลือก options 100 บาท/รายการ | งาน design ใหม่ quote ตามงาน')
+    pdf.body('ติดต่อเรา: ปัญหาเร่งด่วน ทักเราทาง LINE ได้เลย ตอบกลับภายใน 24 ชั่วโมงในวันทำการ สำหรับ Premium ลูกค้า เราให้ความสำคัญเป็นพิเศษ')
 
-    p.thanks_page(
-        "หวังว่าระบบเมนู QR Code จะช่วยให้ร้านของคุณ\nให้บริการลูกค้าได้สะดวกยิ่งขึ้น ลดความผิดพลาด\nและเพิ่มยอดขายได้ในระยะยาว",
-        "อย่าลืมนัด Zoom สอนงาน!\nทักเราเพื่อนัดวัน/เวลาที่สะดวก"
+    pdf.thanks_page(
+        line1='ขอบคุณที่ไว้วางใจแพ็ก Premium',
+        line2='ระบบออเดอร์อัตโนมัติจะช่วยให้ร้านของคุณ',
+        line3='รับออเดอร์ได้เร็วขึ้น ไม่พลาด และดูมืออาชีพครับ',
     )
 
-    out = f"{OUT}/ebook-premium.pdf"
-    p.output(out)
-    print(f"  Premium:  {os.path.getsize(out)//1024} KB  ({out})")
+    pdf.output('/home/user/khaomoo-menu/docs/ebook-premium.pdf')
+    print('  [OK] ebook-premium.pdf')
 
 
-if __name__ == "__main__":
-    print("Generating E-book PDFs with fpdf2...")
+# ===========================================================================
+# Main
+# ===========================================================================
+if __name__ == '__main__':
+    print('Generating PDFs...')
     build_basic()
     build_standard()
     build_premium()
-    print("Done!")
+    print('Done.')
