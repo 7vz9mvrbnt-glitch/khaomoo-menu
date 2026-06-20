@@ -19,7 +19,7 @@
   --border: #D4E2D2;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Sarabun', sans-serif; background: #fff; color: var(--dark); font-size: 16px; line-height: 1.85; }
+body { font-family: 'Sarabun', sans-serif; background: #fff; color: var(--dark); font-size: 16px; line-height: 1.85; overflow-wrap: break-word; }
 
 @media print {
   .page-break { page-break-before: always; }
@@ -291,7 +291,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
   <div class="ch-sub">รวบรวมสิ่งเหล่านี้ก่อน แล้วส่งให้เราทาง LINE</div>
 </div>
 <div class="content">
-  <p>แพ็ก Standard รองรับ 2 ภาษา ดังนั้นถ้ามีชื่อเมนูภาษาอังกฤษด้วย ก็ยิ่งดีครับ — แต่ถ้าไม่มี เราจะแปลให้</p>
+  <p>แพ็ก Standard รองรับ 2 ภาษา ถ้ามีชื่อเมนูภาษาอังกฤษอยู่แล้วก็ยิ่งดี ถ้าไม่มีเราจะแปลให้ครับ</p>
 
   <h3>📋 Checklist ข้อมูลที่ต้องส่ง</h3>
   <ul class="prep">
@@ -299,14 +299,14 @@ hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
       <div class="box"></div>
       <div>
         <strong>ชื่อร้าน (ไทย + อังกฤษถ้ามี)</strong>
-        <span>เช่น "ร้านข้าวมูหมู" และ "Khaomoo Restaurant"</span>
+        <span>เช่น ร้านข้าวมูหมู / Khaomoo Restaurant</span>
       </div>
     </li>
     <li>
       <div class="box"></div>
       <div>
         <strong>รายการเมนูสูงสุด 60 รายการ</strong>
-        <span>ชื่อไทย + ราคา + หมวดหมู่ (ชื่ออังกฤษถ้ามี เราจะแปลให้ถ้าไม่มี)</span>
+        <span>ชื่อไทย + ราคา + หมวดหมู่ · ไม่มีชื่ออังกฤษก็ได้ เราจะแปลให้</span>
       </div>
     </li>
     <li>
