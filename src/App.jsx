@@ -582,14 +582,17 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
     <div className="kfade" style={{ minHeight:"100vh", background:C.cream, paddingBottom:40 }}>
       <div style={{ background:"linear-gradient(135deg,#1E3A5F,#2563EB)", padding:"40px 24px 28px", textAlign:"center" }}>
         <div style={{ fontSize:64, marginBottom:8 }}>🛵</div>
-        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:24, fontWeight:900, color:"white", marginBottom:4 }}>ออเดอร์ Delivery พร้อมแล้ว!</h2>
-        <div style={{ color:"rgba(255,255,255,.75)", fontSize:13 }}>ส่งออเดอร์ให้ร้านเพื่อยืนยัน</div>
+        <h2 style={{ fontFamily:"'Noto Serif Thai',serif", fontSize:24, fontWeight:900, color:"white", marginBottom:4 }}>{lang==="en" ? "Delivery Order Ready!" : "ออเดอร์ Delivery พร้อมแล้ว!"}</h2>
+        <div style={{ color:"rgba(255,255,255,.75)", fontSize:13 }}>{lang==="en" ? "Send your order to confirm" : "ส่งออเดอร์ให้ร้านเพื่อยืนยัน"}</div>
       </div>
       <div style={{ padding:"20px 18px" }}>
         {/* Delivery info */}
         <div style={{ background:"white", borderRadius:20, padding:18, marginBottom:14 }}>
-          <div style={{ fontSize:11, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:12 }}>รายละเอียดการส่ง</div>
-          {[["👤 ชื่อ",address.name],["📍 สถานที่",address.place],["📱 เบอร์โทร",address.phone],["⏰ รอบส่ง",deliveryTime==="morning"?"ช่วงเช้า 09:00 น.":"ช่วงบ่าย 14:00 น."],["📝 หมายเหตุ",address.note||"-"]].map(([k,v])=>(
+          <div style={{ fontSize:11, fontWeight:800, color:C.muted, textTransform:"uppercase", letterSpacing:1, marginBottom:12 }}>{lang==="en" ? "Delivery Details" : "รายละเอียดการส่ง"}</div>
+          {(lang==="en"
+            ? [["👤 Name",address.name],["📍 Address",address.place],["📱 Phone",address.phone],["⏰ Slot",deliveryTime==="morning"?"Morning 09:00":"Afternoon 14:00"],["📝 Note",address.note||"-"]]
+            : [["👤 ชื่อ",address.name],["📍 สถานที่",address.place],["📱 เบอร์โทร",address.phone],["⏰ รอบส่ง",deliveryTime==="morning"?"ช่วงเช้า 09:00 น.":"ช่วงบ่าย 14:00 น."],["📝 หมายเหตุ",address.note||"-"]]
+          ).map(([k,v])=>(
             <div key={k} style={{ display:"flex", gap:8, padding:"8px 0", borderBottom:"1px solid #F5F0EA", fontSize:14 }}>
               <span style={{ color:"#888", minWidth:90 }}>{k}</span>
               <span style={{ fontWeight:600, flex:1 }}>{v}</span>
@@ -602,20 +605,20 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
             <div key={e.key} style={{ display:"flex", alignItems:"center", borderBottom:"1px solid #F5F0EA" }}>
               <img src={IMGS[e.item.img]} style={{ width:66,height:66,objectFit:"cover",flexShrink:0 }} alt="" />
               <div style={{ padding:"10px 12px", flex:1 }}>
-                <div style={{ fontSize:13, fontWeight:700 }}>{e.item.name}</div>
-                {e.opts.length>0&&<div style={{ fontSize:11,color:"#8B6B55",marginTop:2 }}>{e.opts.map(o=>o.label).join(" · ")}</div>}
+                <div style={{ fontSize:13, fontWeight:700 }}>{lang==="en"?(e.item.name_en||e.item.name):e.item.name}</div>
+                {e.opts.length>0&&<div style={{ fontSize:11,color:"#8B6B55",marginTop:2 }}>{e.opts.map(o=>lang==="en"?(o.label_en??o.label):o.label).join(" · ")}</div>}
                 <div style={{ fontSize:12,color:"#999" }}>×{e.qty}</div>
               </div>
               <div style={{ padding:"0 14px",fontWeight:800,color:C.red,fontSize:14 }}>{e.unitPrice*e.qty}฿</div>
             </div>
           ))}
           <div style={{ padding:"12px 16px",display:"flex",justifyContent:"space-between",fontSize:16,fontWeight:900 }}>
-            <span>รวม</span><span style={{ color:C.red }}>{cartTotal}฿</span>
+            <span>{lang==="en" ? "Total" : "รวม"}</span><span style={{ color:C.red }}>{cartTotal}฿</span>
           </div>
         </div>
         {/* Payment QR */}
         <div style={{ background:"#FFF8F0", border:"2px solid #F0D080", borderRadius:18, padding:16, marginBottom:14, textAlign:"center" }}>
-          <div style={{ fontSize:12, fontWeight:800, color:"#8B6B30", marginBottom:10 }}>💳 ชำระเงิน</div>
+          <div style={{ fontSize:12, fontWeight:800, color:"#8B6B30", marginBottom:10 }}>{lang==="en" ? "💳 Payment" : "💳 ชำระเงิน"}</div>
           <img src={IMGS.qr_promptpay} style={{ width:180, height:"auto", borderRadius:12, border:"3px solid #F0D080", display:"inline-block" }} alt="QR PromptPay" />
           <div style={{ fontSize:12, color:"#888", marginTop:8 }}>SCB · 566-542401-3 · ชนินทร์ ปิติวงษ์</div>
           <div style={{ fontSize:22, fontWeight:900, color:C.red, marginTop:6 }}>{cartTotal}฿</div>
@@ -623,24 +626,24 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
         {/* LINE SEND BUTTON */}
         <div style={{ background:"#F0FFF4", border:"2px solid #06C755", borderRadius:22, padding:18, marginBottom:14 }}>
           <div style={{ textAlign:"center", marginBottom:14 }}>
-            <div style={{ fontSize:15, fontWeight:900, color:"#16A34A", marginBottom:4 }}>💬 ส่งออเดอร์ให้ร้านผ่าน LINE</div>
-            <div style={{ fontSize:12, color:"#555" }}>กดปุ่มด้านล่าง แล้วแนบสลิป + ส่งโลเคชั่น</div>
+            <div style={{ fontSize:15, fontWeight:900, color:"#16A34A", marginBottom:4 }}>{lang==="en" ? "💬 Send Order via LINE" : "💬 ส่งออเดอร์ให้ร้านผ่าน LINE"}</div>
+            <div style={{ fontSize:12, color:"#555" }}>{lang==="en" ? "Tap below, then attach slip + location" : "กดปุ่มด้านล่าง แล้วแนบสลิป + ส่งโลเคชั่น"}</div>
           </div>
           {!sent ? (
             <button className="kbtn" style={{ width:"100%", padding:"15px 20px", fontSize:16, borderRadius:16, background:"#06C755", color:"white", display:"flex", alignItems:"center", justifyContent:"center", gap:10, fontWeight:800, boxShadow:"0 6px 20px rgba(6,199,85,.4)" }}
               onClick={() => { sendOrderToLine(getDeliverySummary()); setSent(true); }}>
-              <span style={{ fontSize:22 }}>💬</span> ส่งออเดอร์ผ่าน LINE
+              <span style={{ fontSize:22 }}>💬</span> {lang==="en" ? "Send Order via LINE" : "ส่งออเดอร์ผ่าน LINE"}
             </button>
           ) : (
             <div style={{ textAlign:"center" }}>
-              <div style={{ background:"#16A34A", color:"white", borderRadius:14, padding:"12px 20px", marginBottom:10, fontWeight:800, fontSize:14 }}>✅ ส่งออเดอร์แล้ว!</div>
-              <button className="kbtn" style={{ fontSize:13, padding:"8px 20px", borderRadius:12, background:"rgba(6,199,85,.15)", color:"#16A34A", border:"1px solid #06C755" }} onClick={() => sendOrderToLine(getDeliverySummary())}>ส่งอีกครั้ง</button>
+              <div style={{ background:"#16A34A", color:"white", borderRadius:14, padding:"12px 20px", marginBottom:10, fontWeight:800, fontSize:14 }}>{lang==="en" ? "✅ Order Sent!" : "✅ ส่งออเดอร์แล้ว!"}</div>
+              <button className="kbtn" style={{ fontSize:13, padding:"8px 20px", borderRadius:12, background:"rgba(6,199,85,.15)", color:"#16A34A", border:"1px solid #06C755" }} onClick={() => sendOrderToLine(getDeliverySummary())}>{lang==="en" ? "Resend" : "ส่งอีกครั้ง"}</button>
             </div>
           )}
         </div>
         <div style={{ display:"flex", gap:10 }}>
-          <button className="kbtn" style={{ flex:1,padding:14,borderRadius:16,border:"2px solid "+C.border,color:"#666",fontSize:14 }} onClick={()=>setStep("menu")}>+ สั่งเพิ่ม</button>
-          <button className="kbtn" style={{ flex:1,padding:14,borderRadius:16,border:"2px solid "+C.border,color:"#666",fontSize:14 }} onClick={()=>setView("home")}>🏠 หน้าหลัก</button>
+          <button className="kbtn" style={{ flex:1,padding:14,borderRadius:16,border:"2px solid "+C.border,color:"#666",fontSize:14 }} onClick={()=>setStep("menu")}>{lang==="en" ? "+ Order More" : "+ สั่งเพิ่ม"}</button>
+          <button className="kbtn" style={{ flex:1,padding:14,borderRadius:16,border:"2px solid "+C.border,color:"#666",fontSize:14 }} onClick={()=>setView("home")}>{lang==="en" ? "🏠 Home" : "🏠 หน้าหลัก"}</button>
         </div>
       </div>
     </div>
@@ -650,33 +653,33 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
     <div className="kfade" style={{ minHeight:"100vh", background:C.cream, paddingBottom:120 }}>
       <div style={{ padding:"20px 18px 16px",display:"flex",alignItems:"center",gap:12,borderBottom:"1px solid "+C.border }}>
         <button className="kbtn" style={{ background:C.border,borderRadius:12,width:38,height:38,fontSize:16,display:"flex",alignItems:"center",justifyContent:"center" }} onClick={()=>setStep("menu")}>←</button>
-        <h2 style={{ fontFamily:"'Noto Serif Thai',serif",fontSize:20,fontWeight:900 }}>📍 ที่อยู่จัดส่ง</h2>
+        <h2 style={{ fontFamily:"'Noto Serif Thai',serif",fontSize:20,fontWeight:900 }}>{lang==="en" ? "📍 Delivery Address" : "📍 ที่อยู่จัดส่ง"}</h2>
       </div>
       <div style={{ padding:"16px 18px" }}>
         <div style={{ background:"linear-gradient(135deg,#1E3A5F,#2563EB)", borderRadius:18, padding:16, marginBottom:12, color:"white" }}>
-          <div style={{ fontSize:14, fontWeight:800, marginBottom:10 }}>🛵 ข้อมูลการจัดส่ง</div>
+          <div style={{ fontSize:14, fontWeight:800, marginBottom:10 }}>{lang==="en" ? "🛵 Delivery Info" : "🛵 ข้อมูลการจัดส่ง"}</div>
           <div style={{ fontSize:13, lineHeight:1.9, opacity:.95 }}>
-            <div>⏰ รอบเช้า 09:00 น. | รอบบ่าย 14:00 น.</div>
+            <div>{lang==="en" ? "⏰ Morning 09:00 | Afternoon 14:00" : "⏰ รอบเช้า 09:00 น. | รอบบ่าย 14:00 น."}</div>
           </div>
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
           <div style={{ background:"#F0FDF4", border:"2px solid #22C55E", borderRadius:16, padding:"14px 12px", textAlign:"center" }}>
             <div style={{ fontSize:22, marginBottom:4 }}>✅</div>
-            <div style={{ fontSize:13, fontWeight:900, color:"#16A34A", marginBottom:4 }}>ฟรีค่าส่ง</div>
-            <div style={{ fontSize:12, fontWeight:700, color:"#15803D" }}>ในเขตตัวเมือง</div>
-            <div style={{ fontSize:11, color:"#166534", marginTop:4, lineHeight:1.5 }}>ระยะ ≤ 5 กม.<br/>ขั้นต่ำ <span style={{ fontWeight:900, fontSize:13 }}>300฿</span> ขึ้นไป</div>
+            <div style={{ fontSize:13, fontWeight:900, color:"#16A34A", marginBottom:4 }}>{lang==="en" ? "Free Delivery" : "ฟรีค่าส่ง"}</div>
+            <div style={{ fontSize:12, fontWeight:700, color:"#15803D" }}>{lang==="en" ? "In-town Area" : "ในเขตตัวเมือง"}</div>
+            <div style={{ fontSize:11, color:"#166534", marginTop:4, lineHeight:1.5 }}>{lang==="en" ? "≤ 5 km" : "ระยะ ≤ 5 กม."}<br/>{lang==="en" ? "Min. order" : "ขั้นต่ำ"} <span style={{ fontWeight:900, fontSize:13 }}>300฿</span> {lang==="en" ? "" : "ขึ้นไป"}</div>
           </div>
           <div style={{ background:"#FFF7ED", border:"2px solid #F97316", borderRadius:16, padding:"14px 12px", textAlign:"center" }}>
             <div style={{ fontSize:22, marginBottom:4 }}>🗺️</div>
-            <div style={{ fontSize:13, fontWeight:900, color:"#EA580C", marginBottom:4 }}>นอกเขต</div>
-            <div style={{ fontSize:12, fontWeight:700, color:"#C2410C" }}>ไกลกว่า 5 กม.</div>
-            <div style={{ fontSize:11, color:"#9A3412", marginTop:4, lineHeight:1.5 }}>เริ่มต้น <span style={{ fontWeight:900, fontSize:13 }}>50฿+</span><br/>ตามระยะทาง</div>
+            <div style={{ fontSize:13, fontWeight:900, color:"#EA580C", marginBottom:4 }}>{lang==="en" ? "Outside Zone" : "นอกเขต"}</div>
+            <div style={{ fontSize:12, fontWeight:700, color:"#C2410C" }}>{lang==="en" ? "Over 5 km" : "ไกลกว่า 5 กม."}</div>
+            <div style={{ fontSize:11, color:"#9A3412", marginTop:4, lineHeight:1.5 }}>{lang==="en" ? "From" : "เริ่มต้น"} <span style={{ fontWeight:900, fontSize:13 }}>50฿+</span><br/>{lang==="en" ? "by distance" : "ตามระยะทาง"}</div>
           </div>
         </div>
         <div style={{ background:"white",borderRadius:18,padding:18,marginBottom:14 }}>
-          <div style={{ fontSize:12,fontWeight:800,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:12 }}>⏰ เลือกรอบจัดส่ง</div>
+          <div style={{ fontSize:12,fontWeight:800,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:12 }}>{lang==="en" ? "⏰ Choose Delivery Slot" : "⏰ เลือกรอบจัดส่ง"}</div>
           <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:10 }}>
-            {[{id:"morning",label:"ช่วงเช้า",time:"09:00 น.",icon:"🌅"},{id:"afternoon",label:"ช่วงบ่าย",time:"14:00 น.",icon:"☀️"}].map(t=>(
+            {[{id:"morning",label:lang==="en"?"Morning":"ช่วงเช้า",time:"09:00",icon:"🌅"},{id:"afternoon",label:lang==="en"?"Afternoon":"ช่วงบ่าย",time:"14:00",icon:"☀️"}].map(t=>(
               <div key={t.id} onClick={()=>setDeliveryTime(t.id)} style={{ background:deliveryTime===t.id?"#EFF6FF":"#F5F5F5",border:"2px solid "+(deliveryTime===t.id?"#2563EB":"transparent"),borderRadius:14,padding:"14px 12px",textAlign:"center",cursor:"pointer",transition:"all .2s" }}>
                 <div style={{ fontSize:24,marginBottom:4 }}>{t.icon}</div>
                 <div style={{ fontSize:14,fontWeight:800,color:deliveryTime===t.id?"#2563EB":C.dark }}>{t.label}</div>
@@ -686,8 +689,11 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
           </div>
         </div>
         <div style={{ background:"white",borderRadius:18,padding:18,marginBottom:14 }}>
-          <div style={{ fontSize:12,fontWeight:800,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:14 }}>📋 ข้อมูลการจัดส่ง</div>
-          {[{key:"name",label:"ชื่อผู้รับ *",placeholder:"ชื่อ-นามสกุล",type:"text"},{key:"phone",label:"เบอร์โทรติดต่อ *",placeholder:"0XX-XXX-XXXX",type:"tel"},{key:"place",label:"ชื่อสถานที่ / ที่อยู่ *",placeholder:"เช่น บ้านเลขที่, หมู่บ้าน",type:"text"},{key:"note",label:"หมายเหตุเพิ่มเติม",placeholder:"เช่น บ้านสีขาว ใกล้ 7-11",type:"text"}].map(f=>(
+          <div style={{ fontSize:12,fontWeight:800,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:14 }}>{lang==="en" ? "📋 Delivery Information" : "📋 ข้อมูลการจัดส่ง"}</div>
+          {(lang==="en"
+            ? [{key:"name",label:"Recipient Name *",placeholder:"Full Name",type:"text"},{key:"phone",label:"Phone Number *",placeholder:"0XX-XXX-XXXX",type:"tel"},{key:"place",label:"Address *",placeholder:"House no., Village...",type:"text"},{key:"note",label:"Additional Notes",placeholder:"e.g. white house, near 7-Eleven",type:"text"}]
+            : [{key:"name",label:"ชื่อผู้รับ *",placeholder:"ชื่อ-นามสกุล",type:"text"},{key:"phone",label:"เบอร์โทรติดต่อ *",placeholder:"0XX-XXX-XXXX",type:"tel"},{key:"place",label:"ชื่อสถานที่ / ที่อยู่ *",placeholder:"เช่น บ้านเลขที่, หมู่บ้าน",type:"text"},{key:"note",label:"หมายเหตุเพิ่มเติม",placeholder:"เช่น บ้านสีขาว ใกล้ 7-11",type:"text"}]
+          ).map(f=>(
             <div key={f.key} style={{ marginBottom:14 }}>
               <div style={{ fontSize:12,fontWeight:700,color:"#888",marginBottom:6 }}>{f.label}</div>
               <input className="kinp" type={f.type} placeholder={f.placeholder} value={address[f.key]} onChange={e=>setAddress(p=>({...p,[f.key]:e.target.value}))} style={{ width:"100%",background:"white",color:C.dark,border:"2px solid "+C.border }} />
@@ -695,7 +701,7 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
           ))}
         </div>
         <div style={{ background:"white",borderRadius:18,padding:16,marginBottom:14 }}>
-          <div style={{ fontSize:12,fontWeight:800,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:10 }}>สรุปออเดอร์ ({cart.reduce((s,e)=>s+e.qty,0)} รายการ)</div>
+          <div style={{ fontSize:12,fontWeight:800,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:10 }}>{lang==="en" ? `Order Summary (${cart.reduce((s,e)=>s+e.qty,0)} items)` : `สรุปออเดอร์ (${cart.reduce((s,e)=>s+e.qty,0)} รายการ)`}</div>
           {cart.map(e=>(
             <div key={e.key} style={{ display:"flex",justifyContent:"space-between",fontSize:13,padding:"5px 0",borderBottom:"1px solid #F5F0EA" }}>
               <span style={{ flex:1 }}>{e.item.name} ×{e.qty}</span>
@@ -703,14 +709,14 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
             </div>
           ))}
           <div style={{ display:"flex",justifyContent:"space-between",fontSize:17,fontWeight:900,marginTop:10 }}>
-            <span>รวม</span><span style={{ color:C.red }}>{cartTotal}฿</span>
+            <span>{lang==="en" ? "Total" : "รวม"}</span><span style={{ color:C.red }}>{cartTotal}฿</span>
           </div>
         </div>
       </div>
       <div style={{ position:"fixed",bottom:16,left:16,right:16 }}>
         <button className="kbtn" style={{ width:"100%",padding:18,fontSize:16,borderRadius:20,background:canProceed?C.red:"#AAA",color:"white",boxShadow:canProceed?"0 8px 28px rgba(139,38,53,.35)":"none" }}
           onClick={canProceed?()=>setStep("status"):undefined} disabled={!canProceed}>
-          {canProceed?"✅ ยืนยันออเดอร์ Delivery":"กรุณากรอกข้อมูลให้ครบ"}
+          {canProceed ? (lang==="en" ? "✅ Confirm Delivery Order" : "✅ ยืนยันออเดอร์ Delivery") : (lang==="en" ? "Please complete all fields" : "กรุณากรอกข้อมูลให้ครบ")}
         </button>
       </div>
     </div>
@@ -723,7 +729,7 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
           <div style={{ display:"flex",alignItems:"center",gap:10 }}>
             <button className="kbtn" style={{ background:"rgba(255,255,255,.2)",borderRadius:12,width:36,height:36,fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",color:"white" }} onClick={()=>setView("home")}>←</button>
             <div>
-              <div style={{ fontSize:10,fontWeight:800,letterSpacing:2,opacity:.7,textTransform:"uppercase" }}>สั่งอาหาร</div>
+              <div style={{ fontSize:10,fontWeight:800,letterSpacing:2,opacity:.7,textTransform:"uppercase" }}>{lang==="en" ? "Order Food" : "สั่งอาหาร"}</div>
               <div style={{ fontFamily:"'Noto Serif Thai',serif",fontSize:18,fontWeight:900 }}>🛵 Delivery</div>
             </div>
           </div>
@@ -732,7 +738,7 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
           </button>
         </div>
         <div style={{ display:"flex",gap:8,overflowX:"auto",scrollbarWidth:"none" }}>
-          {["✅ ฟรี ≤5กม. ขั้นต่ำ 300฿","🗺️ >5กม. = 50฿+","⏰ 09:00 | 14:00"].map(t=>(
+          {(lang==="en" ? ["✅ Free ≤5km Min.300฿","🗺️ >5km = 50฿+","⏰ 09:00 | 14:00"] : ["✅ ฟรี ≤5กม. ขั้นต่ำ 300฿","🗺️ >5กม. = 50฿+","⏰ 09:00 | 14:00"]).map(t=>(
             <span key={t} style={{ whiteSpace:"nowrap",background:"rgba(255,255,255,.15)",borderRadius:20,padding:"5px 12px",fontSize:11,fontWeight:600 }}>{t}</span>
           ))}
         </div>
