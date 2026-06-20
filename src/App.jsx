@@ -797,9 +797,14 @@ export default function App() {
         if (data && data.length > 0) {
           setMenuItems(data.map(r => ({
             ...r, desc: r.description,
-            name_en: localById[r.id]?.name_en,
-            desc_en: localById[r.id]?.desc_en,
-            cat_en:  localById[r.id]?.cat_en,
+            name_en:  localById[r.id]?.name_en,
+            desc_en:  localById[r.id]?.desc_en,
+            cat_en:   localById[r.id]?.cat_en,
+            badge_en: localById[r.id]?.badge_en,
+            opts: (localById[r.id]?.opts ?? r.opts ?? []).map(localOpt => {
+              const dbOpt = (r.opts ?? []).find(o => o.id === localOpt.id);
+              return dbOpt ? { ...localOpt, price: dbOpt.price } : localOpt;
+            }),
           })));
         }
       });
