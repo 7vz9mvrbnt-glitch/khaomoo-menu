@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>คู่มือการใช้งาน — แพ็ก Basic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=Noto+Serif+Thai:wght@700;900&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --sage:   #87A080;
+  --sage-l: #ECF2EB;
+  --sage-d: #557252;
+  --sage-m: #B8CFB5;
+  --cream:  #F8F5EF;
+  --white:  #FFFFFF;
+  --dark:   #2A2A2A;
+  --mid:    #5E5E5E;
+  --border: #D4E2D2;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun', sans-serif; background: #fff; color: var(--dark); font-size: 16px; line-height: 1.85; }
+
+@media print {
+  .page-break { page-break-before: always; }
+  .cover, .thanks { height: 100vh; }
+  a { text-decoration: none; color: inherit; }
+  .content { padding: 40px 48px; }
+}
+
+/* ── COVER ─────────────────────────────── */
+.cover {
+  background: var(--sage);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.cover-circle1 {
+  position: absolute; right: -60px; top: -60px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  border: 70px solid rgba(255,255,255,.08);
+}
+.cover-circle2 {
+  position: absolute; left: -50px; bottom: -80px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  border: 55px solid rgba(255,255,255,.07);
+}
+.cover-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 48px 40px;
+  text-align: center;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+.cover-tag {
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: 30px;
+  padding: 6px 24px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.cover-icon { font-size: 72px; display: block; margin-bottom: 24px; }
+.cover h1 {
+  font-family: 'Noto Serif Thai', serif;
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.3;
+  margin-bottom: 14px;
+}
+.cover-sub { font-size: 17px; opacity: .85; line-height: 1.7; margin-bottom: 40px; }
+.cover-price {
+  background: white;
+  color: var(--sage-d);
+  border-radius: 50px;
+  padding: 12px 36px;
+  font-size: 24px;
+  font-weight: 900;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+.cover-days { font-size: 14px; opacity: .8; }
+.cover-foot {
+  background: white;
+  padding: 20px 48px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--mid);
+  border-top: 3px solid var(--sage-l);
+}
+
+/* ── TOC ────────────────────────────────── */
+.toc {
+  background: var(--cream);
+  min-height: 100vh;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 48px;
+}
+.toc-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 44px;
+}
+.toc-line { flex: 1; height: 2px; background: var(--border); }
+.toc-title {
+  font-family: 'Noto Serif Thai', serif;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--sage-d);
+  white-space: nowrap;
+}
+.toc-list { list-style: none; }
+.toc-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.toc-item:last-child { border: none; }
+.toc-n {
+  background: var(--sage);
+  color: white;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.toc-info strong { display: block; font-size: 18px; font-weight: 700; color: var(--dark); }
+.toc-info span { font-size: 14px; color: var(--mid); }
+
+/* ── CHAPTER OPENER ─────────────────────── */
+.ch-open {
+  background: var(--sage);
+  padding: 56px 48px 52px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.ch-open::after {
+  content: '';
+  position: absolute;
+  bottom: -50px; right: -50px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  border: 45px solid rgba(255,255,255,.09);
+}
+.ch-bg {
+  position: absolute;
+  top: -15px; right: 10px;
+  font-family: 'Noto Serif Thai', serif;
+  font-size: 170px;
+  font-weight: 900;
+  color: rgba(255,255,255,.07);
+  line-height: 1;
+  user-select: none;
+}
+.ch-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: .7;
+  margin-bottom: 14px;
+}
+.ch-title {
+  font-family: 'Noto Serif Thai', serif;
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1.3;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+.ch-sub {
+  font-size: 15px;
+  opacity: .85;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── CONTENT ────────────────────────────── */
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 48px 56px;
+}
+h3 { font-size: 20px; font-weight: 800; color: var(--dark); margin: 36px 0 16px; }
+h3:first-child { margin-top: 0; }
+p { margin-bottom: 14px; }
+hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+/* Feature list */
+.feat { list-style: none; margin: 16px 0 28px; }
+.feat li {
+  display: flex; gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+  align-items: flex-start;
+  line-height: 1.65;
+}
+.feat li:last-child { border: none; }
+.feat .em { font-size: 24px; flex-shrink: 0; margin-top: 1px; }
+.feat strong { display: block; font-weight: 700; color: var(--dark); font-size: 16px; }
+.feat span { font-size: 14px; color: var(--mid); }
+
+/* Steps */
+.steps { margin: 20px 0 28px; }
+.step { display: flex; gap: 18px; margin-bottom: 24px; align-items: flex-start; }
+.sn {
+  background: var(--sage);
+  color: white;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.sb strong { display: block; font-size: 17px; font-weight: 700; margin-bottom: 4px; color: var(--dark); }
+.sb p { font-size: 14px; color: var(--mid); line-height: 1.7; margin: 0; }
+.sc { width: 2px; height: 16px; background: var(--border); margin: 3px 0 3px 19px; }
+
+/* Prep checklist */
+.prep {
+  background: var(--cream);
+  border-radius: 18px;
+  padding: 24px 28px;
+  margin: 20px 0;
+  list-style: none;
+}
+.prep li {
+  display: flex; gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+  line-height: 1.65;
+}
+.prep li:last-child { border: none; }
+.prep .box {
+  width: 22px; height: 22px;
+  border: 2px solid var(--sage);
+  border-radius: 5px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.prep strong { font-weight: 700; display: block; }
+.prep span { font-size: 13px; color: var(--mid); }
+
+/* Tip boxes */
+.tip {
+  background: var(--sage-l);
+  border-left: 4px solid var(--sage);
+  border-radius: 0 16px 16px 0;
+  padding: 18px 22px;
+  margin: 20px 0;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.tip strong { display: block; font-size: 15px; font-weight: 800; color: var(--sage-d); margin-bottom: 6px; }
+.tip.warn { background: #FFF9E6; border-color: #CCA010; }
+.tip.warn strong { color: #7A5500; }
+.tip.good { background: #F0FDF4; border-color: #22C55E; }
+.tip.good strong { color: #166534; }
+
+/* Quote box */
+.quote {
+  background: var(--sage);
+  border-radius: 20px;
+  padding: 30px 32px;
+  color: white;
+  text-align: center;
+  margin: 28px 0;
+}
+.quote .qi { font-size: 36px; display: block; margin-bottom: 12px; }
+.quote p {
+  font-family: 'Noto Serif Thai', serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Phone mockup */
+.phone {
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+.ph-bar { background: var(--sage); color: white; padding: 13px 18px; font-size: 14px; font-weight: 700; }
+.ph-body { padding: 16px 18px; font-size: 14px; line-height: 1.8; }
+.ph-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.ph-row:last-child { border: none; }
+
+/* FAQ */
+.faq-item { border-bottom: 1px solid var(--border); padding: 18px 0; }
+.faq-item:last-child { border: none; }
+.faq-q { font-weight: 800; font-size: 16px; color: var(--sage-d); margin-bottom: 8px; display: flex; gap: 12px; }
+.faq-q::before { content: "Q."; font-family: 'Noto Serif Thai', serif; font-weight: 900; flex-shrink: 0; }
+.faq-a { font-size: 14px; color: #444; line-height: 1.85; padding-left: 28px; }
+
+/* Thanks */
+.thanks {
+  background: var(--sage);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 48px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.thanks-c1 { position: absolute; right: -60px; top: -60px; width: 260px; height: 260px; border-radius: 50%; border: 55px solid rgba(255,255,255,.08); }
+.thanks-c2 { position: absolute; left: -50px; bottom: -70px; width: 240px; height: 240px; border-radius: 50%; border: 50px solid rgba(255,255,255,.07); }
+.thanks-body { position: relative; z-index: 1; }
+.thanks h2 { font-family: 'Noto Serif Thai', serif; font-size: 44px; font-weight: 900; margin-bottom: 20px; }
+.thanks .sub { font-size: 17px; opacity: .85; line-height: 1.8; margin-bottom: 40px; max-width: 500px; }
+.thanks-line { width: 60px; height: 2px; background: rgba(255,255,255,.4); margin: 28px auto; }
+.thanks .note { font-size: 14px; opacity: .7; }
+
+@media (max-width: 640px) {
+  .cover h1 { font-size: 30px; }
+  .content, .toc { padding: 40px 24px; }
+  .ch-open { padding: 40px 24px 36px; }
+  .ch-title { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══════════════════════════════ -->
+<div class="cover">
+  <div class="cover-circle1"></div>
+  <div class="cover-circle2"></div>
+  <div class="cover-body">
+    <div class="cover-tag">E-Book · แพ็ก 1 · Basic</div>
+    <span class="cover-icon">🌱</span>
+    <h1>คู่มือการใช้งาน<br/>เมนู QR Code</h1>
+    <p class="cover-sub">เมนูออนไลน์สำหรับร้านอาหาร<br/>สวยงาม · พิมพ์ได้ · ใช้ง่าย</p>
+    <div class="cover-price">990 บาท</div>
+    <div class="cover-days">ได้งานภายใน 2 วัน · แก้ไขฟรี 1 ครั้ง</div>
+  </div>
+  <div class="cover-foot">คู่มือนี้จัดทำขึ้นสำหรับลูกค้าเท่านั้น</div>
+</div>
+
+<!-- ══ TOC ═════════════════════════════════ -->
+<div class="toc page-break">
+  <div class="toc-head">
+    <div class="toc-line"></div>
+    <div class="toc-title">สารบัญ</div>
+    <div class="toc-line"></div>
+  </div>
+  <ul class="toc-list">
+    <li class="toc-item">
+      <div class="toc-n">1</div>
+      <div class="toc-info">
+        <strong>ยินดีต้อนรับ! คุณได้อะไรบ้าง?</strong>
+        <span>ภาพรวมสิ่งที่ได้รับในแพ็กนี้</span>
+      </div>
+    </li>
+    <li class="toc-item">
+      <div class="toc-n">2</div>
+      <div class="toc-info">
+        <strong>ข้อมูลที่ต้องเตรียมส่งให้เรา</strong>
+        <span>Checklist ครบชุด ก่อนเริ่มงาน</span>
+      </div>
+    </li>
+    <li class="toc-item">
+      <div class="toc-n">3</div>
+      <div class="toc-info">
+        <strong>วิธีใช้ QR Code ที่ร้าน</strong>
+        <span>ติดโต๊ะ → ลูกค้าสแกน → ดูเมนู</span>
+      </div>
+    </li>
+    <li class="toc-item">
+      <div class="toc-n">4</div>
+      <div class="toc-info">
+        <strong>คำถามที่พบบ่อย</strong>
+        <span>ปัญหาที่มักเจอ และวิธีแก้ไข</span>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<!-- ══ บทที่ 1 ═══════════════════════════ -->
+<div class="ch-open page-break">
+  <div class="ch-bg">01</div>
+  <div class="ch-label">บทที่หนึ่ง</div>
+  <div class="ch-title">ยินดีต้อนรับ!<br/>คุณได้อะไรบ้าง?</div>
+  <div class="ch-sub">ทำความเข้าใจสิ่งที่คุณได้รับในแพ็ก Basic</div>
+</div>
+<div class="content">
+  <p>ขอบคุณที่เลือกใช้บริการครับ ในแพ็กนี้คุณจะได้รับ <strong>เมนูอาหารออนไลน์</strong> พร้อมใช้งาน ที่ลูกค้าสแกน QR Code แล้วดูเมนูได้ทันทีบนมือถือ <strong>โดยไม่ต้องดาวน์โหลดแอปใด ๆ</strong></p>
+
+  <h3>✅ สิ่งที่คุณได้รับในแพ็กนี้</h3>
+  <ul class="feat">
+    <li>
+      <span class="em">🍽️</span>
+      <div>
+        <strong>เมนูออนไลน์สูงสุด 20 รายการ พร้อมรูปภาพ</strong>
+        <span>แสดงรูปอาหาร ชื่อ ราคา และคำอธิบาย ดูสวยงามบนมือถือทุกรุ่น</span>
+      </div>
+    </li>
+    <li>
+      <span class="em">📂</span>
+      <div>
+        <strong>แยกหมวดหมู่ กรองเมนูได้</strong>
+        <span>ลูกค้ากดเลือกหมวดได้ทันที เช่น "ของทานเล่น" "เครื่องดื่ม" หาเมนูเจอเร็วขึ้น</span>
+      </div>
+    </li>
+    <li>
+      <span class="em">📱</span>
+      <div>
+        <strong>QR Code ความละเอียดสูง พิมพ์ได้ทุกขนาด</strong>
+        <span>ไฟล์ PNG ขนาดใหญ่ พิมพ์บนกระดาษ สติกเกอร์ อคริลิค หรือกรอบได้เลย</span>
+      </div>
+    </li>
+    <li>
+      <span class="em">🔗</span>
+      <div>
+        <strong>ลิงก์เมนูออนไลน์</strong>
+        <span>ส่งลิงก์ผ่าน LINE / Facebook ให้ลูกค้าเปิดดูได้โดยไม่ต้องสแกน QR</span>
+      </div>
+    </li>
+    <li>
+      <span class="em">🔧</span>
+      <div>
+        <strong>แก้ไขฟรี 1 ครั้ง (ภายใน 30 วัน)</strong>
+        <span>ขอแก้ชื่อเมนู ราคา หรือรูปภาพได้ 1 รอบ หลังจากนั้นคิดเพิ่มตามงาน</span>
+      </div>
+    </li>
+  </ul>
+
+  <div class="quote">
+    <span class="qi">💚</span>
+    <p>"เมนูสวยงาม ดูมืออาชีพ<br/>ลูกค้าดูรูปก่อนสั่ง<br/>ตัดสินใจเร็วขึ้น ยอดขายดีขึ้น"</p>
+  </div>
+
+  <div class="tip">
+    <strong>📌 เปรียบเทียบกับเมนูกระดาษ</strong>
+    เมนูกระดาษพอราคาเปลี่ยน → ต้องพิมพ์ใหม่ทั้งเล่ม แต่เมนู QR Code → ส่งข้อมูลให้เราแก้ ราคาใหม่ขึ้นทันที ไม่ต้องพิมพ์ซ้ำ ประหยัดค่าพิมพ์ระยะยาว
+  </div>
+</div>
+
+<!-- ══ บทที่ 2 ═══════════════════════════ -->
+<div class="ch-open page-break">
+  <div class="ch-bg">02</div>
+  <div class="ch-label">บทที่สอง</div>
+  <div class="ch-title">ข้อมูลที่ต้องเตรียม<br/>ส่งให้เรา</div>
+  <div class="ch-sub">รวบรวมสิ่งเหล่านี้ก่อน แล้วส่งให้เราทาง LINE</div>
+</div>
+<div class="content">
+  <p>ก่อนเราเริ่มทำงาน คุณต้องส่งข้อมูลเหล่านี้มาให้ก่อนนะครับ ยิ่งข้อมูลครบ งานยิ่งเสร็จเร็ว</p>
+
+  <h3>📋 Checklist ข้อมูลที่ต้องส่ง</h3>
+  <ul class="prep">
+    <li>
+      <div class="box"></div>
+      <div>
+        <strong>ชื่อร้าน</strong>
+        <span>ชื่อที่ต้องการแสดงในเมนู เช่น "ร้านข้าวมูหมูต้นตำรับ"</span>
+      </div>
+    </li>
+    <li>
+      <div class="box"></div>
+      <div>
+        <strong>รายการเมนูทั้งหมด (สูงสุด 20 รายการ)</strong>
+        <span>ชื่อเมนู + ราคา + หมวดหมู่ ส่งเป็น Excel, Note, หรือถ่ายรูปเมนูเดิมมาได้เลย</span>
+      </div>
+    </li>
+    <li>
+      <div class="box"></div>
+      <div>
+        <strong>รูปอาหาร (ถ้ามี)</strong>
+        <span>รูปละเอียด สว่าง พื้นหลังสะอาด ส่งเป็น JPG/PNG ถ่ายจากมือถือได้เลย</span>
+      </div>
+    </li>
+    <li>
+      <div class="box"></div>
+      <div>
+        <strong>โลโก้ร้าน (ถ้ามี)</strong>
+        <span>ไฟล์ PNG หรือ JPG โลโก้หน้าร้าน หรือตราสินค้า</span>
+      </div>
+    </li>
+    <li>
+      <div class="box"></div>
+      <div>
+        <strong>สีหลักของร้าน</strong>
+        <span>สีที่ต้องการใช้ เช่น "แดงเลือดหมู" "น้ำตาลโกโก้" หรือ code สี #XXXXXX ก็ได้</span>
+      </div>
+    </li>
+  </ul>
+
+  <div class="tip">
+    <strong>📸 เคล็ดลับถ่ายรูปอาหาร</strong>
+    ถ่ายในที่แสงสว่าง ไม่ต้องมีกล้องแพง — มือถือก็ได้ผลดีมาก<br/>
+    ใส่ในจาน/ชาม ให้เห็นหน้าอาหาร อย่าถ่ายจากมุมต่ำเกินไป<br/>
+    พื้นหลังสีเรียบหรือโต๊ะไม้ดูดีมาก
+  </div>
+
+  <div class="tip warn">
+    <strong>⚠️ ยังไม่มีรูปก็ส่งได้</strong>
+    ถ้ายังไม่มีรูปอาหาร — ส่งข้อมูลอื่นมาก่อนได้เลยครับ เราจะใส่รูป placeholder ไว้ก่อน แล้วค่อยส่งรูปจริงมาทีหลัง (นับเป็น 1 ครั้งของสิทธิ์แก้ไขฟรี)
+  </div>
+</div>
+
+<!-- ══ บทที่ 3 ═══════════════════════════ -->
+<div class="ch-open page-break">
+  <div class="ch-bg">03</div>
+  <div class="ch-label">บทที่สาม</div>
+  <div class="ch-title">วิธีใช้ QR Code<br/>ที่ร้าน</div>
+  <div class="ch-sub">ตั้งแต่พิมพ์ QR Code ไปจนถึงลูกค้าสแกนดูเมนู</div>
+</div>
+<div class="content">
+
+  <h3>🖨️ ขั้นตอนฝั่งร้าน — ติดตั้ง QR Code</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="sn">1</div>
+      <div class="sb">
+        <strong>รับไฟล์ QR Code จากเราทาง LINE</strong>
+        <p>เราส่งไฟล์ PNG ให้ทาง LINE พร้อมลิงก์เมนูด้วย</p>
+      </div>
+    </div>
+    <div class="sc"></div>
+    <div class="step">
+      <div class="sn">2</div>
+      <div class="sb">
+        <strong>พิมพ์ QR Code ออกมา</strong>
+        <p>พิมพ์บนกระดาษธรรมดา สติกเกอร์ หรืออคริลิคก็ได้ ขนาดแนะนำ 8×8 ซม. ขึ้นไป</p>
+      </div>
+    </div>
+    <div class="sc"></div>
+    <div class="step">
+      <div class="sn">3</div>
+      <div class="sb">
+        <strong>ติดที่โต๊ะหรือเคาน์เตอร์</strong>
+        <p>วางให้ลูกค้าเห็นชัดเจน ไม่อยู่ในที่มืด ใส่กรอบอคริลิคดูดีและทนทาน</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip good">
+    <strong>✅ แนะนำติดทุกโต๊ะ</strong>
+    ถ้ามีหลายโต๊ะ — พิมพ์หลายแผ่นได้เลย ใช้ QR Code ไฟล์เดิมทั้งหมด ลิงก์เดียวกัน
+  </div>
+
+  <hr />
+
+  <h3>📱 ขั้นตอนฝั่งลูกค้า — สแกนดูเมนู</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="sn">1</div>
+      <div class="sb">
+        <strong>เปิดกล้องมือถือปกติ (ไม่ต้องโหลดแอปพิเศษ)</strong>
+        <p>ทั้ง iPhone และ Android ใช้กล้องธรรมดาได้เลย</p>
+      </div>
+    </div>
+    <div class="sc"></div>
+    <div class="step">
+      <div class="sn">2</div>
+      <div class="sb">
+        <strong>ชี้กล้องไปที่ QR Code บนโต๊ะ</strong>
+        <p>กล้องจะจับ QR Code อัตโนมัติ ไม่ต้องกดอะไร</p>
+      </div>
+    </div>
+    <div class="sc"></div>
+    <div class="step">
+      <div class="sn">3</div>
+      <div class="sb">
+        <strong>กดลิงก์ที่ขึ้นมาบนหน้าจอ</strong>
+        <p>กด Open / เปิดลิงก์ → เมนูเปิดในเบราว์เซอร์ทันที</p>
+      </div>
+    </div>
+    <div class="sc"></div>
+    <div class="step">
+      <div class="sn">4</div>
+      <div class="sb">
+        <strong>ดูเมนู เลือกรายการ แจ้งพนักงาน</strong>
+        <p>ดูรูปอาหาร ราคา อ่านคำอธิบาย แล้วแจ้งพนักงานสั่ง</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="ph-bar">📱 สิ่งที่ลูกค้าเห็นเมื่อเปิดเมนู</div>
+    <div class="ph-body">
+      <div class="ph-row"><span>🍖 ขาหมูพะโล้เตาถ่าน</span><span style="font-weight:700;color:#87A080;">฿180</span></div>
+      <div class="ph-row"><span>🍚 ข้าวขาหมูพะโล้เตาถ่าน</span><span style="font-weight:700;color:#87A080;">฿60</span></div>
+      <div class="ph-row"><span>🍵 กาแฟสด Premium</span><span style="font-weight:700;color:#87A080;">฿65</span></div>
+      <div class="ph-row"><span style="color:#5E5E5E;font-size:13px;">…และอีก 17 รายการ</span><span></span></div>
+    </div>
+  </div>
+
+  <div class="tip warn">
+    <strong>⚠️ ถ้าลูกค้าสแกนแล้วไม่ขึ้น?</strong>
+    ลองกดค้างที่ QR Code → "เปิดลิงก์" หรือ ใช้แอป LINE สแกนก็ได้เช่นกัน<br/>
+    ตรวจสอบว่า QR Code ไม่เปื้อน ไม่皱 และอยู่ในที่แสงสว่างพอ
+  </div>
+</div>
+
+<!-- ══ บทที่ 4 ═══════════════════════════ -->
+<div class="ch-open page-break">
+  <div class="ch-bg">04</div>
+  <div class="ch-label">บทที่สี่</div>
+  <div class="ch-title">คำถามที่พบบ่อย</div>
+  <div class="ch-sub">ปัญหาที่มักเจอ และวิธีแก้ไขเบื้องต้น</div>
+</div>
+<div class="content">
+
+  <div class="faq-item">
+    <div class="faq-q">ลูกค้าสแกน QR แล้วไม่เปิด?</div>
+    <div class="faq-a">ใช้กล้องมือถือปกติ (ไม่ต้องโหลดแอปพิเศษ) ถ้ายังไม่ขึ้น → ลองกดค้างที่ QR แล้วเลือก "เปิดลิงก์" หรือใช้กล้องใน LINE สแกนแทนได้</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">อยากแก้ราคาเมนู ทำได้ไหม?</div>
+    <div class="faq-a">ได้ครับ ส่งรายการที่ต้องการแก้ให้เราทาง LINE เราจะอัปเดตให้ภายใน 1 วันทำการ (นับเป็น 1 ครั้งของสิทธิ์แก้ไขฟรี)<br/>ถ้าต้องการแก้ราคาเองได้ตลอดเวลา แนะนำอัปเกรดเป็น <strong>แพ็ก Standard</strong></div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">อยากเพิ่มเมนูใหม่ ทำอย่างไร?</div>
+    <div class="faq-a">ส่งชื่อเมนู ราคา และรูปภาพมาให้เรา — เราจะเพิ่มให้ (ถ้ายังมีสิทธิ์แก้ไขฟรีอยู่ จะใช้สิทธิ์นั้น ถ้าหมดแล้วคิดตามงาน)</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">เมนูขาดรูปภาพได้ไหม?</div>
+    <div class="faq-a">ได้ครับ ระบบจะแสดงรูป placeholder (รูปเปล่า) แทน แต่แนะนำให้ใส่รูปจริง เพราะลูกค้าเห็นรูปแล้วตัดสินใจสั่งได้ง่ายขึ้นมาก</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">ใช้สิทธิ์แก้ไขฟรีหมดแล้ว ครั้งต่อไปเสียเท่าไร?</div>
+    <div class="faq-a">แก้ข้อความ / ราคา → 150฿/ครั้ง · เพิ่มเมนูพร้อมรูป → 200฿/รายการ<br/>ทักมาได้เลย เราจะ quote ราคาให้ก่อนเสมอ</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">ต้องการลิงก์เป็นชื่อร้านเอง เช่น menu.ชื่อร้าน.com ทำได้ไหม?</div>
+    <div class="faq-a">ได้ครับ ต้องซื้อ domain ก่อน (ประมาณ 500–800฿/ปี) แจ้งเราแล้วจะตั้งค่าให้ มีค่าบริการเพิ่มเติม ทักมาสอบถามราคาได้เลย</div>
+  </div>
+
+  <div class="tip" style="margin-top:36px;">
+    <strong>📞 ติดต่อเรา</strong>
+    มีคำถามหรือปัญหาที่ไม่พบใน FAQ → ทักเราทาง LINE ได้เลย<br/>ตอบกลับภายใน 24 ชั่วโมงในวันทำการ (จันทร์–เสาร์)
+  </div>
+</div>
+
+<!-- ══ THANKS ═══════════════════════════ -->
+<div class="thanks page-break">
+  <div class="thanks-c1"></div>
+  <div class="thanks-c2"></div>
+  <div class="thanks-body">
+    <span style="font-size:64px;display:block;margin-bottom:24px;">🙏</span>
+    <h2>ขอบคุณที่ไว้วางใจ</h2>
+    <p class="sub">หวังว่าระบบเมนู QR Code จะช่วยให้ร้านของคุณ<br/>ดูมืออาชีพและให้บริการลูกค้าได้ดียิ่งขึ้นครับ</p>
+    <div class="thanks-line"></div>
+    <p class="note">ต้องการอัปเกรดเป็นแพ็ก Standard หรือ Premium?<br/>ทักเราได้เลย มีส่วนลดพิเศษสำหรับลูกค้าเดิม</p>
+  </div>
+</div>
+
+</body>
+</html>
