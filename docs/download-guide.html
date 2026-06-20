@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ดาวน์โหลดไฟล์ทั้งหมด — khaomoo-menu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Sarabun',sans-serif;background:#F5F3EF;color:#1A1A1A;min-height:100vh;padding:40px 20px}
+  .wrap{max-width:760px;margin:0 auto}
+  .hero{text-align:center;margin-bottom:40px}
+  .hero h1{font-size:28px;font-weight:700;color:#1A1A1A;margin-bottom:8px}
+  .hero p{font-size:15px;color:#6B6B6B;line-height:1.6}
+
+  /* package card */
+  .pkg{background:#fff;border-radius:16px;margin-bottom:24px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+  .pkg-header{display:flex;align-items:center;gap:14px;padding:20px 24px;border-bottom:1px solid #F0EDE8}
+  .pkg-badge{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+  .pkg-badge.b1{background:#E8F5E9}
+  .pkg-badge.b2{background:#E3F2FD}
+  .pkg-badge.b3{background:#FFF8E1}
+  .pkg-title{flex:1}
+  .pkg-title h2{font-size:18px;font-weight:700}
+  .pkg-title span{font-size:13px;color:#6B6B6B}
+  .pkg-price{font-size:15px;font-weight:700;color:#4CAF50;white-space:nowrap}
+
+  /* file rows */
+  .file-list{padding:12px 24px 16px}
+  .file-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F5F3EF}
+  .file-row:last-child{border-bottom:none}
+  .file-icon{width:36px;height:36px;border-radius:8px;background:#F5F3EF;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .file-info{flex:1;min-width:0}
+  .file-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .file-desc{font-size:12px;color:#6B6B6B;margin-top:2px}
+  .btn-dl{display:inline-flex;align-items:center;gap:6px;background:#1A1A1A;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;text-decoration:none;white-space:nowrap;transition:opacity .15s}
+  .btn-dl:hover{opacity:.8}
+  .btn-dl.secondary{background:#F5F3EF;color:#1A1A1A}
+  .btn-dl.video{background:#C8371E;color:#fff}
+
+  /* video section */
+  .video-card{background:#fff;border-radius:16px;margin-bottom:24px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+  .video-header{display:flex;align-items:center;gap:14px;padding:20px 24px;border-bottom:1px solid #F0EDE8;background:linear-gradient(135deg,#C8371E08,#FF572208)}
+  .video-title h2{font-size:18px;font-weight:700}
+  .video-title span{font-size:13px;color:#6B6B6B}
+
+  /* zip section */
+  .zip-card{background:#1A1A1A;color:#fff;border-radius:16px;padding:24px;text-align:center;margin-bottom:24px}
+  .zip-card h3{font-size:16px;font-weight:700;margin-bottom:6px}
+  .zip-card p{font-size:13px;color:#aaa;margin-bottom:16px;line-height:1.6}
+  .btn-zip{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#1A1A1A;border:none;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none;transition:opacity .15s}
+  .btn-zip:hover{opacity:.85}
+
+  /* note */
+  .note{background:#FFF8E1;border:1px solid #FFE082;border-radius:12px;padding:16px 20px;margin-bottom:24px}
+  .note-title{font-size:13px;font-weight:700;color:#F57F17;margin-bottom:6px}
+  .note p{font-size:13px;color:#795548;line-height:1.7}
+  .note code{background:#FFE082;padding:1px 5px;border-radius:4px;font-family:monospace;font-size:12px}
+
+  footer{text-align:center;font-size:12px;color:#999;margin-top:32px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>📦 ดาวน์โหลดไฟล์ทั้งหมด</h1>
+    <p>รวมไฟล์คู่มือ สไลด์ และวิดีโอนำเสนอ<br>ครบทั้ง 3 แพ็กเกจ — khaomoo-menu</p>
+  </div>
+
+  <div class="note">
+    <div class="note-title">⚠️ วิธีดาวน์โหลดจาก GitHub</div>
+    <p>กดปุ่ม <strong>ดาวน์โหลด</strong> → หน้าต่างใหม่จะเปิดขึ้น → คลิก <strong>ปุ่ม Download (⬇)</strong> มุมขวาบน หรือกด <code>Ctrl+S</code> เพื่อบันทึกไฟล์<br>
+    สำหรับ <strong>วิดีโอ MP4</strong>: คลิกขวา → Save as / บันทึกลิงก์เป็น...</p>
+  </div>
+
+  <!-- Package 1 -->
+  <div class="pkg">
+    <div class="pkg-header">
+      <div class="pkg-badge b1">🌱</div>
+      <div class="pkg-title">
+        <h2>แพ็ก 1 — Basic</h2>
+        <span>คู่มือเริ่มต้น QR Menu ขั้นพื้นฐาน</span>
+      </div>
+      <div class="pkg-price">1,900 ฿</div>
+    </div>
+    <div class="file-list">
+      <div class="file-row">
+        <div class="file-icon">📘</div>
+        <div class="file-info">
+          <div class="file-name">guide-basic.html</div>
+          <div class="file-desc">E-book คู่มือแพ็ก Basic — สอนตั้งค่าครั้งแรก ใช้งาน Supabase แก้ราคา</div>
+        </div>
+        <a class="btn-dl" href="https://github.com/7vz9mvrbnt-glitch/khaomoo-menu/raw/refs/heads/claude%2Fqr-line-food-menu-pricing-7e9r69/docs/guide-basic.html" target="_blank" download>⬇ ดาวน์โหลด</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Package 2 -->
+  <div class="pkg">
+    <div class="pkg-header">
+      <div class="pkg-badge b2">⭐</div>
+      <div class="pkg-title">
+        <h2>แพ็ก 2 — Standard</h2>
+        <span>คู่มือ QR Menu + แจ้งเตือน LINE OA</span>
+      </div>
+      <div class="pkg-price">3,500 ฿</div>
+    </div>
+    <div class="file-list">
+      <div class="file-row">
+        <div class="file-icon">📗</div>
+        <div class="file-info">
+          <div class="file-name">guide-standard.html</div>
+          <div class="file-desc">E-book คู่มือแพ็ก Standard — เพิ่ม LINE OA รับออเดอร์อัตโนมัติ</div>
+        </div>
+        <a class="btn-dl" href="https://github.com/7vz9mvrbnt-glitch/khaomoo-menu/raw/refs/heads/claude%2Fqr-line-food-menu-pricing-7e9r69/docs/guide-standard.html" target="_blank" download>⬇ ดาวน์โหลด</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Package 3 -->
+  <div class="pkg">
+    <div class="pkg-header">
+      <div class="pkg-badge b3">👑</div>
+      <div class="pkg-title">
+        <h2>แพ็ก 3 — Premium</h2>
+        <span>คู่มือ QR Menu + LINE OA + 2 ภาษา + Deploy</span>
+      </div>
+      <div class="pkg-price">5,900 ฿</div>
+    </div>
+    <div class="file-list">
+      <div class="file-row">
+        <div class="file-icon">📙</div>
+        <div class="file-info">
+          <div class="file-name">guide-premium.html</div>
+          <div class="file-desc">E-book คู่มือแพ็ก Premium ฉบับสมบูรณ์ — ครบทุกขั้นตอน</div>
+        </div>
+        <a class="btn-dl" href="https://github.com/7vz9mvrbnt-glitch/khaomoo-menu/raw/refs/heads/claude%2Fqr-line-food-menu-pricing-7e9r69/docs/guide-premium.html" target="_blank" download>⬇ ดาวน์โหลด</a>
+      </div>
+      <div class="file-row">
+        <div class="file-icon">🖥️</div>
+        <div class="file-info">
+          <div class="file-name">slides-premium.html</div>
+          <div class="file-desc">สไลด์ HTML นำเสนอ 15 หน้า — เปิดในเบราว์เซอร์ได้ทันที</div>
+        </div>
+        <a class="btn-dl" href="https://github.com/7vz9mvrbnt-glitch/khaomoo-menu/raw/refs/heads/claude%2Fqr-line-food-menu-pricing-7e9r69/docs/slides-premium.html" target="_blank" download>⬇ ดาวน์โหลด</a>
+      </div>
+      <div class="file-row">
+        <div class="file-icon">📊</div>
+        <div class="file-info">
+          <div class="file-name">slides-premium-v2.pptx</div>
+          <div class="file-desc">PowerPoint 15 สไลด์ 16:9 — ตัวอักษรใหญ่ 150%, layout ปรับใหม่</div>
+        </div>
+        <a class="btn-dl" href="https://github.com/7vz9mvrbnt-glitch/khaomoo-menu/raw/refs/heads/claude%2Fqr-line-food-menu-pricing-7e9r69/docs/slides-premium-v2.pptx" target="_blank" download>⬇ ดาวน์โหลด</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video -->
+  <div class="video-card">
+    <div class="video-header">
+      <div class="pkg-badge" style="background:#FFEBEE;font-size:22px">🎬</div>
+      <div class="video-title">
+        <h2>วิดีโอนำเสนอ (Premium)</h2>
+        <span>บรรยายภาษาไทย ความยาว ~5 นาที • MP4</span>
+      </div>
+    </div>
+    <div class="file-list">
+      <div class="file-row">
+        <div class="file-icon">🎥</div>
+        <div class="file-info">
+          <div class="file-name">slides-premium-video.mp4</div>
+          <div class="file-desc">วิดีโอ 15 สไลด์ พร้อมเสียงบรรยายภาษาไทย — สำหรับนำเสนอลูกค้า</div>
+        </div>
+        <a class="btn-dl video" href="https://github.com/7vz9mvrbnt-glitch/khaomoo-menu/raw/refs/heads/claude%2Fqr-line-food-menu-pricing-7e9r69/docs/slides-premium-video.mp4" target="_blank" download>⬇ ดาวน์โหลด</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Guide -->
+  <div class="pkg">
+    <div class="pkg-header">
+      <div class="pkg-badge" style="background:#F3E5F5">🎁</div>
+      <div class="pkg-title">
+        <h2>คู่มือสำหรับลูกค้า (ส่งให้ร้านค้า)</h2>
+        <span>สรุปวิธีใช้งานแอปเมนู QR สั้น กระชับ เข้าใจง่าย</span>
+      </div>
+    </div>
+    <div class="file-list">
+      <div class="file-row">
+        <div class="file-icon">📋</div>
+        <div class="file-info">
+          <div class="file-name">client-guide.html</div>
+          <div class="file-desc">คู่มือฉบับลูกค้า — แก้ราคา / ซ่อนเมนู / ดูออเดอร์ / LINE OA</div>
+        </div>
+        <a class="btn-dl secondary" href="https://github.com/7vz9mvrbnt-glitch/khaomoo-menu/raw/refs/heads/claude%2Fqr-line-food-menu-pricing-7e9r69/docs/client-guide.html" target="_blank" download>⬇ ดาวน์โหลด</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Download All ZIP -->
+  <div class="zip-card">
+    <h3>📥 ดาวน์โหลดทุกไฟล์พร้อมกัน (ZIP)</h3>
+    <p>กดปุ่มด้านล่างเพื่อดาวน์โหลด branch ทั้งหมดในรูปแบบ ZIP<br>
+    ไฟล์ทั้งหมดอยู่ใน โฟลเดอร์ <code style="background:#333;padding:1px 5px;border-radius:4px">docs/</code></p>
+    <a class="btn-zip" href="https://github.com/7vz9mvrbnt-glitch/khaomoo-menu/archive/refs/heads/claude%2Fqr-line-food-menu-pricing-7e9r69.zip" target="_blank">
+      📦 ดาวน์โหลด ZIP ทั้ง branch
+    </a>
+  </div>
+
+  <footer>khaomoo-menu • branch: claude/qr-line-food-menu-pricing-7e9r69 • อัปเดต มิ.ย. 2026</footer>
+</div>
+</body>
+</html>
