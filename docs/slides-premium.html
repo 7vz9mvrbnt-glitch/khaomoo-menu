@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>สอนใช้งาน — แพ็ก Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=Noto+Serif+Thai:wght@700;900&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --sage:   #87A080;
+  --sage-l: #ECF2EB;
+  --sage-d: #557252;
+  --sage-m: #B8CFB5;
+  --cream:  #F8F5EF;
+  --dark:   #2A2A2A;
+  --mid:    #5E5E5E;
+  --border: #D4E2D2;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Sarabun', sans-serif; background: #1A1A1A; color: var(--dark); }
+
+/* ── Slide system ─────────────────────────── */
+.deck { width: 100%; height: 100%; position: relative; }
+.slide {
+  display: none;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0; left: 0;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.slide.active { display: flex; }
+
+/* ── Slide color themes ───────────────────── */
+.slide.green  { background: var(--sage); color: white; }
+.slide.white  { background: #fff; color: var(--dark); }
+.slide.cream  { background: var(--cream); color: var(--dark); }
+.slide.dark   { background: #0F172A; color: #CBD5E1; }
+
+/* ── Progress bar ────────────────────────── */
+.progress { position: fixed; top: 0; left: 0; right: 0; height: 4px; background: rgba(0,0,0,0.15); z-index: 200; }
+.progress-bar { height: 100%; background: var(--sage); transition: width 0.3s ease; }
+
+/* ── Navigation bar ─────────────────────── */
+.nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px 12px;
+  background: rgba(255,255,255,.97);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+  z-index: 200;
+}
+.nav-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 2px solid var(--sage); background: white; color: var(--sage);
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+}
+.nav-btn:hover:not(:disabled) { background: var(--sage); color: white; }
+.nav-btn:disabled { opacity: .25; cursor: default; }
+.nav-center { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 220px; }
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #D1D5DB; cursor: pointer; transition: all .25s;
+}
+.dot.active { background: var(--sage); transform: scale(1.5); }
+.nav-count { font-size: 11px; color: var(--mid); font-weight: 600; }
+
+/* ── Inner layouts ──────────────────────── */
+.slide-inner {
+  flex: 1; padding: 36px 24px 88px;
+  display: flex; flex-direction: column;
+}
+.cover-inner {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 48px 28px 88px; text-align: center;
+}
+.ch-inner {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 48px 28px 88px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.end-inner {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 48px 28px 88px; text-align: center;
+}
+
+/* ── Cover elements ─────────────────────── */
+.cover-tag {
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4);
+  border-radius: 30px; padding: 5px 18px; font-size: 11px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px;
+}
+.cover-icon { font-size: 60px; display: block; margin-bottom: 16px; }
+.cover h1 {
+  font-family: 'Noto Serif Thai', serif; font-size: 36px; font-weight: 900;
+  line-height: 1.3; margin-bottom: 12px;
+}
+.cover-sub { font-size: 15px; opacity: .85; line-height: 1.75; margin-bottom: 28px; }
+.hint-box {
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
+  border-radius: 14px; padding: 12px 18px; font-size: 13px; opacity: .85; line-height: 1.6;
+}
+
+/* ── Chapter opener ─────────────────────── */
+.ch-bg {
+  position: absolute; font-family: 'Noto Serif Thai', serif;
+  font-size: 200px; font-weight: 900; color: rgba(255,255,255,.05);
+  line-height: 1; user-select: none; pointer-events: none;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+}
+.ch-label { font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; opacity: .65; margin-bottom: 10px; position: relative; z-index: 1; }
+.ch-inner h2 { font-family: 'Noto Serif Thai', serif; font-size: 38px; font-weight: 900; line-height: 1.3; position: relative; z-index: 1; margin-bottom: 10px; }
+.ch-sub { font-size: 14px; opacity: .8; line-height: 1.75; position: relative; z-index: 1; max-width: 280px; }
+
+/* ── Slide headings ─────────────────────── */
+.slide-title { margin-bottom: 18px; line-height: 1.35; }
+.step-tag {
+  display: inline-block; background: var(--sage); color: white;
+  border-radius: 6px; padding: 2px 10px; font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; margin-bottom: 6px; text-transform: uppercase;
+}
+.slide-title h2 { font-family: 'Noto Serif Thai', serif; font-size: 22px; font-weight: 900; color: var(--dark); }
+
+/* ── Feature cards ──────────────────────── */
+.feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 4px 0; }
+.feat-card {
+  background: var(--sage-l); border-radius: 14px; padding: 14px 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.feat-card .fi { font-size: 26px; }
+.feat-card strong { font-size: 13px; font-weight: 800; color: var(--dark); line-height: 1.3; display: block; }
+.feat-card span { font-size: 11px; color: var(--mid); line-height: 1.5; }
+
+/* ── Steps ──────────────────────────────── */
+.step-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.step-item { display: flex; gap: 12px; align-items: flex-start; }
+.step-num {
+  background: var(--sage); color: white; width: 32px; height: 32px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 13px; flex-shrink: 0; margin-top: 1px;
+}
+.step-body strong { display: block; font-size: 14px; font-weight: 700; margin-bottom: 2px; color: var(--dark); }
+.step-body span { font-size: 12px; color: var(--mid); line-height: 1.6; }
+
+/* ── Flow boxes ─────────────────────────── */
+.flow-row { display: flex; align-items: center; gap: 5px; margin: 10px 0; flex-wrap: wrap; }
+.flow-box {
+  background: var(--sage-l); border: 2px solid var(--border); border-radius: 10px;
+  padding: 9px 10px; text-align: center; font-size: 12px; font-weight: 700; flex: 1; min-width: 60px;
+}
+.flow-box .fi { font-size: 18px; display: block; margin-bottom: 3px; }
+.flow-arr { font-size: 16px; color: var(--sage-d); flex-shrink: 0; }
+.flow-box.highlight { background: #EEFFDD; border-color: #86EFAC; }
+
+/* ── LINE message ───────────────────────── */
+.line-bubble {
+  background: #EEFFDD; border-radius: 16px;
+  padding: 14px 16px; font-size: 13px; line-height: 1.9; margin: 10px 0;
+}
+.line-bubble .lt { font-weight: 800; font-size: 14px; margin-bottom: 5px; }
+.line-bubble .ls { font-size: 11px; color: #6B7280; margin-bottom: 6px; }
+.lr { display: flex; justify-content: space-between; padding: 2px 0; font-size: 12px; }
+.ld { border: none; border-top: 1px dashed #86EFAC; margin: 7px 0; }
+.ltot { font-weight: 800; font-size: 14px; }
+
+/* ── Tip boxes ──────────────────────────── */
+.tip {
+  background: var(--sage-l); border-left: 4px solid var(--sage);
+  border-radius: 0 12px 12px 0; padding: 12px 14px;
+  font-size: 12px; line-height: 1.8; margin: 10px 0;
+}
+.tip strong { display: block; font-size: 13px; font-weight: 800; color: var(--sage-d); margin-bottom: 4px; }
+.tip.warn  { background: #FFF9E6; border-color: #CCA010; }
+.tip.warn strong  { color: #7A5500; }
+.tip.good  { background: #F0FDF4; border-color: #22C55E; }
+.tip.good strong  { color: #166534; }
+.tip.hint  { background: #EEF2FF; border-color: #6366F1; }
+.tip.hint strong  { color: #3730A3; }
+
+/* ── Scenario cards ─────────────────────── */
+.scenario-list { display: flex; flex-direction: column; gap: 9px; margin: 10px 0; }
+.scenario-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--sage-l); border-radius: 12px; padding: 12px 14px;
+}
+.scenario-card .sc-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.scenario-card strong { display: block; font-size: 13px; font-weight: 800; margin-bottom: 2px; }
+.scenario-card span { font-size: 12px; color: var(--mid); line-height: 1.5; }
+
+/* ── Supabase mockup ────────────────────── */
+.sb-mock { border-radius: 12px; overflow: hidden; border: 2px solid #334155; margin: 10px 0; }
+.sb-bar {
+  background: #0F172A; padding: 9px 12px;
+  display: flex; align-items: center; gap: 8px;
+  color: #94A3B8; font-size: 11px; font-family: monospace;
+}
+.sb-bar .sb-logo { color: #3ECF8E; font-weight: 800; font-size: 12px; }
+.sb-bar .sep { opacity: .4; }
+.sb-nav {
+  background: #1E293B; padding: 5px 12px;
+  display: flex; gap: 14px; color: #64748B; font-size: 10px; font-family: monospace;
+}
+.sb-nav .act { color: #3ECF8E; font-weight: 700; }
+.sb-thead {
+  background: #1E293B; display: grid;
+  grid-template-columns: 30px minmax(0,1.6fr) 50px minmax(0,1fr);
+  border-bottom: 1px solid #334155;
+}
+.sb-th { padding: 5px 8px; font-size: 10px; color: #94A3B8; font-family: monospace; }
+.sb-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0,1.6fr) 50px minmax(0,1fr);
+  border-bottom: 1px solid #1E293B;
+  background: #0F172A; color: #CBD5E1;
+}
+.sb-row.hl { background: #0D2116; outline: 2px solid #3ECF8E; outline-offset: -1px; }
+.sb-td {
+  padding: 7px 8px; font-family: monospace; font-size: 11px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sb-t { color: #4ADE80; }
+.sb-f { color: #F87171; font-weight: 700; }
+.sb-cur {
+  display: inline-block; width: 1.5px; height: 12px;
+  background: #3ECF8E; animation: blink 1s step-end infinite; vertical-align: middle;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ── Annotation arrow ───────────────────── */
+.ann {
+  display: flex; align-items: flex-start; gap: 8px; margin: 8px 0;
+  font-size: 12px; font-weight: 700; color: #DC2626;
+}
+.ann .a { font-size: 18px; flex-shrink: 0; line-height: 1; }
+
+/* ── Before/After ───────────────────────── */
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.c-box { border-radius: 12px; overflow: hidden; border: 2px solid var(--border); }
+.c-hd { padding: 9px 12px; font-size: 11px; font-weight: 800; text-align: center; }
+.c-hd.b4  { background: #FEE2E2; color: #991B1B; }
+.c-hd.aft { background: #DCFCE7; color: #166534; }
+.c-body { padding: 10px 12px; }
+.mi { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+.mi:last-child { border: none; }
+.mi.gone { display: none; }
+.badge-out { margin-top: 6px; font-size: 10px; color: #16A34A; font-weight: 700; }
+
+/* ── SQL code ───────────────────────────── */
+.sql-box {
+  background: #1E293B; border-radius: 12px; padding: 14px 16px;
+  font-family: 'Courier New', monospace; font-size: 12px;
+  line-height: 1.9; color: #7DD3FC; margin: 10px 0; overflow-x: auto;
+}
+.sql-box .cm { color: #475569; }
+.sql-box .kw { color: #C084FC; }
+.sql-box .val { color: #86EFAC; }
+.sql-box .var { color: #FCD34D; }
+
+/* ── End slide ──────────────────────────── */
+.end-inner h2 {
+  font-family: 'Noto Serif Thai', serif; font-size: 34px; font-weight: 900; margin-bottom: 14px;
+}
+.end-sub { font-size: 15px; opacity: .85; line-height: 1.8; margin-bottom: 24px; }
+.zoom-cta {
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35);
+  border-radius: 16px; padding: 18px 20px; text-align: left; max-width: 320px;
+}
+.zoom-cta strong { font-size: 14px; display: block; margin-bottom: 10px; }
+.zoom-cta ul { list-style: none; }
+.zoom-cta li { padding: 4px 0; font-size: 13px; opacity: .9; }
+.zoom-cta li::before { content: "✓ "; }
+
+/* ── URL badge ──────────────────────────── */
+.url-badge {
+  background: #1E293B; color: #7DD3FC; font-family: monospace;
+  font-size: 13px; font-weight: 700; border-radius: 8px; padding: 8px 14px;
+  display: inline-block; margin: 6px 0;
+}
+
+/* ── Highlight pulse ─────────────────────── */
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(62,207,142,.5); } 50% { box-shadow: 0 0 0 5px rgba(62,207,142,0); } }
+.pulse { animation: pulse 1.8s infinite; }
+
+@media (max-width: 380px) {
+  .feat-grid { grid-template-columns: 1fr; }
+  .compare  { grid-template-columns: 1fr; }
+  .cover h1 { font-size: 28px; }
+  .ch-inner h2 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress"><div class="progress-bar" id="prog"></div></div>
+
+<div class="deck" id="deck">
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 1 · COVER                          -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide green active">
+  <div class="cover-inner">
+    <div class="cover-tag">สไลด์สอนงาน · แพ็ก Premium</div>
+    <span class="cover-icon">🚀</span>
+    <h1>สอนใช้งาน<br/>แพ็ก Premium</h1>
+    <p class="cover-sub">QR Code เมนูครบวงจร<br/>ออเดอร์เข้า LINE · Delivery · 2 ภาษา</p>
+    <div class="hint-box">
+      ← ปัดซ้าย/ขวา หรือกดปุ่มด้านล่าง →
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 2 · ได้อะไรบ้าง?                   -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">ภาพรวม</div>
+      <h2>แพ็ก Premium — ได้อะไรบ้าง?</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="fi">💬</div>
+        <strong>ออเดอร์เข้า LINE OA</strong>
+        <span>ลูกค้ากดยืนยัน → ร้านได้รับออเดอร์ครบใน LINE ทันที ไม่มีจดผิด</span>
+      </div>
+      <div class="feat-card">
+        <div class="fi">🏠</div>
+        <strong>Delivery ส่งถึงบ้าน</strong>
+        <span>กรอกที่อยู่ + ชำระ PromptPay ครบใน 1 ขั้นตอน</span>
+      </div>
+      <div class="feat-card">
+        <div class="fi">🌐</div>
+        <strong>2 ภาษา ไทย / EN</strong>
+        <span>กดปุ่มสลับ ทุกหน้าเปลี่ยนเป็นอังกฤษพร้อมกัน</span>
+      </div>
+      <div class="feat-card">
+        <div class="fi">🎛️</div>
+        <strong>ตัวเลือกเมนูครบ</strong>
+        <span>ขนาด · ประเภทเนื้อ · ท็อปปิ้ง · ความหวาน ราคาปรับอัตโนมัติ</span>
+      </div>
+      <div class="feat-card">
+        <div class="fi">✏️</div>
+        <strong>แก้ราคาเองได้</strong>
+        <span>Supabase Dashboard — คลิก แก้ Enter เสร็จ ไม่ต้องรอเรา</span>
+      </div>
+      <div class="feat-card">
+        <div class="fi">👁️</div>
+        <strong>ซ่อน/แสดงเมนู</strong>
+        <span>ของหมด — ซ่อนได้ 1 คลิก โดยไม่ต้องลบออกถาวร</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 3 · DINE IN FLOW                   -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">Dine In</div>
+      <h2>ขั้นตอนลูกค้าทานที่ร้าน</h2>
+    </div>
+    <div class="flow-row">
+      <div class="flow-box"><span class="fi">📷</span>สแกน QR</div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box"><span class="fi">🪑</span>เลือกโต๊ะ</div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box"><span class="fi">🍽️</span>เลือกเมนู</div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-box"><span class="fi">🛒</span>ตรวจตะกร้า</div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box"><span class="fi">💳</span>จ่ายเงิน</div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box highlight"><span class="fi">💬</span>เข้า LINE ร้าน!</div>
+    </div>
+    <ul class="step-list" style="margin-top:14px;">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>เปิดกล้องมือถือ → สแกน QR ที่โต๊ะ</strong>
+          <span>ไม่ต้องโหลดแอป ใช้กล้องปกติได้เลย ทั้ง iPhone และ Android</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>เลือกหมายเลขโต๊ะ</strong>
+          <span>โต๊ะติดมากับออเดอร์อัตโนมัติ ร้านไม่ต้องถามใหม่</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>เลือกเมนู → เลือกตัวเลือก → เพิ่มลงตะกร้า</strong>
+          <span>ขนาด / ประเภทเนื้อ / ความหวาน — ราคาปรับอัตโนมัติทุกตัวเลือก</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>ตรวจรายการ → กดยืนยัน → เลือกวิธีชำระ</strong>
+          <span>QR PromptPay หรือเงินสด — ออเดอร์เข้า LINE ร้านทันที</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 4 · ออเดอร์ใน LINE                 -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">LINE OA</div>
+      <h2>ออเดอร์ที่เข้ามาใน LINE ร้าน</h2>
+    </div>
+    <p style="font-size:13px;color:var(--mid);margin-bottom:8px;">ตัวอย่างข้อความที่ร้านจะได้รับ:</p>
+    <div class="line-bubble">
+      <div class="ls">📩 ออเดอร์ใหม่ · จากระบบเมนู QR</div>
+      <div class="lt">🍖 ออเดอร์ใหม่! โต๊ะ 3</div>
+      <div class="lr"><span>ขาหมูพะโล้เตาถ่าน (ชุดใหญ่)</span><span>180฿</span></div>
+      <div class="lr"><span>ข้าวขาหมูพะโล้ × 2</span><span>120฿</span></div>
+      <div class="lr"><span>กาแฟลาเต้เย็น (M) หวานน้อย</span><span>75฿</span></div>
+      <div class="ld"></div>
+      <div class="lr ltot"><span>💰 ยอดรวม</span><span>375฿</span></div>
+      <div class="lr" style="margin-top:4px;font-size:11px;"><span>💳 ชำระ</span><span>QR PromptPay</span></div>
+      <div class="lr" style="font-size:11px;"><span>📝 หมายเหตุ</span><span>ไม่ใส่ผัก</span></div>
+    </div>
+    <div class="tip good">
+      <strong>✅ ข้อมูลครบทุกอย่าง ไม่ต้องถามเพิ่ม</strong>
+      โต๊ะ · รายการ · ราคา · วิธีชำระ · หมายเหตุ — ร้านรับออเดอร์และเริ่มทำได้เลย
+    </div>
+    <div class="tip">
+      <strong>💳 ลูกค้าเลือก QR PromptPay</strong>
+      แสดง QR บนหน้าจอ → ลูกค้าสแกนโอน → แคปสลิปส่ง LINE OA → ร้านยืนยัน
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 5 · DELIVERY                       -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">Delivery</div>
+      <h2>ขั้นตอนลูกค้าสั่งส่งถึงบ้าน</h2>
+    </div>
+    <ul class="step-list">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>หน้าแรก → กดปุ่ม "ส่งถึงบ้าน"</strong>
+          <span>ปุ่มอยู่หน้าแรก ก่อนเลือกโต๊ะ</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>เลือกเมนูและตัวเลือก เหมือน Dine In ทุกอย่าง</strong>
+          <span>ใส่ตะกร้าได้หลายรายการ</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>กรอกข้อมูลจัดส่ง</strong>
+          <span>ชื่อ · เบอร์โทร · ที่อยู่ · เลือกรอบส่ง (เช้า 11:00 / บ่าย 14:00)</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>ชำระ QR PromptPay → แคปสลิป → ส่ง LINE OA ร้าน</strong>
+          <span>พร้อมส่ง Pin โลเคชั่นบ้านด้วย</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <strong>ร้านได้รับออเดอร์ + ที่อยู่ + สลิป ครบใน LINE</strong>
+          <span>ยืนยันออเดอร์ → จัดส่งตามรอบที่ลูกค้าเลือก</span>
+        </div>
+      </li>
+    </ul>
+    <div class="tip hint">
+      <strong>💡 แนะนำตั้ง 2 รอบส่ง</strong>
+      เช้า (11:00) และบ่าย (14:00) ลูกค้าเลือกเอง ร้านรวมออเดอร์ส่งครั้งเดียว ประหยัดเวลา
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 6 · CHAPTER: ซ่อนเมนู              -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide green">
+  <div class="ch-inner">
+    <div class="ch-bg">👁</div>
+    <div class="ch-label">⭐ สำคัญ — เน้นเป็นพิเศษ</div>
+    <h2>ซ่อน / แสดง<br/>เมนูชั่วคราว</h2>
+    <p class="ch-sub">เมื่อวัตถุดิบหมด หรืออยากปิดเมนูชั่วคราว<br/>ทำได้เองใน 3 คลิก โดยไม่ต้องลบ</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 7 · ซ่อนเมนู — ใช้เมื่อไร?         -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">ซ่อนเมนู</div>
+      <h2>ใช้ซ่อนเมนูเมื่อไร?</h2>
+    </div>
+    <div class="scenario-list">
+      <div class="scenario-card">
+        <div class="sc-icon">🥩</div>
+        <div>
+          <strong>วัตถุดิบหมดวันนั้น</strong>
+          <span>เช่น ขาหมูขายหมดแล้วก่อนร้านปิด ซ่อนออกไม่ให้ลูกค้าสั่งเพิ่ม วันรุ่งขึ้นเปิดกลับมา</span>
+        </div>
+      </div>
+      <div class="scenario-card">
+        <div class="sc-icon">⏸️</div>
+        <div>
+          <strong>ปิดเมนูชั่วคราว</strong>
+          <span>เมนูฤดูกาล หรือรับออเดอร์ได้บางวัน ซ่อนแทนการลบ เปิดได้ตลอดเวลา</span>
+        </div>
+      </div>
+      <div class="scenario-card">
+        <div class="sc-icon">🔧</div>
+        <div>
+          <strong>อยู่ระหว่างปรับราคา</strong>
+          <span>ซ่อนไว้ก่อนระหว่างแก้ราคา แก้เสร็จแล้วค่อยเปิดให้ลูกค้าเห็น</span>
+        </div>
+      </div>
+    </div>
+    <div class="tip good">
+      <strong>✅ ซ่อน ≠ ลบ — ข้อมูลยังอยู่ครบ</strong>
+      เปลี่ยนกลับได้ตลอดเวลา ลูกค้าไม่เห็น แต่ข้อมูลในระบบยังอยู่ครบ
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 8 · เปิด Supabase                  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">ซ่อนเมนู · ขั้น 1</div>
+      <h2>เปิดเว็บ Supabase</h2>
+    </div>
+    <ul class="step-list">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>เปิดเบราว์เซอร์ → พิมพ์ URL นี้</strong>
+          <span><div class="url-badge" style="margin-top:4px;">supabase.com</div></span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>กด Sign in → กรอก Email + Password</strong>
+          <span>ใช้ email และ password ที่เราส่งให้ทาง LINE</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>คลิกชื่อโปรเจกต์ร้านของคุณ</strong>
+          <span>จะเห็นชื่อร้านในหน้าแรก กดคลิกเข้าไป</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>เมนูซ้ายมือ → กด "Table Editor"</strong>
+          <span>จะเห็นรายการตาราง → คลิกตาราง <strong>menu</strong></span>
+        </div>
+      </li>
+    </ul>
+    <div class="tip hint">
+      <strong>💡 เคล็ดลับ: Bookmark ไว้เลย!</strong>
+      เข้า Table Editor ครั้งแรกแล้ว กด Bookmark ในเบราว์เซอร์ไว้เลย<br/>ครั้งต่อไปกดบุ๊กมาร์กได้ทันที ไม่ต้องคลิกหลายขั้น
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 9 · Table Editor — หน้าตาจริง      -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide cream">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">ซ่อนเมนู · ขั้น 2</div>
+      <h2>หน้าตา Table Editor จริง ๆ</h2>
+    </div>
+    <p style="font-size:12px;color:var(--mid);margin-bottom:6px;">หลังกด Table Editor แล้วคลิก "menu" จะเห็นแบบนี้:</p>
+    <div class="sb-mock">
+      <div class="sb-bar">
+        <span class="sb-logo">⚡ Supabase</span>
+        <span class="sep">›</span>
+        <span>ร้านข้าวขาหมู</span>
+        <span class="sep">›</span>
+        <span>Table Editor</span>
+        <span class="sep">›</span>
+        <span style="color:#3ECF8E;">menu</span>
+      </div>
+      <div class="sb-nav">
+        <span>Authentication</span>
+        <span class="act">● Table Editor</span>
+        <span>SQL Editor</span>
+        <span>Storage</span>
+      </div>
+      <div class="sb-thead">
+        <div class="sb-th">id</div>
+        <div class="sb-th">name (ชื่อเมนู)</div>
+        <div class="sb-th">price</div>
+        <div class="sb-th">is_available</div>
+      </div>
+      <div class="sb-row">
+        <div class="sb-td">1</div>
+        <div class="sb-td">ขาหมูพะโล้เตาถ่าน</div>
+        <div class="sb-td">180</div>
+        <div class="sb-td"><span class="sb-t">✓ true</span></div>
+      </div>
+      <div class="sb-row">
+        <div class="sb-td">5</div>
+        <div class="sb-td">ชุดไส้พะโล้เตาถ่าน</div>
+        <div class="sb-td">120</div>
+        <div class="sb-td"><span class="sb-t">✓ true</span></div>
+      </div>
+      <div class="sb-row">
+        <div class="sb-td">4</div>
+        <div class="sb-td">ข้าวขาหมูพะโล้</div>
+        <div class="sb-td">60</div>
+        <div class="sb-td"><span class="sb-t">✓ true</span></div>
+      </div>
+      <div class="sb-row">
+        <div class="sb-td">7</div>
+        <div class="sb-td">กาแฟสด Premium</div>
+        <div class="sb-td">65</div>
+        <div class="sb-td"><span class="sb-t">✓ true</span></div>
+      </div>
+    </div>
+    <div class="ann">
+      <span class="a">☝️</span>
+      <span>คอลัมน์ <strong>is_available</strong> คือตัวควบคุม —<br/><span style="color:#16A34A;">true</span> = แสดงในเมนู · <span style="color:#DC2626;">false</span> = ซ่อนจากลูกค้า</span>
+    </div>
+    <div class="tip">
+      <strong>ℹ️ is_available แปลตรง ๆ ว่า "มีพร้อมสั่งไหม?"</strong>
+      true = มี (ลูกค้าเห็น) · false = ไม่มี (ลูกค้าไม่เห็น ข้อมูลยังอยู่)
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 10 · คลิกเปลี่ยนค่า                -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide cream">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">ซ่อนเมนู · ขั้น 3</div>
+      <h2>คลิกเซลล์ → พิมพ์ false → Enter</h2>
+    </div>
+    <p style="font-size:12px;color:var(--mid);margin-bottom:6px;">ตัวอย่าง: ต้องการซ่อน "ชุดไส้พะโล้" เพราะขายหมด</p>
+    <div class="sb-mock">
+      <div class="sb-bar">
+        <span class="sb-logo">⚡ Supabase</span>
+        <span class="sep">›</span>
+        <span>Table Editor › menu</span>
+      </div>
+      <div class="sb-thead">
+        <div class="sb-th">id</div>
+        <div class="sb-th">name (ชื่อเมนู)</div>
+        <div class="sb-th">price</div>
+        <div class="sb-th">is_available</div>
+      </div>
+      <div class="sb-row">
+        <div class="sb-td">1</div>
+        <div class="sb-td">ขาหมูพะโล้เตาถ่าน</div>
+        <div class="sb-td">180</div>
+        <div class="sb-td"><span class="sb-t">✓ true</span></div>
+      </div>
+      <div class="sb-row hl pulse">
+        <div class="sb-td">5</div>
+        <div class="sb-td" style="color:#FCD34D;font-weight:700;">ชุดไส้พะโล้เตาถ่าน</div>
+        <div class="sb-td">120</div>
+        <div class="sb-td"><span class="sb-f">false<span class="sb-cur"></span></span></div>
+      </div>
+      <div class="sb-row">
+        <div class="sb-td">4</div>
+        <div class="sb-td">ข้าวขาหมูพะโล้</div>
+        <div class="sb-td">60</div>
+        <div class="sb-td"><span class="sb-t">✓ true</span></div>
+      </div>
+    </div>
+    <div class="ann">
+      <span class="a">⬆️</span>
+      <span>แถวนี้กำลังแก้ไข — พิมพ์ <code style="background:#1E293B;color:#F87171;padding:1px 6px;border-radius:4px;font-family:monospace;">false</code> แล้วกด <strong>Enter</strong></span>
+    </div>
+    <ul class="step-list" style="margin-top:10px;">
+      <li class="step-item">
+        <div class="step-num">①</div>
+        <div class="step-body">
+          <strong>ดับเบิลคลิกที่เซลล์ is_available ของเมนูที่ต้องการซ่อน</strong>
+          <span>เซลล์จะเปลี่ยนเป็นโหมดแก้ไข (เห็น cursor กะพริบ)</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">②</div>
+        <div class="step-body">
+          <strong>ลบค่าเดิม พิมพ์ false (ตัวพิมพ์เล็กทั้งหมด) → Enter</strong>
+          <span>เมนูหายจากแอปลูกค้าทันที ไม่ต้อง Refresh</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 11 · ผลลัพธ์ Before / After        -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">ซ่อนเมนู · ผลลัพธ์</div>
+      <h2>ลูกค้าเห็นอะไรก่อน/หลังซ่อน</h2>
+    </div>
+    <div class="compare">
+      <div class="c-box">
+        <div class="c-hd b4">ก่อนซ่อน ❌</div>
+        <div class="c-body">
+          <div class="mi"><span>🍖 ขาหมูพะโล้</span><span>180฿</span></div>
+          <div class="mi" style="background:#FEF9C3;font-weight:700;"><span>🫀 ชุดไส้พะโล้</span><span>120฿</span></div>
+          <div class="mi"><span>🍚 ข้าวขาหมู</span><span>60฿</span></div>
+          <div class="mi"><span>☕ กาแฟสด</span><span>65฿</span></div>
+        </div>
+      </div>
+      <div class="c-box">
+        <div class="c-hd aft">หลังซ่อน ✅</div>
+        <div class="c-body">
+          <div class="mi"><span>🍖 ขาหมูพะโล้</span><span>180฿</span></div>
+          <div class="mi gone"></div>
+          <div class="mi"><span>🍚 ข้าวขาหมู</span><span>60฿</span></div>
+          <div class="mi"><span>☕ กาแฟสด</span><span>65฿</span></div>
+          <div class="badge-out">✓ "ชุดไส้" หายออกไปแล้ว</div>
+        </div>
+      </div>
+    </div>
+    <div class="tip warn">
+      <strong>↩️ อยากเปิดกลับมา?</strong>
+      กลับไป Supabase → ดับเบิลคลิกเซลล์เดิม → พิมพ์ <strong>true</strong> → Enter<br/>เมนูกลับมาทันที ไม่มีขั้นตอนซับซ้อน
+    </div>
+    <div class="tip good">
+      <strong>✅ ซ่อนไม่ลบ — ข้อมูลไม่หายไปไหน</strong>
+      รูปภาพ ราคา ตัวเลือก ทุกอย่างยังอยู่ครบ แค่ลูกค้าไม่เห็นชั่วคราว
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 12 · ข้อเสนอแนะ: SQL เร็วกว่า      -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">💡 ข้อเสนอแนะ</div>
+      <h2>วิธีเร็วกว่า — ใช้ SQL แทน</h2>
+    </div>
+    <div class="tip hint">
+      <strong>🎯 ทำไม SQL ถึงง่ายกว่า Table Editor?</strong>
+      Table Editor: ต้องหาแถว → เลื่อนหา column → คลิก → แก้<br/>
+      SQL: แค่พิมพ์ชื่อเมนู → กด Run → เสร็จ ใช้เวลาไม่ถึง 10 วินาที
+    </div>
+    <p style="font-size:12px;color:var(--mid);margin:8px 0 4px;">เมนูซ้าย → <strong>SQL Editor</strong> → New Query → วางโค้ดนี้ → กด Run</p>
+    <div class="sql-box">
+<span class="cm">-- 🙈 ซ่อนเมนู (เปลี่ยนแค่ชื่อเมนู)</span>
+<span class="kw">UPDATE</span> public.menu
+<span class="kw">SET</span> is_available = <span class="val">false</span>
+<span class="kw">WHERE</span> name <span class="kw">ILIKE</span> <span class="val">'%<span class="var">ชุดไส้</span>%'</span>;
+
+<span class="cm">-- 👁️ เปิดกลับมา</span>
+<span class="kw">UPDATE</span> public.menu
+<span class="kw">SET</span> is_available = <span class="val">true</span>
+<span class="kw">WHERE</span> name <span class="kw">ILIKE</span> <span class="val">'%<span class="var">ชุดไส้</span>%'</span>;
+    </div>
+    <div class="tip hint">
+      <strong>✏️ เปลี่ยนแค่คำในกรอบเหลือง</strong>
+      <code style="background:#FEF3C7;color:#92400E;padding:2px 6px;border-radius:4px;">ชุดไส้</code> = ชื่อ (หรือส่วนของชื่อ) เมนูที่ต้องการซ่อน<br/>
+      เช่น ถ้าต้องการซ่อน "ขาหมูพะโล้เตาถ่าน" ก็พิมพ์ <code style="background:#FEF3C7;color:#92400E;padding:2px 4px;border-radius:4px;">ขาหมู</code>
+    </div>
+    <div class="tip warn">
+      <strong>⚠️ ILIKE คืออะไร?</strong>
+      คือค้นหาชื่อที่มีคำนั้นอยู่โดยไม่สนตัวเล็ก/ใหญ่ เช่น '%ไส้%' จับทุกเมนูที่มีคำว่า "ไส้" ในชื่อ
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 13 · แก้ราคาเมนู                   -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">แก้ราคา</div>
+      <h2>แก้ราคาเมนูด้วยตัวเอง</h2>
+    </div>
+    <ul class="step-list">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Supabase → Table Editor → ตาราง menu</strong>
+          <span>เห็นรายการเมนูทั้งหมด</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>หาเมนูที่ต้องการ → ดับเบิลคลิกเซลล์ "price"</strong>
+          <span>คลิกที่ตัวเลขราคา เซลล์จะเข้าโหมดแก้ไข</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>พิมพ์ราคาใหม่ → กด Enter</strong>
+          <span>แอปลูกค้าอัปเดตภายใน 1–2 วินาที ไม่ต้อง deploy ใหม่ ไม่ต้องแจ้งเรา</span>
+        </div>
+      </li>
+    </ul>
+    <div class="sb-mock" style="margin-top:12px;">
+      <div class="sb-bar">
+        <span class="sb-logo">⚡ Supabase</span>
+        <span class="sep">›</span>
+        <span>Table Editor › menu</span>
+      </div>
+      <div class="sb-thead">
+        <div class="sb-th">id</div>
+        <div class="sb-th">name</div>
+        <div class="sb-th">price</div>
+        <div class="sb-th">is_available</div>
+      </div>
+      <div class="sb-row hl pulse">
+        <div class="sb-td">1</div>
+        <div class="sb-td">ขาหมูพะโล้เตาถ่าน</div>
+        <div class="sb-td" style="color:#FCD34D;font-weight:800;">200<span class="sb-cur"></span></div>
+        <div class="sb-td"><span class="sb-t">✓ true</span></div>
+      </div>
+      <div class="sb-row">
+        <div class="sb-td">4</div>
+        <div class="sb-td">ข้าวขาหมูพะโล้</div>
+        <div class="sb-td">60</div>
+        <div class="sb-td"><span class="sb-t">✓ true</span></div>
+      </div>
+    </div>
+    <div class="ann">
+      <span class="a">☝️</span>
+      <span>คลิกเซลล์ price → พิมพ์ราคาใหม่ (200) → กด Enter เสร็จ</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 14 · Supabase Paused               -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide white">
+  <div class="slide-inner">
+    <div class="slide-title">
+      <div class="step-tag">แก้ปัญหา</div>
+      <h2>Supabase ขึ้น "Paused" — ทำอย่างไร?</h2>
+    </div>
+    <div class="tip warn">
+      <strong>⚠️ Paused เกิดจากอะไร?</strong>
+      Supabase แบบฟรีจะหยุดทำงานอัตโนมัติถ้าไม่ได้ใช้งาน 7 วัน<br/>เมนูลูกค้ายังดูได้ แต่การแก้ราคาจะยังไม่มีผล
+    </div>
+    <ul class="step-list" style="margin-top:12px;">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>เข้า supabase.com → Sign in → คลิกโปรเจกต์</strong>
+          <span>จะเห็นสถานะ "Paused" หรือ "Unhealthy"</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>กดปุ่มสีเขียว "Resume project"</strong>
+          <span>โปรเจกต์จะเริ่มต้นใหม่ ใช้เวลา 1–2 นาที</span>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>รอ 2 นาที → กด Refresh หน้าแอปเมนู</strong>
+          <span>ทุกอย่างกลับมาปกติ ราคาอัปเดตได้ตามเดิม</span>
+        </div>
+      </li>
+    </ul>
+    <div class="tip hint">
+      <strong>💡 ป้องกัน Paused — เข้าสัปดาห์ละครั้ง</strong>
+      แค่เปิดหน้า Supabase Table Editor ก็นับว่า active แล้ว ไม่ต้องทำอะไรเพิ่ม
+    </div>
+    <div class="tip">
+      <strong>📌 ถ้าร้านเปิดทุกวัน แนะนำ Supabase Pro</strong>
+      $25/เดือน — ไม่มี pause อัตโนมัติ ไม่ต้องกังวลเรื่องนี้อีก
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SLIDE 15 · จบ + Zoom                     -->
+<!-- ══════════════════════════════════════════ -->
+<div class="slide green">
+  <div class="end-inner">
+    <span style="font-size:52px;display:block;margin-bottom:16px;">🎥</span>
+    <h2>จบสไลด์แล้ว!</h2>
+    <p class="end-sub">ดูครบแล้ว ถ้ามีคำถามอะไรเพิ่ม<br/>ทักเราทาง LINE ได้เลยครับ</p>
+    <div class="zoom-cta">
+      <strong>📅 อย่าลืมนัด Zoom สอนงานจริง 30 นาที</strong>
+      <ul>
+        <li>ทดลองซ่อนเมนูพร้อมกัน live</li>
+        <li>ทดลองแก้ราคาใน Supabase</li>
+        <li>ดูออเดอร์เข้า LINE OA จริง</li>
+        <li>ตอบคำถามที่ค้างอยู่ทุกข้อ</li>
+        <li>บันทึก Zoom ไว้ดูย้อนหลังได้</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- ── Navigation bar ─────────────────────── -->
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="goTo(cur-1)" disabled>←</button>
+  <div class="nav-center">
+    <div class="dots" id="dotsEl"></div>
+    <div class="nav-count" id="countEl">1 / 15</div>
+  </div>
+  <button class="nav-btn" id="nextBtn" onclick="goTo(cur+1)">→</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total  = slides.length;
+let cur = 0;
+
+// Build dots
+const dotsEl = document.getElementById('dotsEl');
+for (let i = 0; i < total; i++) {
+  const d = document.createElement('span');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+}
+
+function goTo(n) {
+  n = Math.max(0, Math.min(total - 1, n));
+  slides[cur].classList.remove('active');
+  dotsEl.children[cur].classList.remove('active');
+  cur = n;
+  slides[cur].classList.add('active');
+  dotsEl.children[cur].classList.add('active');
+  slides[cur].scrollTop = 0;
+  document.getElementById('countEl').textContent = (cur + 1) + ' / ' + total;
+  document.getElementById('prog').style.width = ((cur + 1) / total * 100) + '%';
+  document.getElementById('prevBtn').disabled = cur === 0;
+  document.getElementById('nextBtn').disabled = cur === total - 1;
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(cur + 1); }
+  if (e.key === 'ArrowLeft')                   { e.preventDefault(); goTo(cur - 1); }
+});
+
+// Swipe
+let sx = 0, sy = 0;
+document.addEventListener('touchstart', e => {
+  sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - sx;
+  const dy = e.changedTouches[0].clientY - sy;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
+    if (dx < 0) goTo(cur + 1); else goTo(cur - 1);
+  }
+}, { passive: true });
+
+goTo(0);
+</script>
+</body>
+</html>
