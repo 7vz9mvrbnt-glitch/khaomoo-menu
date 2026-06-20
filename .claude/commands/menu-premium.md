@@ -90,29 +90,33 @@ CREATE POLICY "allow_read"   ON public.orders FOR SELECT USING (true);
 ```
 4. แชร์ Supabase project ให้ลูกค้า
 
-## ขั้นตอนที่ 5 — ใส่ข้อมูลเมนูพร้อมตัวเลือก
+## ขั้นตอนที่ 5 — ใส่ข้อมูลเมนูพร้อมตัวเลือก 2 ภาษา
 
-ใน `src/menuData.js` ใส่เมนูทั้งหมดพร้อม opts:
+ใน `src/menuData.js` ใส่เมนูทั้งหมดพร้อม **EN fields ครบทุก field**:
 ```js
 {
   id: 1,
-  cat: "Coffee",
-  name: "Latte",
+  cat: "Coffee",          cat_en: "Coffee",
+  name: "Latte",          name_en: "Latte",
   price: 60,
   img: "latte",
-  badge: "Best Seller",
+  badge: "Best Seller",   badge_en: "Best Seller",
   desc: "นมหอมละมุน เข้มข้นกำลังดี",
+  desc_en: "Smooth creamy milk latte, perfectly balanced",
   opts: [
-    { id: "s",    label: "เล็ก (S)",   price: 0,  group: "size" },
-    { id: "m",    label: "กลาง (M)",   price: 10, group: "size" },
-    { id: "l",    label: "ใหญ่ (L)",   price: 20, group: "size" },
-    { id: "hot",  label: "ร้อน",       price: 0,  group: "temp" },
-    { id: "cold", label: "เย็น",       price: 0,  group: "temp" },
-    { id: "less", label: "หวานน้อย",  price: 0,  group: "sweet" },
-    { id: "none", label: "ไม่หวาน",   price: 0,  group: "sweet" },
+    { id: "s",    label: "เล็ก (S)",  label_en: "Small (S)",    price: 0,  group: "size" },
+    { id: "m",    label: "กลาง (M)", label_en: "Medium (M)",   price: 10, group: "size" },
+    { id: "l",    label: "ใหญ่ (L)", label_en: "Large (L)",    price: 20, group: "size" },
+    { id: "hot",  label: "ร้อน",      label_en: "Hot",          price: 0,  group: "temp" },
+    { id: "cold", label: "เย็น",      label_en: "Iced",         price: 0,  group: "temp" },
+    { id: "less", label: "หวานน้อย", label_en: "Less Sweet",   price: 0,  group: "sweet" },
+    { id: "none", label: "ไม่หวาน",  label_en: "No Sugar",     price: 0,  group: "sweet" },
   ]
 }
 ```
+
+> **กฎสำคัญ:** ทุก opt ต้องมี `label_en` — ถ้าขาดจะแสดงเป็นไทยเสมอแม้กด EN
+> ทุกเมนูที่มี badge ต้องมี `badge_en` คู่กัน
 
 ## ขั้นตอนที่ 6 — ปรับดีไซน์เฉพาะแบรนด์
 
@@ -120,7 +124,18 @@ CREATE POLICY "allow_read"   ON public.orders FOR SELECT USING (true);
 2. **โลโก้** — แปลงเป็น base64 ใส่ใน IMGS แล้วแสดงใน header
 3. **ฟอนต์** — เปลี่ยน Google Fonts ใน useEffect ที่โหลด font
 4. **ภาพหน้าแรก (HomeView)** — ปรับข้อความต้อนรับ ชื่อร้าน
-5. **2 ภาษา** — เพิ่ม `name_th`, `desc_th` และ lang toggle ตามแพ็ก Standard
+5. **2 ภาษา** — ระบบ lang toggle มีอยู่แล้วในโปรเจกต์ ทำงานดังนี้:
+   - ปุ่ม `ไทย | EN` มุมขวาบนหน้าเลือกโต๊ะ (`TableSelectView`)
+   - `lang` state (`"th"` | `"en"`) ส่งเป็น prop ทุก view
+   - ทุก view แสดง EN fields เมื่อ `lang === "en"`:
+     `name_en`, `desc_en`, `cat_en`, `badge_en`, opt `label_en`
+   - ถ้าไม่มี EN field → fallback เป็นไทยอัตโนมัติ
+   - ชื่อกลุ่ม opts ใช้ `GROUP_LABEL_EN` จาก menuData.js
+   - ชื่อหมวดใน filter tabs ใช้ `CATS_EN[]` (index ตรงกับ `CATS[]`)
+
+   **สิ่งที่ต้องทำเพิ่มสำหรับร้านใหม่:**
+   - แปล string ชื่อร้านและ UI text ใน HomeView/TableSelectView
+   - ใส่ `name_en`, `desc_en`, `cat_en`, `badge_en`, `label_en` ครบทุกรายการ (ดู Step 5)
 
 ## ขั้นตอนที่ 7 — ทดสอบ LINE OA
 
@@ -172,8 +187,15 @@ vercel domains add <domain> --prod
 □ เมนูครบทุกรายการ ตัวเลือกครบถ้วน
 □ LINE OA รับออเดอร์ได้จริง (ทดสอบจริงบนมือถือ)
 □ ดีไซน์ตรงแบรนด์ลูกค้า (สี + โลโก้ + ฟอนต์)
-□ 2 ภาษา สลับได้ถูกต้อง
-□ Supabase: ลูกค้าแก้เมนูเองได้
+□ 2 ภาษา — ตรวจครบทุกหน้าเมื่อกด EN:
+  □ หน้าเลือกโต๊ะ (TableSelectView) — ปุ่ม ไทย/EN แสดง
+  □ หน้าเมนู — ชื่อ/desc/หมวด/badge เป็น EN
+  □ ItemModal — option chips เป็น EN, badge เป็น EN, ปุ่ม Add to Cart
+  □ ตะกร้า (CartView) — ชื่อเมนู/opts/ยอดรวม เป็น EN
+  □ หน้าชำระเงิน (PaymentView) — วิธีชำระ/ยอด เป็น EN
+  □ หน้าสถานะ (StatusView) — สถานะ/ปุ่ม เป็น EN
+□ กด ไทย → กลับมาภาษาไทยครบทุกหน้า
+□ Supabase: ลูกค้าแก้ราคาเองได้ผ่าน Table Editor/SQL Editor
 □ URL / Domain พร้อมใช้งาน
 □ QR Code ส่งแล้ว (PNG 300dpi)
 □ นัด Zoom สอนเรียบร้อย
