@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>คู่มือระบบเมนู QR Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Noto+Serif+Thai:wght@700;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red:    #8B2635;
+    --cream:  #FAF7F2;
+    --dark:   #1A1A1A;
+    --gold:   #C8922A;
+    --border: #EDE8DF;
+    --muted:  #7A6050;
+    --blue:   #1E3A5F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: #fff;
+    color: var(--dark);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ─── PRINT ─────────────────────── */
+  @media print {
+    .page-break { page-break-before: always; }
+    .no-print   { display: none; }
+    body        { font-size: 13px; }
+    .cover      { height: 100vh; }
+  }
+
+  /* ─── COVER ─────────────────────── */
+  .cover {
+    background: linear-gradient(160deg, var(--blue) 0%, #2563EB 60%, #1E3A5F 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 40px;
+    color: white;
+  }
+  .cover-badge {
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 30px;
+    padding: 6px 20px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    font-weight: 700;
+  }
+  .cover h1 {
+    font-family: 'Noto Serif Thai', serif;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1.3;
+    margin-bottom: 16px;
+  }
+  .cover .sub {
+    font-size: 18px;
+    opacity: .8;
+    margin-bottom: 40px;
+  }
+  .cover-divider {
+    width: 60px;
+    height: 3px;
+    background: rgba(255,255,255,.4);
+    border-radius: 3px;
+    margin: 32px auto;
+  }
+  .cover-note {
+    font-size: 13px;
+    opacity: .6;
+    margin-top: 60px;
+  }
+  .cover-icon { font-size: 80px; margin-bottom: 24px; }
+
+  /* ─── SECTION ───────────────────── */
+  .section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 56px 48px;
+  }
+  .section-title {
+    font-family: 'Noto Serif Thai', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+  .section-subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--dark);
+    margin: 28px 0 12px;
+  }
+
+  p { margin-bottom: 12px; }
+
+  /* ─── PACKAGE CARDS ─────────────── */
+  .pkg-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 24px 0 40px;
+  }
+  .pkg-card {
+    border-radius: 18px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+  }
+  .pkg-card.highlight { border-color: var(--gold); box-shadow: 0 4px 24px rgba(200,146,42,.2); }
+  .pkg-header {
+    padding: 20px 20px 14px;
+    background: var(--cream);
+    text-align: center;
+  }
+  .pkg-card.highlight .pkg-header { background: linear-gradient(135deg,#FFF8E8,#FFF0C0); }
+  .pkg-icon { font-size: 32px; margin-bottom: 8px; }
+  .pkg-name {
+    font-weight: 900;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .pkg-price {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--red);
+    margin: 6px 0 2px;
+  }
+  .pkg-days { font-size: 12px; color: var(--muted); }
+  .pkg-body { padding: 16px 18px; }
+  .pkg-body ul { list-style: none; }
+  .pkg-body li {
+    font-size: 13px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .pkg-body li:last-child { border: none; }
+  .pkg-body li::before { content: "✓"; color: #22C55E; font-weight: 900; flex-shrink: 0; }
+  .pkg-tag {
+    display: inline-block;
+    background: var(--gold);
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ─── COMPARE TABLE ─────────────── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .compare-table th {
+    background: var(--blue);
+    color: white;
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 13px;
+  }
+  .compare-table th:first-child { border-radius: 10px 0 0 0; }
+  .compare-table th:last-child  { border-radius: 0 10px 0 0; }
+  .compare-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table tr:nth-child(even) td { background: var(--cream); }
+  .compare-table .center { text-align: center; }
+  .yes { color: #16A34A; font-weight: 800; }
+  .no  { color: #aaa; }
+
+  /* ─── STEPS ─────────────────────── */
+  .steps { margin: 20px 0; }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  .step-num {
+    background: var(--blue);
+    color: white;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-content strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .step-content span {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ─── INFO BOX ───────────────────── */
+  .info-box {
+    background: var(--cream);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .info-box.warn  { border-color: #F59E0B; background: #FFFBEB; }
+  .info-box.green { border-color: #22C55E; background: #F0FDF4; }
+  .info-box strong { display: block; margin-bottom: 6px; font-size: 15px; }
+
+  /* ─── CODE BOX ───────────────────── */
+  .code-box {
+    background: #1E293B;
+    color: #93C5FD;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+
+  /* ─── SCREEN MOCK ────────────────── */
+  .screen-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 20px 0;
+  }
+  .screen-box {
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .screen-top {
+    background: linear-gradient(135deg,var(--blue),#2563EB);
+    color: white;
+    padding: 14px 16px;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .screen-body { padding: 14px 16px; font-size: 13px; }
+
+  /* ─── FAQ ────────────────────────── */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+  }
+  .faq-q {
+    font-weight: 800;
+    color: var(--blue);
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+  .faq-a { font-size: 14px; color: #444; line-height: 1.7; }
+
+  /* ─── FOOTER ─────────────────────── */
+  .doc-footer {
+    background: var(--dark);
+    color: rgba(255,255,255,.6);
+    text-align: center;
+    padding: 32px;
+    font-size: 12px;
+  }
+
+  .chip {
+    display: inline-block;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 3px 2px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 2px solid var(--border);
+    margin: 32px 0;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg,#EFF6FF,#DBEAFE);
+    border: 2px solid #93C5FD;
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .highlight-box strong { color: var(--blue); }
+
+  @media (max-width: 600px) {
+    .pkg-grid    { grid-template-columns: 1fr; }
+    .screen-row  { grid-template-columns: 1fr; }
+    .section     { padding: 36px 24px; }
+    .cover h1    { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ COVER -->
+<div class="cover">
+  <div class="cover-icon">🍖</div>
+  <div class="cover-badge">E-Book · คู่มือลูกค้า</div>
+  <h1>ระบบเมนู QR Code<br/>สำหรับร้านอาหาร</h1>
+  <p class="sub">เมนูออนไลน์สวยงาม · สั่งผ่าน LINE · แก้ราคาเองได้</p>
+  <div class="cover-divider"></div>
+  <p style="opacity:.7;font-size:15px;">คู่มือฉบับนี้อธิบายแพ็กเกจ วิธีใช้งาน และวิธีแก้ไขเมนูด้วยตัวเอง<br/>โดยไม่ต้องมีความรู้ด้านเทคโนโลยี</p>
+  <p class="cover-note">สงวนสิทธิ์ · ห้ามนำไปเผยแพร่โดยไม่ได้รับอนุญาต</p>
+</div>
+
+<!-- ══════════════════════════════════════ สารบัญ -->
+<div class="section page-break">
+  <div class="section-title">📋 สารบัญ</div>
+  <div class="section-subtitle">เนื้อหาในคู่มือฉบับนี้</div>
+
+  <table style="width:100%;font-size:15px;border-collapse:collapse;">
+    <tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:12px 8px;font-weight:700;">1.</td>
+      <td style="padding:12px 8px;">ระบบเมนู QR Code คืออะไร?</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--border);background:var(--cream);">
+      <td style="padding:12px 8px;font-weight:700;">2.</td>
+      <td style="padding:12px 8px;">เปรียบเทียบแพ็กเกจ</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:12px 8px;font-weight:700;">3.</td>
+      <td style="padding:12px 8px;">แพ็ก 1 — Basic · เมนู QR เริ่มต้น</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--border);background:var(--cream);">
+      <td style="padding:12px 8px;font-weight:700;">4.</td>
+      <td style="padding:12px 8px;">แพ็ก 2 — Standard · 2 ภาษา + แก้ราคาเองได้</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:12px 8px;font-weight:700;">5.</td>
+      <td style="padding:12px 8px;">แพ็ก 3 — Premium · สั่งผ่าน LINE</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--border);background:var(--cream);">
+      <td style="padding:12px 8px;font-weight:700;">6.</td>
+      <td style="padding:12px 8px;">วิธีแก้ราคา / เพิ่มเมนูเอง (Standard & Premium)</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:12px 8px;font-weight:700;">7.</td>
+      <td style="padding:12px 8px;">วิธีซ่อน/แสดงเมนูชั่วคราว</td>
+    </tr>
+    <tr style="background:var(--cream);">
+      <td style="padding:12px 8px;font-weight:700;">8.</td>
+      <td style="padding:12px 8px;">คำถามที่พบบ่อย (FAQ)</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════ 1. คืออะไร -->
+<div class="section page-break">
+  <div class="section-title">🍽️ ระบบเมนู QR Code คืออะไร?</div>
+  <div class="section-subtitle">บทนำและภาพรวมการใช้งาน</div>
+
+  <p>ระบบเมนู QR Code คือ <strong>เมนูอาหารออนไลน์</strong> ที่ลูกค้าร้านสแกน QR Code แล้วดูเมนูและสั่งอาหารได้ทันทีบนมือถือ โดยไม่ต้องดาวน์โหลดแอปใด ๆ</p>
+
+  <div class="steps" style="margin-top:28px;">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>🖨️ พิมพ์ QR Code ติดที่โต๊ะ</strong>
+        <span>ได้รับไฟล์ QR Code จากเรา → พิมพ์ติดโต๊ะ / เคาน์เตอร์ / บอร์ดหน้าร้าน</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>📱 ลูกค้าสแกนด้วยมือถือ</strong>
+        <span>เปิดกล้องหรือแอปสแกน QR → ระบบเปิดเมนูในเบราว์เซอร์ทันที ไม่ต้องดาวน์โหลด</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>🛒 เลือกเมนูและสั่งอาหาร</strong>
+        <span>ดูรูป เลือกตัวเลือก (ขนาด/เนื้อ/ความหวาน) เพิ่มลงตะกร้า แล้วยืนยัน</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>💬 ออเดอร์เข้า LINE ทันที (แพ็ก 3)</strong>
+        <span>ร้านได้รับออเดอร์พร้อมรายการ ราคา โต๊ะ ผ่าน LINE OA โดยอัตโนมัติ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>🌟 ข้อดีเทียบกับเมนูกระดาษ</strong>
+    <ul style="margin-top:10px;padding-left:20px;font-size:14px;line-height:2;">
+      <li>แก้ราคาได้ทันที ไม่ต้องพิมพ์ใหม่</li>
+      <li>ซ่อนเมนูที่หมดได้ชั่วคราว</li>
+      <li>ลูกค้าดูรูปอาหารสวยงาม ช่วยตัดสินใจ</li>
+      <li>รองรับ 2 ภาษา ไทย/อังกฤษ (แพ็ก 2–3)</li>
+      <li>สั่งผ่าน LINE ลดความผิดพลาด (แพ็ก 3)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ 2. เปรียบเทียบแพ็ก -->
+<div class="section page-break">
+  <div class="section-title">📊 เปรียบเทียบแพ็กเกจ</div>
+  <div class="section-subtitle">เลือกแพ็กที่เหมาะกับร้านคุณ</div>
+
+  <div class="pkg-grid">
+    <div class="pkg-card">
+      <div class="pkg-header">
+        <div class="pkg-icon">🌱</div>
+        <div class="pkg-name">Basic</div>
+        <div class="pkg-price">990฿</div>
+        <div class="pkg-days">ได้งานใน 2 วัน</div>
+      </div>
+      <div class="pkg-body">
+        <ul>
+          <li>เมนูสูงสุด 20 รายการ</li>
+          <li>รูปอาหารทุกเมนู</li>
+          <li>แยกหมวดหมู่</li>
+          <li>QR Code พร้อมใช้</li>
+          <li>ภาษาไทย</li>
+          <li>แก้ไขฟรี 1 ครั้ง</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pkg-card highlight">
+      <div class="pkg-header">
+        <div class="pkg-icon">⭐</div>
+        <div class="pkg-name">Standard <span class="pkg-tag">แนะนำ</span></div>
+        <div class="pkg-price">2,500฿</div>
+        <div class="pkg-days">ได้งานใน 4 วัน</div>
+      </div>
+      <div class="pkg-body">
+        <ul>
+          <li>เมนูสูงสุด 60 รายการ</li>
+          <li>รูปอาหารทุกเมนู</li>
+          <li>2 ภาษา ไทย/อังกฤษ</li>
+          <li>ปรับสี/โลโก้ตามแบรนด์</li>
+          <li>แก้ราคาเองผ่านเว็บ</li>
+          <li>QR Code + ไฟล์พิมพ์</li>
+          <li>แก้ไขฟรี 3 ครั้ง</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pkg-card">
+      <div class="pkg-header">
+        <div class="pkg-icon">🚀</div>
+        <div class="pkg-name">Premium</div>
+        <div class="pkg-price">5,900฿</div>
+        <div class="pkg-days">ได้งานใน 7 วัน</div>
+      </div>
+      <div class="pkg-body">
+        <ul>
+          <li>เมนูไม่จำกัด</li>
+          <li>ตัวเลือกเมนู (ขนาด/ท็อปปิ้ง)</li>
+          <li>2 ภาษา ไทย/อังกฤษ</li>
+          <li>สั่งผ่าน LINE OA อัตโนมัติ</li>
+          <li>รองรับ Delivery</li>
+          <li>ดีไซน์เฉพาะแบรนด์</li>
+          <li>สอนใช้งาน Zoom 30 นาที</li>
+          <li>แก้ไขฟรี 5 ครั้ง</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>ฟีเจอร์</th>
+        <th class="center">Basic</th>
+        <th class="center">Standard</th>
+        <th class="center">Premium</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>จำนวนเมนู</td><td class="center">≤ 20</td><td class="center">≤ 60</td><td class="center">ไม่จำกัด</td></tr>
+      <tr><td>รูปอาหาร</td><td class="center yes">✓</td><td class="center yes">✓</td><td class="center yes">✓</td></tr>
+      <tr><td>แยกหมวดหมู่</td><td class="center yes">✓</td><td class="center yes">✓</td><td class="center yes">✓</td></tr>
+      <tr><td>2 ภาษา ไทย/EN</td><td class="center no">—</td><td class="center yes">✓</td><td class="center yes">✓</td></tr>
+      <tr><td>แก้ราคาเองได้</td><td class="center no">—</td><td class="center yes">✓</td><td class="center yes">✓</td></tr>
+      <tr><td>ตัวเลือก (ขนาด/เนื้อ)</td><td class="center no">—</td><td class="center no">—</td><td class="center yes">✓</td></tr>
+      <tr><td>สั่งผ่าน LINE</td><td class="center no">—</td><td class="center no">—</td><td class="center yes">✓</td></tr>
+      <tr><td>Delivery</td><td class="center no">—</td><td class="center no">—</td><td class="center yes">✓</td></tr>
+      <tr><td>สอน Zoom</td><td class="center no">—</td><td class="center no">—</td><td class="center yes">✓</td></tr>
+      <tr><td>แก้ไขฟรี</td><td class="center">1 ครั้ง</td><td class="center">3 ครั้ง</td><td class="center">5 ครั้ง</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════ 3. แพ็ก 1 Basic -->
+<div class="section page-break">
+  <div class="section-title">🌱 แพ็ก 1 — Basic</div>
+  <div class="section-subtitle">เมนู QR Code เริ่มต้น · 990 บาท · ได้งานใน 2 วัน</div>
+
+  <h3>สิ่งที่คุณได้รับ</h3>
+  <ul style="padding-left:0;list-style:none;">
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> เมนูออนไลน์สูงสุด 20 รายการ พร้อมรูปภาพ</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> แยกหมวดหมู่กรองได้</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> QR Code ความละเอียดสูง พิมพ์ติดโต๊ะได้</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> ลิงก์เมนูออนไลน์</li>
+    <li style="padding:7px 0;display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> แก้ไขฟรี 1 ครั้ง (ภายใน 30 วัน)</li>
+  </ul>
+
+  <h3>ข้อมูลที่ต้องเตรียม</h3>
+  <div class="info-box">
+    <strong>📋 ส่งข้อมูลนี้ให้เราก่อนเริ่มงาน</strong>
+    <ul style="padding-left:18px;margin-top:8px;font-size:14px;line-height:2;">
+      <li>ชื่อร้าน</li>
+      <li>รายการเมนูสูงสุด 20 รายการ (ชื่อ + ราคา + หมวดหมู่)</li>
+      <li>รูปอาหารแต่ละเมนู (ถ้ามี)</li>
+      <li>โลโก้ร้าน (ถ้ามี)</li>
+      <li>สีหลักของร้าน</li>
+    </ul>
+  </div>
+
+  <h3>การใช้งาน</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>พิมพ์ QR Code</strong>
+        <span>รับไฟล์ PNG จากเรา → พิมพ์ใส่กระดาษ/อคริลิค/สติกเกอร์ ติดที่โต๊ะหรือเคาน์เตอร์</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>ลูกค้าสแกน QR</strong>
+        <span>เปิดกล้องมือถือ → ชี้ที่ QR Code → กดลิงก์ที่ขึ้นมา → เมนูเปิดในเบราว์เซอร์ทันที</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>ลูกค้าดูเมนูและแจ้งพนักงาน</strong>
+        <span>ดูรูป ราคา เลือกเมนูที่ต้องการ → แจ้งพนักงานสั่ง (แพ็กนี้ยังไม่รองรับสั่งผ่านระบบ)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box warn">
+    <strong>⚠️ ข้อจำกัดของแพ็ก Basic</strong>
+    ถ้าต้องการแก้ราคาหรือเพิ่มเมนูในภายหลัง จะต้องส่งข้อมูลใหม่ให้เราแก้ (ใช้สิทธิ์แก้ไขฟรี 1 ครั้ง หรือคิดเพิ่ม) — แนะนำ <strong>อัปเกรดแพ็ก Standard</strong> เพื่อแก้ราคาเองได้ไม่จำกัด
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ 4. แพ็ก 2 Standard -->
+<div class="section page-break">
+  <div class="section-title">⭐ แพ็ก 2 — Standard</div>
+  <div class="section-subtitle">2 ภาษา + แก้ราคาเองได้ · 2,500 บาท · ได้งานใน 4 วัน</div>
+
+  <h3>สิ่งที่คุณได้รับ</h3>
+  <ul style="padding-left:0;list-style:none;">
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> เมนูสูงสุด 60 รายการ พร้อมรูปภาพ</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> <strong>2 ภาษา ไทย/อังกฤษ</strong> — กดสลับได้ทันที</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> ปรับสีและโลโก้ตามแบรนด์ร้าน</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> <strong>แก้ราคา/เพิ่มเมนูเองได้ทันที</strong> ผ่านเว็บไซต์ (ไม่ต้องรู้โค้ด)</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> QR Code + ไฟล์พิมพ์ PNG/PDF</li>
+    <li style="padding:7px 0;display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> แก้ไขฟรี 3 ครั้ง (ภายใน 60 วัน)</li>
+  </ul>
+
+  <h3>วิธีสลับภาษา</h3>
+  <div class="highlight-box">
+    <strong>🌐 ปุ่ม ไทย | EN มุมขวาบน</strong>
+    <p style="margin-top:8px;font-size:14px;">กดปุ่ม <strong>EN</strong> → ชื่อเมนู / หมวดหมู่ / คำอธิบาย / ตัวเลือก เปลี่ยนเป็นอังกฤษทั้งหมด<br/>กดปุ่ม <strong>ไทย</strong> → กลับมาภาษาไทย<br/>ลูกค้าต่างชาติสั่งอาหารเองได้ ไม่ต้องรอพนักงานแปล</p>
+  </div>
+
+  <h3>วิธีแก้ราคาเอง (ไม่ต้องรู้โค้ด)</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>เข้า supabase.com → Log in</strong>
+        <span>ใช้อีเมลที่ลงทะเบียนไว้กับเรา</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>เลือกโปรเจกต์ร้านของคุณ</strong>
+        <span>จะเห็นชื่อโปรเจกต์ที่เราสร้างให้ (ชื่อร้าน)</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>คลิก Table Editor → ตาราง "menu"</strong>
+        <span>จะเห็นรายการเมนูทั้งหมด พร้อมราคา</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>คลิกเซลล์ราคา → แก้ตัวเลข → กด Enter</strong>
+        <span>เมนูในแอปอัปเดตทันที ไม่ต้อง deploy ใหม่</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box green">
+    <strong>✅ ทำแล้วอัปเดตทันทีเลยครับ</strong>
+    การแก้ราคาผ่าน Supabase มีผลภายใน 1-2 วินาที ลูกค้าที่เปิดเมนูอยู่จะเห็นราคาใหม่ทันทีเมื่อโหลดหน้าใหม่
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ 5. แพ็ก 3 Premium -->
+<div class="section page-break">
+  <div class="section-title">🚀 แพ็ก 3 — Premium</div>
+  <div class="section-subtitle">สั่งผ่าน LINE + ขึ้นเว็บให้ · 5,900 บาท · ได้งานใน 7 วัน</div>
+
+  <h3>สิ่งที่คุณได้รับ</h3>
+  <ul style="padding-left:0;list-style:none;">
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> เมนูไม่จำกัดจำนวน</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> <strong>ตัวเลือกเมนู</strong> (ขนาด S/M/L, ประเภทเนื้อ, ท็อปปิ้ง, ความหวาน ฯลฯ)</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> 2 ภาษา ไทย/อังกฤษ</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> <strong>ออเดอร์เข้า LINE OA อัตโนมัติ</strong> (ลูกค้ากดยืนยัน → ร้านได้รับทันที)</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> รองรับ <strong>Delivery</strong> — ลูกค้ากรอกที่อยู่ส่งได้</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> ดีไซน์เฉพาะแบรนด์ (สี + โลโก้ + ฟอนต์)</li>
+    <li style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> สอนการใช้งานผ่าน Zoom 30 นาที</li>
+    <li style="padding:7px 0;display:flex;gap:10px;"><span style="color:#22C55E;font-weight:900;">✓</span> แก้ไขฟรี 5 ครั้ง (ภายใน 90 วัน)</li>
+  </ul>
+
+  <h3>Flow การสั่งอาหาร (Dine In)</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>ลูกค้าสแกน QR ที่โต๊ะ → เลือกเมนู</strong>
+        <span>ดูรูป อ่านคำอธิบาย เลือกตัวเลือก (เนื้อ/ขนาด/ความหวาน) → เพิ่มลงตะกร้า</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>ตรวจรายการในตะกร้า → กดยืนยัน</strong>
+        <span>ระบุโต๊ะ → เลือกวิธีชำระเงิน (QR PromptPay / เงินสด)</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>ออเดอร์ส่งเข้า LINE OA ร้านทันที</strong>
+        <span>ร้านได้รับข้อความ: โต๊ะ X · รายการ · ราคา · วิธีชำระ ครบครัน</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>ลูกค้าสแกน QR จ่ายเงิน</strong>
+        <span>ถ้าเลือก QR PromptPay → แนบสลิปส่งกลับ LINE OA</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Flow การสั่ง Delivery</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>ลูกค้ากด "ส่งถึงบ้าน"</strong>
+        <span>เลือกเมนู → กรอกชื่อ เบอร์โทร ที่อยู่ เลือกรอบส่ง (เช้า/บ่าย)</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>ยืนยันออเดอร์ → สแกนชำระเงิน</strong>
+        <span>ระบบแสดง QR PromptPay → ลูกค้าโอนแนบสลิป + ส่งโลเคชั่น</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>ร้านได้รับออเดอร์ + ที่อยู่ครบใน LINE OA</strong>
+        <span>ยืนยัน → จัดส่งตามรอบที่ลูกค้าเลือก</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ 6. แก้ราคา/เพิ่มเมนู -->
+<div class="section page-break">
+  <div class="section-title">✏️ วิธีแก้ราคา / เพิ่มเมนูเอง</div>
+  <div class="section-subtitle">สำหรับแพ็ก Standard และ Premium · ไม่ต้องรู้โค้ด</div>
+
+  <div class="info-box">
+    <strong>ℹ️ ทำได้ผ่านเว็บ Supabase (supabase.com)</strong>
+    เราจะแชร์ Supabase project ให้คุณ Login ด้วยอีเมลที่แจ้งไว้ได้เลย
+  </div>
+
+  <h3>🔖 แก้ราคาเมนู</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>เปิด supabase.com → Sign in</strong>
+        <span>ใช้ email/password ที่ลงทะเบียนไว้</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>คลิกโปรเจกต์ร้านของคุณ</strong>
+        <span>หน้า Dashboard จะขึ้นมา</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>เมนูซ้ายมือ → Table Editor → menu</strong>
+        <span>จะเห็นตารางเมนูทั้งหมด คอลัมน์ name / price / cat ฯลฯ</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>คลิกเซลล์ price ของเมนูที่ต้องการ → พิมพ์ราคาใหม่ → Enter</strong>
+        <span>ระบบบันทึกทันที เมนูในแอปอัปเดตภายใน 1-2 วินาที</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>➕ เพิ่มเมนูใหม่</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>Table Editor → menu → กดปุ่ม Insert (สีเขียว)</strong>
+        <span>หน้าต่าง "New row" เปิดขึ้น</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>กรอกข้อมูลเมนูใหม่</strong>
+        <span>id (เลขไม่ซ้ำ), cat (หมวด), name (ชื่อ), price (ราคา), description (คำอธิบาย)</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>กด Save → เมนูขึ้นในแอปทันที</strong>
+        <span>หมายเหตุ: รูปภาพต้องให้เราอัปเดตให้ (ใช้สิทธิ์แก้ไขฟรี)</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>🔧 แก้ด้วย SQL (เร็วกว่า — สำหรับแก้หลายรายการ)</h3>
+  <p style="font-size:14px;color:var(--muted);margin-bottom:10px;">ถ้าต้องการแก้ราคาหลายเมนูพร้อมกัน ใช้ SQL Editor จะเร็วกว่ามาก</p>
+
+  <div class="code-box">-- แก้ราคาเมนูเดียว (id คือหมายเลขเมนู)<br/>
+UPDATE public.menu SET price = 80 WHERE id = 4;<br/><br/>
+-- แก้ราคาหลายเมนูพร้อมกัน<br/>
+UPDATE public.menu SET price = 70 WHERE id IN (4, 5, 6);</div>
+
+  <div class="info-box warn">
+    <strong>⚠️ ถ้า Supabase ขึ้น "Unhealthy" หรือ "Paused"</strong>
+    Supabase Free tier จะ pause อัตโนมัติเมื่อไม่มีการใช้งาน 1 สัปดาห์ → กดปุ่ม <strong>Resume</strong> → รอ 1-2 นาที → ใช้งานได้ปกติ<br/>
+    ถ้าร้านเปิดทุกวัน แนะนำอัปเกรด Supabase Pro ($25/เดือน) เพื่อไม่ให้ pause
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ 7. ซ่อน/แสดงเมนู -->
+<div class="section page-break">
+  <div class="section-title">👁️ ซ่อน / แสดงเมนูชั่วคราว</div>
+  <div class="section-subtitle">สำหรับแพ็ก Standard และ Premium</div>
+
+  <p>ถ้าเมนูหมดชั่วคราว หรืออยากซ่อนไว้ก่อน — ทำได้โดยไม่ต้องลบเมนูออก</p>
+
+  <div class="steps" style="margin-top:20px;">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>Table Editor → ตาราง menu</strong>
+        <span>หาเมนูที่ต้องการซ่อน</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>คลิกเซลล์ is_available</strong>
+        <span>ค่าปัจจุบัน = true (แสดง) → เปลี่ยนเป็น false (ซ่อน)</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>กด Enter → เมนูหายจากแอปทันที</strong>
+        <span>เมื่อต้องการแสดงอีกครั้ง → เปลี่ยนกลับเป็น true</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>💡 วิธีด่วนผ่าน SQL</strong>
+    <div class="code-box" style="margin-top:10px;">-- ซ่อนเมนู<br/>
+UPDATE public.menu SET is_available = false WHERE id = 5;<br/><br/>
+-- แสดงเมนูอีกครั้ง<br/>
+UPDATE public.menu SET is_available = true WHERE id = 5;</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ 8. FAQ -->
+<div class="section page-break">
+  <div class="section-title">❓ คำถามที่พบบ่อย (FAQ)</div>
+  <div class="section-subtitle">ปัญหาที่ลูกค้ามักเจอ และวิธีแก้</div>
+
+  <div class="faq-item">
+    <div class="faq-q">Q: ลูกค้าสแกน QR Code แล้วไม่เปิด?</div>
+    <div class="faq-a">ลองใช้กล้องมือถือปกติ (ไม่ต้องโหลดแอปพิเศษ) ถ้ายังไม่ขึ้น ลองกด QR Code ใน Gallery แล้ว "เปิดลิงก์" หรือใช้แอป LINE สแกนก็ได้</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Q: แก้ราคาใน Supabase แล้วแต่เมนูในแอปยังเป็นราคาเดิม?</div>
+    <div class="faq-a">โหลดหน้าใหม่ (ดึงหน้าจอลง/Refresh) ระบบจะดึงข้อมูลใหม่จาก Supabase ทันที ถ้ายังไม่เปลี่ยน ตรวจสอบว่า Supabase project ไม่ได้ "Paused"</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Q: Supabase ขึ้น "Paused" / "Unhealthy" ทำอย่างไร?</div>
+    <div class="faq-a">เข้า supabase.com → คลิกโปรเจกต์ → กดปุ่ม <strong>Resume project</strong> สีเขียว → รอ 1-2 นาที → Refresh หน้า → ใช้งานได้ปกติ (เกิดจาก Free tier pause อัตโนมัติเมื่อไม่ใช้งาน 7 วัน)</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Q: อยากเพิ่มเมนูใหม่ แต่ไม่มีรูป ทำได้ไหม?</div>
+    <div class="faq-a">ได้ครับ ระบบจะแสดงรูป placeholder แทน แต่แนะนำส่งรูปอาหารจริงมาให้เราใส่ให้ (ใช้สิทธิ์แก้ไขฟรี) เพราะรูปสวยช่วยให้ลูกค้าตัดสินใจสั่งได้ดีกว่า</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Q: อยากเปลี่ยนชื่อเมนูหรือคำอธิบาย ทำเองได้ไหม?</div>
+    <div class="faq-a">ได้ครับ ทำเหมือนแก้ราคา — Table Editor → คลิกเซลล์ name หรือ description → แก้ข้อความ → Enter บันทึกทันที</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Q: ออเดอร์ไม่เข้า LINE OA (แพ็ก 3)?</div>
+    <div class="faq-a">ตรวจสอบว่า LINE OA ยังออนไลน์อยู่ และ LINE Channel Access Token ยังใช้งานได้ ถ้ายังผิดปกติ แจ้งเราได้เลย</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Q: อยากเปลี่ยนสีหรือโลโก้ร้านหลัง deploy แล้ว ทำได้ไหม?</div>
+    <div class="faq-a">ได้ครับ ส่งสีใหม่ (hex code) และโลโก้ใหม่มาให้เรา — นับเป็นการแก้ไข 1 ครั้ง (ใช้สิทธิ์แก้ไขฟรีได้)</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Q: ต้องการ URL เป็นชื่อร้านเอง เช่น menu.ชื่อร้าน.com ทำได้ไหม?</div>
+    <div class="faq-a">ได้ครับ ต้องซื้อ domain ก่อน (ประมาณ 500-800 บาท/ปี) แล้วแจ้งเรา เราจะตั้งค่าให้ มีค่าบริการเพิ่มเติม</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Q: ใช้สิทธิ์แก้ไขฟรีหมดแล้ว ครั้งต่อไปเสียเท่าไร?</div>
+    <div class="faq-a">คิดตามขอบเขตงาน — แก้ข้อความ/ราคา 150฿/ครั้ง, เพิ่มเมนูพร้อมรูป 200฿/รายการ, แก้ดีไซน์ใหญ่เริ่มต้น 500฿ ทักมาได้เลยจะ quote ให้</div>
+  </div>
+
+  <div class="info-box" style="margin-top:32px;">
+    <strong>📞 ติดต่อเรา</strong>
+    <p style="margin-top:8px;font-size:14px;">มีคำถามหรือต้องการความช่วยเหลือ ทักหาเราได้เลยตลอดเวลา<br/>ตอบภายใน 24 ชั่วโมงในวันทำการ</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ FOOTER -->
+<div class="doc-footer">
+  <p style="margin-bottom:8px;font-size:14px;color:rgba(255,255,255,.8);">ระบบเมนู QR Code สำหรับร้านอาหาร</p>
+  <p>คู่มือนี้จัดทำขึ้นสำหรับลูกค้าเท่านั้น · ห้ามนำไปเผยแพร่</p>
+</div>
+
+</body>
+</html>
