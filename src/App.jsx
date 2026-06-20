@@ -704,7 +704,7 @@ function DeliveryView({ menu, setView, cart, setCart, cartTotal, addToCart, upse
           <div style={{ fontSize:12,fontWeight:800,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:10 }}>{lang==="en" ? `Order Summary (${cart.reduce((s,e)=>s+e.qty,0)} items)` : `สรุปออเดอร์ (${cart.reduce((s,e)=>s+e.qty,0)} รายการ)`}</div>
           {cart.map(e=>(
             <div key={e.key} style={{ display:"flex",justifyContent:"space-between",fontSize:13,padding:"5px 0",borderBottom:"1px solid #F5F0EA" }}>
-              <span style={{ flex:1 }}>{e.item.name} ×{e.qty}</span>
+              <span style={{ flex:1 }}>{lang==="en"?(e.item.name_en||e.item.name):e.item.name} ×{e.qty}</span>
               <span style={{ fontWeight:700 }}>{e.unitPrice*e.qty}฿</span>
             </div>
           ))}
