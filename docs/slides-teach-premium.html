@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สไลด์สอนการใช้งาน Premium | khaomoo-menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage:    #87A080;
+    --sage-l:  #ECF2EB;
+    --sage-d:  #557252;
+    --cream:   #F8F5EF;
+    --dark:    #2A2A2A;
+    --mid:     #5E5E5E;
+    --border:  #D4E2D2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    font-family: 'Sarabun', sans-serif;
+    background: #1a1a1a;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ─── WRAPPER ─── */
+  #presentation {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  #progress-bar-wrap {
+    height: 5px;
+    background: rgba(255,255,255,0.12);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+  #progress-bar {
+    height: 100%;
+    background: var(--sage);
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ─── SLIDE AREA ─── */
+  #slide-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 52px 72px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(60px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    overflow: hidden;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ─── SLIDE TYPES ─── */
+  .slide-title-page {
+    background: linear-gradient(135deg, var(--sage-d) 0%, var(--sage) 60%, #a8c4a2 100%);
+    color: #fff;
+  }
+  .slide-content {
+    background: var(--cream);
+    color: var(--dark);
+  }
+  .slide-dark {
+    background: var(--dark);
+    color: #fff;
+  }
+  .slide-sage-light {
+    background: var(--sage-l);
+    color: var(--dark);
+  }
+
+  /* ─── SLIDE COMPONENTS ─── */
+  .slide-tag {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-bottom: 10px;
+  }
+  .slide-h1 {
+    font-size: clamp(32px, 4.5vw, 56px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .slide-h2 {
+    font-size: clamp(24px, 3.2vw, 40px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    color: var(--sage-d);
+  }
+  .slide-dark .slide-h2 { color: var(--sage); }
+  .slide-title-page .slide-h2 { color: rgba(255,255,255,0.8); }
+  .slide-sub {
+    font-size: clamp(16px, 2vw, 22px);
+    font-weight: 400;
+    opacity: 0.8;
+    line-height: 1.6;
+    max-width: 700px;
+  }
+  .slide-title-page .slide-sub { opacity: 0.85; }
+
+  /* Pill tag */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50px;
+    padding: 6px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+  .pill-sage {
+    background: var(--sage-l);
+    border: 1.5px solid var(--border);
+    color: var(--sage-d);
+  }
+  .pill-dark {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* Bullet list */
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 750px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: clamp(15px, 1.9vw, 21px);
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .slide-dark .bullet-list li { border-bottom-color: rgba(255,255,255,0.12); }
+  .bullet-list li:last-child { border-bottom: none; }
+  .bullet-list li.revealed { opacity: 1; transform: translateY(0); }
+  .bullet-list li .bnum {
+    width: 28px; height: 28px;
+    background: var(--sage-d);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .slide-dark .bullet-list li .bnum { background: var(--sage); }
+  .bullet-list li strong { color: var(--sage-d); font-weight: 700; }
+  .slide-dark .bullet-list li strong { color: var(--sage); }
+
+  /* Dot bullet */
+  .bdot {
+    width: 10px; height: 10px;
+    background: var(--sage-d);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+  .slide-dark .bdot { background: var(--sage); }
+
+  /* Flow diagram */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .flow-box {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    text-align: center;
+    min-width: 130px;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .flow-box.revealed { opacity: 1; transform: scale(1); }
+  .flow-box .flow-icon { font-size: 32px; margin-bottom: 6px; }
+  .flow-box .flow-label { font-size: 15px; font-weight: 700; color: var(--sage-d); }
+  .flow-box .flow-sub { font-size: 12px; color: var(--mid); margin-top: 3px; }
+  .flow-arrow {
+    font-size: 28px;
+    color: var(--sage);
+    padding: 0 12px;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s ease 0.15s;
+  }
+  .flow-arrow.revealed { opacity: 1; }
+
+  /* Code block */
+  .code-block {
+    background: var(--dark);
+    color: #A8D8A8;
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-family: 'Courier New', monospace;
+    font-size: clamp(13px, 1.5vw, 17px);
+    line-height: 1.7;
+    margin-top: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    max-width: 600px;
+    overflow-x: auto;
+  }
+  .code-block.revealed { opacity: 1; transform: translateY(0); }
+  .code-block .cm { color: #6A9955; }
+  .code-block .ck { color: #9CDCFE; }
+  .code-block .cv { color: #CE9178; }
+  .code-block .cb { color: var(--sage); }
+
+  /* Info card */
+  .info-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-left: 5px solid var(--sage-d);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin-top: 16px;
+    max-width: 680px;
+    opacity: 0;
+    transform: translateX(-12px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .info-card.revealed { opacity: 1; transform: translateX(0); }
+  .info-card .ic-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sage-d);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .info-card .ic-val {
+    font-size: clamp(14px, 1.6vw, 18px);
+    font-weight: 600;
+    color: var(--dark);
+    line-height: 1.5;
+  }
+
+  /* Two column */
+  .two-col {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    margin-top: 12px;
+  }
+  .col { flex: 1; }
+
+  /* Screenshot placeholder */
+  .screenshot-ph {
+    background: var(--border);
+    border-radius: 14px;
+    aspect-ratio: 9/16;
+    max-height: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--sage-d);
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    flex-shrink: 0;
+    width: 180px;
+  }
+  .screenshot-ph.revealed { opacity: 1; }
+  .screenshot-ph .ph-icon { font-size: 36px; }
+
+  /* Toggle display */
+  .toggle-demo {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .toggle-demo.revealed { opacity: 1; }
+  .toggle-btn {
+    padding: 14px 28px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    border: 2.5px solid var(--sage-d);
+    cursor: default;
+    transition: all 0.2s;
+  }
+  .toggle-btn:first-child { border-radius: 10px 0 0 10px; }
+  .toggle-btn:last-child { border-radius: 0 10px 10px 0; }
+  .toggle-btn.active { background: var(--sage-d); color: #fff; }
+  .toggle-btn:not(.active) { background: #fff; color: var(--sage-d); }
+
+  /* Revision counter */
+  .revision-boxes {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .rev-box {
+    width: 60px; height: 60px;
+    border: 3px solid var(--sage-d);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--sage-d);
+    background: var(--sage-l);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .rev-box.revealed { opacity: 1; transform: scale(1); }
+  .rev-box .rev-num { font-size: 22px; line-height: 1; }
+  .rev-box .rev-label { font-size: 9px; color: var(--mid); }
+
+  /* ─── CONTROLS ─── */
+  #controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.6);
+    flex-shrink: 0;
+    backdrop-filter: blur(4px);
+    gap: 12px;
+  }
+  .ctrl-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.25); }
+  .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
+  #slide-counter {
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  #slide-title-bar {
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    text-align: center;
+    flex: 1;
+    truncate: clip;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .ctrl-hint {
+    color: rgba(255,255,255,0.3);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  /* Agenda list */
+  .agenda-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .agenda-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: clamp(13px, 1.5vw, 16px);
+    color: rgba(255,255,255,0.9);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .agenda-item.revealed { opacity: 1; transform: translateY(0); }
+  .agenda-dot { width: 8px; height: 8px; background: var(--sage-l); border-radius: 50%; flex-shrink: 0; }
+  .agenda-time {
+    background: rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: auto;
+    white-space: nowrap;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* Supabase URL */
+  .url-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--dark);
+    color: var(--sage);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: clamp(15px, 1.8vw, 20px);
+    font-weight: 700;
+    margin-top: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .url-box.revealed { opacity: 1; }
+
+  /* Shop name placeholder */
+  .shop-name-ph {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 2px dashed rgba(255,255,255,0.5);
+    border-radius: 8px;
+    padding: 4px 18px;
+    font-size: clamp(22px, 3vw, 34px);
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 10px;
+    cursor: text;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .slide { padding: 28px 24px; }
+    .ctrl-hint { display: none; }
+    .flow { gap: 0; flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); padding: 4px 0; }
+    .two-col { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div id="presentation">
+
+  <!-- PROGRESS BAR -->
+  <div id="progress-bar-wrap">
+    <div id="progress-bar"></div>
+  </div>
+
+  <!-- SLIDE AREA -->
+  <div id="slide-area">
+
+    <!-- ═══ SLIDE 1: TITLE ═══ -->
+    <div class="slide slide-title-page" data-title="ยินดีต้อนรับ">
+      <div class="slide-tag">khaomoo-menu · Premium Training</div>
+      <div class="slide-h1">ยินดีต้อนรับ! 👋<br>สอนการใช้งาน<br>แพ็ก Premium</div>
+      <div class="shop-name-ph" contenteditable="true" spellcheck="false">[ ชื่อร้านของคุณ ]</div>
+      <div class="agenda-list" style="margin-top:20px; max-width:620px;">
+        <div class="agenda-item">
+          <div class="agenda-dot"></div>
+          ดูออเดอร์ใน LINE OA
+          <div class="agenda-time">5 นาที</div>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-dot"></div>
+          แก้ราคา / ซ่อน / เพิ่มเมนูใน Supabase
+          <div class="agenda-time">15 นาที</div>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-dot"></div>
+          สลับภาษา + QR Code โต๊ะ
+          <div class="agenda-time">5 นาที</div>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-dot"></div>
+          Q&amp;A + สิทธิ์แก้ไขฟรี
+          <div class="agenda-time">5 นาที</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SLIDE 2: ระบบทำงานอย่างไร ═══ -->
+    <div class="slide slide-content" data-title="ระบบทำงานอย่างไร">
+      <div class="slide-h2">ระบบทำงานอย่างไร?</div>
+      <div class="flow" id="flow2">
+        <div class="flow-box">
+          <div class="flow-icon">👤</div>
+          <div class="flow-label">ลูกค้า</div>
+          <div class="flow-sub">สแกน QR<br>หรือกดลิงก์</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">
+          <div class="flow-icon">📱</div>
+          <div class="flow-label">แอปเมนู</div>
+          <div class="flow-sub">เลือกเมนู<br>กดยืนยัน</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">
+          <div class="flow-icon">💬</div>
+          <div class="flow-label">LINE OA ร้าน</div>
+          <div class="flow-sub">ออเดอร์เข้าอัตโนมัติ<br>มีโต๊ะ/ที่อยู่</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">
+          <div class="flow-icon">👨‍🍳</div>
+          <div class="flow-label">ทำอาหาร</div>
+          <div class="flow-sub">รับออเดอร์<br>ทำทันที</div>
+        </div>
+      </div>
+      <div class="info-card" style="margin-top:24px;">
+        <div class="ic-label">หมายเหตุ</div>
+        <div class="ic-val">ไม่ต้องรับโทรศัพท์ · ไม่ต้องจดออเดอร์ · ออเดอร์เข้า LINE OA อัตโนมัติ 100%</div>
+      </div>
+    </div>
+
+    <!-- ═══ SLIDE 3: วิธีดูออเดอร์ LINE ═══ -->
+    <div class="slide slide-content" data-title="วิธีดูออเดอร์ใน LINE OA">
+      <div class="slide-h2">วิธีดูออเดอร์ใน LINE OA 💬</div>
+      <div class="two-col">
+        <div class="col">
+          <ul class="bullet-list">
+            <li>
+              <div class="bnum">1</div>
+              <div>เปิดแอป <strong>LINE</strong> บนมือถือหรือ LINE PC</div>
+            </li>
+            <li>
+              <div class="bnum">2</div>
+              <div>กดที่ <strong>LINE OA ของร้าน</strong> ในรายชื่อแชท</div>
+            </li>
+            <li>
+              <div class="bnum">3</div>
+              <div>ออเดอร์จะปรากฏเป็น <strong>ข้อความอัตโนมัติ</strong> มีโต๊ะ รายการ และจำนวน</div>
+            </li>
+            <li>
+              <div class="bnum">4</div>
+              <div>Reply ขอบคุณหรือยืนยันรับออเดอร์ให้ลูกค้าได้เลย</div>
+            </li>
+          </ul>
+        </div>
+        <div class="screenshot-ph">
+          <div class="ph-icon">📲</div>
+          <div>[ ภาพ LINE OA<br>ออเดอร์เข้า ]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SLIDE 4: วิธีเข้า Supabase ═══ -->
+    <div class="slide slide-dark" data-title="วิธีเข้า Supabase">
+      <div class="slide-h2" style="color: var(--sage);">วิธีเข้า Supabase 🗄️</div>
+      <div class="url-box">🌐 supabase.com</div>
+      <ul class="bullet-list" style="margin-top: 20px;">
+        <li>
+          <div class="bnum">1</div>
+          <div>เปิดเบราว์เซอร์ → ไปที่ <strong>supabase.com</strong> → กด Sign In</div>
+        </li>
+        <li>
+          <div class="bnum">2</div>
+          <div>Login ด้วย <strong>email + password</strong> ที่เราส่งให้</div>
+        </li>
+        <li>
+          <div class="bnum">3</div>
+          <div>กดเข้า <strong>Project ของร้าน</strong> (ชื่อเหมือนชื่อร้าน)</div>
+        </li>
+        <li>
+          <div class="bnum">4</div>
+          <div>ที่เมนูซ้าย กด <strong>Table Editor</strong> → เลือก <strong>menu_items</strong></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ═══ SLIDE 5: วิธีแก้ราคา ═══ -->
+    <div class="slide slide-content" data-title="วิธีแก้ราคาเมนู">
+      <div class="slide-h2">วิธีแก้ราคาเมนู ✏️</div>
+      <ul class="bullet-list">
+        <li>
+          <div class="bdot"></div>
+          <div>ใน Table Editor เลือก table <strong>menu_items</strong></div>
+        </li>
+        <li>
+          <div class="bdot"></div>
+          <div><strong>ดับเบิลคลิก</strong> ที่ช่อง <strong>price</strong> ของเมนูที่ต้องการแก้</div>
+        </li>
+        <li>
+          <div class="bdot"></div>
+          <div>พิมพ์ราคาใหม่ → กด <strong>Enter</strong> หรือ <strong>Save Changes</strong></div>
+        </li>
+        <li>
+          <div class="bdot"></div>
+          <div>เปิดหน้าเมนูของร้านใหม่ → ราคา <strong>อัปเดตทันที!</strong></div>
+        </li>
+      </ul>
+      <div class="code-block">
+<span class="cm">-- ตัวอย่าง SQL (ไม่บังคับใช้ ถ้า UI ง่ายกว่า)</span>
+<span class="ck">UPDATE</span> menu_items
+<span class="ck">SET</span> <span class="cv">price</span> = <span class="cb">65</span>
+<span class="ck">WHERE</span> <span class="cv">name_th</span> = <span class="cv">'ข้าวหมูแดง'</span>;
+      </div>
+    </div>
+
+    <!-- ═══ SLIDE 6: วิธีซ่อน/แสดงเมนู ═══ -->
+    <div class="slide slide-sage-light" data-title="วิธีซ่อน/แสดงเมนู">
+      <div class="slide-h2">วิธีซ่อน / แสดงเมนู 👁️</div>
+      <ul class="bullet-list">
+        <li>
+          <div class="bdot"></div>
+          <div>ทุกรายการเมนูมีช่อง <strong>is_available</strong> (true = แสดง, false = ซ่อน)</div>
+        </li>
+        <li>
+          <div class="bdot"></div>
+          <div>คลิกที่ช่อง <strong>is_available</strong> → สลับเป็น <strong>false</strong> → เมนูหายจากแอปทันที</div>
+        </li>
+        <li>
+          <div class="bdot"></div>
+          <div>เปลี่ยนกลับเป็น <strong>true</strong> เมื่อสินค้ากลับมา → เมนูโผล่ขึ้นมาเอง</div>
+        </li>
+      </ul>
+      <div class="info-card" style="margin-top:20px; background: var(--sage-l); border-left-color: var(--sage-d);">
+        <div class="ic-label">💡 ใช้เมื่อ</div>
+        <div class="ic-val">วัตถุดิบหมด · เมนูตามฤดูกาล · ปิดชั่วคราว</div>
+      </div>
+      <div class="toggle-demo">
+        <div class="toggle-btn active">is_available: true</div>
+        <div class="toggle-btn">is_available: false</div>
+      </div>
+    </div>
+
+    <!-- ═══ SLIDE 7: วิธีเพิ่มเมนูใหม่ ═══ -->
+    <div class="slide slide-dark" data-title="วิธีเพิ่มเมนูใหม่">
+      <div class="slide-h2" style="color: var(--sage);">วิธีเพิ่มเมนูใหม่ ➕</div>
+      <ul class="bullet-list">
+        <li>
+          <div class="bnum">1</div>
+          <div>ใน Table Editor กด <strong>Insert → Insert Row</strong></div>
+        </li>
+        <li>
+          <div class="bnum">2</div>
+          <div>กรอก field ที่จำเป็น: <strong>name_th, name_en, price, category_id</strong></div>
+        </li>
+        <li>
+          <div class="bnum">3</div>
+          <div>ตั้ง <strong>is_available = true</strong> เพื่อให้แสดงในแอปทันที</div>
+        </li>
+        <li>
+          <div class="bnum">4</div>
+          <div>กด <strong>Save</strong> → เมนูใหม่ปรากฏในแอปทันที ✓</div>
+        </li>
+      </ul>
+      <div class="code-block">
+<span class="cm">-- Fields ที่ต้องกรอก</span>
+<span class="ck">name_th</span>      = <span class="cv">'ชื่อเมนูภาษาไทย'</span>
+<span class="ck">name_en</span>      = <span class="cv">'Menu Name in English'</span>
+<span class="ck">price</span>        = <span class="cb">80</span>
+<span class="ck">category_id</span>  = <span class="cb">1</span>  <span class="cm">-- ดู ID จาก table categories</span>
+<span class="ck">is_available</span> = <span class="cb">true</span>
+      </div>
+    </div>
+
+    <!-- ═══ SLIDE 8: สลับภาษา ═══ -->
+    <div class="slide slide-content" data-title="สลับภาษา ไทย / EN">
+      <div class="slide-h2">สลับภาษา ไทย / EN 🌐</div>
+      <ul class="bullet-list">
+        <li>
+          <div class="bdot"></div>
+          <div>ในหน้าเมนูมี <strong>ปุ่มสลับภาษา</strong> อยู่มุมขวาบน (TH / EN)</div>
+        </li>
+        <li>
+          <div class="bdot"></div>
+          <div>กด <strong>EN</strong> → ชื่อเมนู คำอธิบาย หมวดหมู่ เปลี่ยนเป็นอังกฤษทันที</div>
+        </li>
+        <li>
+          <div class="bdot"></div>
+          <div>ลูกค้าเลือกภาษาเองได้ตามใจ · ไม่กระทบออเดอร์ที่ส่ง LINE</div>
+        </li>
+      </ul>
+      <div class="toggle-demo" style="margin-top:24px; gap:0;">
+        <div class="toggle-btn active">🇹🇭 ภาษาไทย</div>
+        <div class="toggle-btn">🇬🇧 English</div>
+      </div>
+      <div class="info-card" style="margin-top:20px;">
+        <div class="ic-label">ตัวอย่าง</div>
+        <div class="ic-val">
+          "ข้าวหมูแดง" → <strong>"Red Pork Rice"</strong><br>
+          "อาหารจานเดียว" → <strong>"Main Course"</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SLIDE 9: QR Code โต๊ะ + Delivery ═══ -->
+    <div class="slide slide-content" data-title="QR Code โต๊ะ + Delivery">
+      <div class="slide-h2">QR Code โต๊ะ + Delivery 🪑</div>
+      <div class="two-col">
+        <div class="col">
+          <div style="font-size:13px; font-weight:700; color:var(--sage-d); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Dine-in — QR แยกโต๊ะ</div>
+          <ul class="bullet-list">
+            <li>
+              <div class="bdot"></div>
+              <div>เราส่ง <strong>QR Code PNG ทุกโต๊ะ</strong> ให้แล้ว (สูงสุด 30 โต๊ะ)</div>
+            </li>
+            <li>
+              <div class="bdot"></div>
+              <div>ปริ้นท์ใส่กรอบหรือแลมิเนต วางบนโต๊ะได้เลย</div>
+            </li>
+            <li>
+              <div class="bdot"></div>
+              <div>แต่ละ QR ระบุหมายเลขโต๊ะอัตโนมัติ เช่น <strong>โต๊ะ 1, 2, 3...</strong></div>
+            </li>
+          </ul>
+        </div>
+        <div class="col">
+          <div style="font-size:13px; font-weight:700; color:var(--sage-d); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Delivery — สั่งส่งบ้าน</div>
+          <ul class="bullet-list">
+            <li>
+              <div class="bdot"></div>
+              <div>ลูกค้าเข้าผ่าน <strong>ลิงก์เมนู</strong> ที่ร้านแชร์</div>
+            </li>
+            <li>
+              <div class="bdot"></div>
+              <div>กรอก <strong>ชื่อ เบอร์ ที่อยู่</strong> → ออเดอร์เข้า LINE OA</div>
+            </li>
+            <li>
+              <div class="bdot"></div>
+              <div>ไม่ต้องโทรหากัน ข้อมูลครบในข้อความเดียว</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SLIDE 10: สิทธิ์แก้ไขฟรี + ติดต่อ ═══ -->
+    <div class="slide slide-title-page" data-title="สิทธิ์แก้ไขฟรี 5 ครั้ง">
+      <div class="slide-tag">สรุป</div>
+      <div class="slide-h1" style="font-size: clamp(26px,3.8vw,44px);">สิทธิ์แก้ไขฟรี 5 ครั้ง<br>ภายใน 90 วัน</div>
+      <div class="revision-boxes" style="margin-top:18px; margin-bottom:20px;">
+        <div class="rev-box"><div class="rev-num">1</div><div class="rev-label">ครั้ง</div></div>
+        <div class="rev-box"><div class="rev-num">2</div><div class="rev-label">ครั้ง</div></div>
+        <div class="rev-box"><div class="rev-num">3</div><div class="rev-label">ครั้ง</div></div>
+        <div class="rev-box"><div class="rev-num">4</div><div class="rev-label">ครั้ง</div></div>
+        <div class="rev-box"><div class="rev-num">5</div><div class="rev-label">ครั้ง</div></div>
+      </div>
+      <ul class="bullet-list" style="max-width:580px;">
+        <li>
+          <div class="bdot" style="background:#fff;"></div>
+          <div style="color:rgba(255,255,255,0.9);">แจ้งขอแก้ไขผ่าน <strong style="color:#fff;">LINE @khaomoo</strong> พร้อมระบุว่าอยากแก้อะไร</div>
+        </li>
+        <li>
+          <div class="bdot" style="background:#fff;"></div>
+          <div style="color:rgba(255,255,255,0.9);">รอ <strong style="color:#fff;">1–2 วันทำการ</strong> · แก้ได้: ราคา เมนู รูป เลย์เอาต์</div>
+        </li>
+        <li>
+          <div class="bdot" style="background:#fff;"></div>
+          <div style="color:rgba(255,255,255,0.9);">ครั้งที่ 6 ขึ้นไป คิด <strong style="color:#fff;">200 บาท/ครั้ง</strong></div>
+        </li>
+      </ul>
+      <div style="margin-top:24px; display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.15); border-radius:14px; padding:14px 20px; max-width:360px;">
+        <span style="font-size:28px;">💬</span>
+        <div>
+          <div style="font-size:12px; opacity:0.7; font-weight:600; text-transform:uppercase; letter-spacing:1px;">ติดต่อ</div>
+          <div style="font-size:22px; font-weight:800; letter-spacing:0.3px;">LINE: @khaomoo</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /slide-area -->
+
+  <!-- CONTROLS -->
+  <div id="controls">
+    <div class="ctrl-hint">← → หรือคลิกปุ่ม</div>
+    <button class="ctrl-btn" id="btn-prev" onclick="navigate(-1)" disabled>&#8592;</button>
+    <span id="slide-counter">1 / 10</span>
+    <button class="ctrl-btn" id="btn-next" onclick="navigate(1)">&#8594;</button>
+    <div id="slide-title-bar"></div>
+    <div class="ctrl-hint">Space = ขั้นตอนถัดไป</div>
+  </div>
+
+</div><!-- /presentation -->
+
+<script>
+(function() {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+
+  // ─── Bullet reveal state ───
+  // Each slide tracks how many bullets have been revealed
+  const revealState = slides.map(() => 0);
+
+  function getRevealables(idx) {
+    return Array.from(slides[idx].querySelectorAll(
+      '.bullet-list li, .flow-box, .flow-arrow, .info-card, .code-block, .agenda-item, .screenshot-ph, .toggle-demo, .url-box, .rev-box'
+    ));
+  }
+
+  function updateUI() {
+    const pct = ((current) / (total - 1)) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('slide-counter').textContent = (current + 1) + ' / ' + total;
+    const title = slides[current].dataset.title || '';
+    document.getElementById('slide-title-bar').textContent = title;
+    document.getElementById('btn-prev').disabled = current === 0;
+    document.getElementById('btn-next').disabled = current === total - 1;
+  }
+
+  function showSlide(idx, dir) {
+    const prev = slides[current];
+    prev.classList.remove('active');
+    if (dir === 1) prev.classList.add('exit-left');
+    setTimeout(() => prev.classList.remove('exit-left'), 350);
+
+    current = idx;
+    const next = slides[current];
+    next.style.transform = dir === 1 ? 'translateX(60px)' : 'translateX(-60px)';
+    next.classList.add('active');
+    requestAnimationFrame(() => {
+      next.style.transform = '';
+    });
+
+    // Auto-reveal slide 1 agenda and flow items with stagger
+    autoRevealSlide(current);
+
+    updateUI();
+  }
+
+  function autoRevealSlide(idx) {
+    const items = getRevealables(idx);
+    // Reset reveal state for this slide
+    items.forEach(el => el.classList.remove('revealed'));
+    revealState[idx] = 0;
+
+    // Slides with auto-reveal (title slide agenda, flow diagram)
+    const autoSlides = [0, 1]; // slide index 0 = slide 1, index 1 = slide 2
+    if (autoSlides.includes(idx)) {
+      items.forEach((el, i) => {
+        setTimeout(() => {
+          el.classList.add('revealed');
+          revealState[idx] = i + 1;
+        }, 200 + i * 140);
+      });
+    }
+  }
+
+  function revealNext() {
+    const items = getRevealables(current);
+    if (revealState[current] < items.length) {
+      items[revealState[current]].classList.add('revealed');
+      revealState[current]++;
+      return true;
+    }
+    return false;
+  }
+
+  function navigate(dir) {
+    // If going forward, first try to reveal next bullet
+    if (dir === 1) {
+      const autoSlides = [0, 1];
+      if (!autoSlides.includes(current)) {
+        if (revealNext()) return;
+      }
+    }
+    const next = current + dir;
+    if (next < 0 || next >= total) return;
+    showSlide(next, dir);
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); navigate(1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); navigate(-1); }
+    else if (e.key === ' ') { e.preventDefault(); navigate(1); }
+  });
+
+  // Touch swipe
+  let touchStartX = 0;
+  document.getElementById('slide-area').addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  document.getElementById('slide-area').addEventListener('touchend', e => {
+    const dx = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 50) navigate(dx > 0 ? 1 : -1);
+  });
+
+  // Click on slide area to reveal next bullet (not on controls)
+  document.getElementById('slide-area').addEventListener('click', e => {
+    const autoSlides = [0, 1];
+    if (!autoSlides.includes(current)) {
+      if (!revealNext()) navigate(1);
+    }
+  });
+
+  // Init
+  slides[0].classList.add('active');
+  autoRevealSlide(0);
+  updateUI();
+})();
+</script>
+</body>
+</html>

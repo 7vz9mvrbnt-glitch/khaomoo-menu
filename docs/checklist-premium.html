@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist งาน Premium | khaomoo-menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage:    #87A080;
+    --sage-l:  #ECF2EB;
+    --sage-d:  #557252;
+    --cream:   #F8F5EF;
+    --dark:    #2A2A2A;
+    --mid:     #5E5E5E;
+    --border:  #D4E2D2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    padding-bottom: 60px;
+  }
+
+  /* ─── TOP HEADER ─── */
+  .page-header {
+    background: linear-gradient(135deg, var(--sage-d), var(--sage));
+    padding: 32px 40px 28px;
+    color: #fff;
+  }
+  .page-header .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-bottom: 6px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .page-header p {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  /* ─── PROGRESS SUMMARY ─── */
+  .progress-summary {
+    display: flex;
+    gap: 12px;
+    padding: 20px 40px;
+    background: #fff;
+    border-bottom: 1.5px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .phase-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--sage-l);
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sage-d);
+    white-space: nowrap;
+  }
+  .phase-pill .num {
+    background: var(--sage-d);
+    color: #fff;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .phase-pill .count {
+    background: var(--sage-d);
+    color: #fff;
+    border-radius: 50px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* ─── PRINT ─── */
+  .no-print {
+    text-align: center;
+    padding: 16px;
+    background: var(--sage-l);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .no-print button {
+    background: var(--sage-d);
+    color: #fff;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+    margin: 0 6px;
+  }
+  .no-print button.reset-btn {
+    background: transparent;
+    border: 1.5px solid var(--sage-d);
+    color: var(--sage-d);
+  }
+  @media print {
+    .no-print { display: none; }
+    body { background: #fff; }
+    .phase-section { page-break-inside: avoid; }
+  }
+
+  /* ─── CONTENT ─── */
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ─── PHASE SECTION ─── */
+  .phase-section {
+    background: #fff;
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(135,160,128,0.07);
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--sage-d);
+    color: #fff;
+  }
+  .phase-num {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .phase-title {
+    flex: 1;
+  }
+  .phase-title h2 {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .phase-title .phase-sub {
+    font-size: 12px;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+  .phase-count-badge {
+    background: rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 3px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* ─── CHECKLIST ─── */
+  .checklist {
+    padding: 14px 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item:hover { background: var(--sage-l); }
+
+  .check-item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border: 2px solid var(--sage);
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s;
+    background: #fff;
+  }
+  .check-item input[type="checkbox"]:checked {
+    background: var(--sage-d);
+    border-color: var(--sage-d);
+  }
+  .check-item input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .check-item label {
+    font-size: 14.5px;
+    color: var(--dark);
+    cursor: pointer;
+    line-height: 1.5;
+    flex: 1;
+  }
+  .check-item.done label {
+    text-decoration: line-through;
+    color: var(--mid);
+  }
+  .check-item label strong {
+    color: var(--sage-d);
+    font-weight: 700;
+  }
+  .check-item label .tag {
+    display: inline-block;
+    background: var(--sage-l);
+    color: var(--sage-d);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+  .check-item label .tag-warn {
+    background: #FFF8E1;
+    color: #7B6000;
+  }
+  .check-item label .note {
+    display: block;
+    font-size: 12px;
+    color: var(--mid);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  /* Divider within checklist */
+  .check-divider {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sage);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 10px 4px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── PROGRESS TRACKER ─── */
+  .progress-tracker {
+    background: var(--sage-l);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1.5px solid var(--border);
+  }
+  .tracker-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .tracker-bar {
+    height: 100%;
+    background: var(--sage-d);
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+  .tracker-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sage-d);
+    white-space: nowrap;
+  }
+
+  /* ─── COMPLETION ─── */
+  .completion-card {
+    background: var(--sage-d);
+    color: #fff;
+    border-radius: 16px;
+    padding: 24px 28px;
+    text-align: center;
+  }
+  .completion-card h3 {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .completion-card p {
+    font-size: 14px;
+    opacity: 0.8;
+    line-height: 1.6;
+  }
+  .completion-card .line-contact {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 6px 20px;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="label">เอกสารภายใน · khaomoo-menu</div>
+  <h1>✅ Checklist งานส่งมอบ<br>แพ็ก Premium 👑</h1>
+  <p>ใช้สำหรับติดตามงานแต่ละโปรเจกต์ตั้งแต่รับข้อมูลจนส่งมอบเสร็จสิ้น</p>
+</div>
+
+<!-- PROGRESS SUMMARY -->
+<div class="progress-summary">
+  <div class="phase-pill">
+    <div class="num">1</div>
+    รับข้อมูล
+    <div class="count">9 รายการ</div>
+  </div>
+  <div class="phase-pill">
+    <div class="num">2</div>
+    ตั้งค่าระบบ
+    <div class="count">5 รายการ</div>
+  </div>
+  <div class="phase-pill">
+    <div class="num">3</div>
+    ทดสอบ
+    <div class="count">6 รายการ</div>
+  </div>
+  <div class="phase-pill">
+    <div class="num">4</div>
+    ส่งมอบ
+    <div class="count">5 รายการ</div>
+  </div>
+  <div class="phase-pill">
+    <div class="num">5</div>
+    Zoom สอน
+    <div class="count">7 รายการ</div>
+  </div>
+</div>
+
+<!-- PRINT / RESET -->
+<div class="no-print">
+  <button onclick="window.print()">🖨️ พิมพ์ Checklist</button>
+  <button class="reset-btn" onclick="resetAll()">↺ รีเซ็ตทั้งหมด</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ─── PHASE 1 ─── -->
+  <div class="phase-section" id="phase1">
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <div class="phase-title">
+        <h2>ขั้นที่ 1 — รับข้อมูลจากลูกค้า</h2>
+        <div class="phase-sub">ก่อนเริ่มงาน · ต้องครบ 100% ก่อน Deploy</div>
+      </div>
+      <div class="phase-count-badge">9 รายการ</div>
+    </div>
+    <div class="checklist" id="cl1">
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c1-1"><label for="c1-1">
+          <strong>ชื่อร้าน</strong> ภาษาไทย + ภาษาอังกฤษ
+          <span class="note">ใช้แสดงในหัวเมนูและ LINE message</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c1-2"><label for="c1-2">
+          <strong>รายการเมนูทั้งหมด</strong> พร้อมราคาและหมวดหมู่
+          <span class="note">ใส่ทั้งชื่อไทยและอังกฤษ ถ้ามี</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c1-3"><label for="c1-3">
+          <strong>ตัวเลือกแต่ละเมนู</strong> (Options / Add-ons)
+          <span class="tag">สำคัญ</span>
+          <span class="note">เช่น ขนาด S/M/L, เผ็ด 1-5, ท็อปปิ้ง, ราคาเพิ่ม/ลด</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c1-4"><label for="c1-4">
+          <strong>รูปอาหาร</strong> ทุกรายการ
+          <span class="note">ขนาดขั้นต่ำ 800×800px, JPG/PNG, ชัดและสว่าง</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c1-5"><label for="c1-5">
+          <strong>โลโก้ร้าน</strong> PNG พื้นใส หรือ JPG
+          <span class="note">ถ้าไม่มีโลโก้ ให้แจ้งลูกค้าล่วงหน้า</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c1-6"><label for="c1-6">
+          <strong>สีหลักและสีรอง</strong> ของร้าน (hex code หรือตัวอย่างภาพ)
+          <span class="note">ใช้ตั้งค่า brand color ในแอป</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c1-7"><label for="c1-7">
+          <strong>LINE OA Channel Access Token</strong>
+          <span class="tag tag-warn">⚠️ สำคัญมาก</span>
+          <span class="note">ถ้าไม่มี LINE OA ให้แนะนำลูกค้าสมัครก่อน · ดูคู่มือใน E-Book</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c1-8"><label for="c1-8">
+          <strong>อีเมลสำหรับบัญชี Supabase</strong>
+          <span class="note">ลูกค้าจะใช้ email นี้ login เข้าจัดการเมนูเอง</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c1-9"><label for="c1-9">
+          <strong>จำนวนโต๊ะ Dine-in</strong> + ต้องการ Delivery ด้วยไหม
+          <span class="note">สูงสุด 30 โต๊ะ · ถ้าต้องการเกิน แจ้งลูกค้าเพิ่มเติม</span>
+        </label>
+      </div>
+    </div>
+    <div class="progress-tracker">
+      <div class="tracker-label" id="p1-label">0 / 9</div>
+      <div class="tracker-bar-wrap">
+        <div class="tracker-bar" id="p1-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PHASE 2 ─── -->
+  <div class="phase-section" id="phase2">
+    <div class="phase-header">
+      <div class="phase-num">2</div>
+      <div class="phase-title">
+        <h2>ขั้นที่ 2 — ตั้งค่าระบบ</h2>
+        <div class="phase-sub">วันที่ 1–2 · Deploy บน Vercel</div>
+      </div>
+      <div class="phase-count-badge">5 รายการ</div>
+    </div>
+    <div class="checklist" id="cl2">
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c2-1"><label for="c2-1">
+          <strong>สร้าง Supabase project</strong> และ run <code style="background:var(--sage-l);padding:1px 6px;border-radius:4px;font-size:13px;">seed.sql</code>
+          <span class="note">ตรวจ table menu_items, orders, tables ครบและ RLS ถูกต้อง</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c2-2"><label for="c2-2">
+          <strong>ตั้งค่า LINE OA Webhook</strong> ด้วย Channel Access Token ของร้าน
+          <span class="note">ทดสอบ webhook URL ตอบสนอง 200 OK</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c2-3"><label for="c2-3">
+          <strong>ใส่ข้อมูลเมนูครบ</strong> ใน menuData.js หรือ Supabase
+          <span class="tag">2 ภาษา</span>
+          <span class="note">name_th, name_en, desc_th, desc_en, cat_th, cat_en, label_en ครบทุกรายการ</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c2-4"><label for="c2-4">
+          <strong>ตั้งค่าสีแบรนด์ + โลโก้</strong> ของร้าน
+          <span class="note">เปลี่ยน CSS variable และใส่ไฟล์โลโก้ใน assets</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c2-5"><label for="c2-5">
+          <strong>Deploy บน Vercel</strong> + ตั้งค่า Environment Variables ครบ
+          <span class="note">SUPABASE_URL, SUPABASE_ANON_KEY, LINE_ACCESS_TOKEN, LINE_SECRET</span>
+        </label>
+      </div>
+    </div>
+    <div class="progress-tracker">
+      <div class="tracker-label" id="p2-label">0 / 5</div>
+      <div class="tracker-bar-wrap">
+        <div class="tracker-bar" id="p2-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PHASE 3 ─── -->
+  <div class="phase-section" id="phase3">
+    <div class="phase-header">
+      <div class="phase-num">3</div>
+      <div class="phase-title">
+        <h2>ขั้นที่ 3 — ทดสอบระบบ</h2>
+        <div class="phase-sub">วันที่ 3 · ต้องผ่าน 100% ก่อนส่งมอบ</div>
+      </div>
+      <div class="phase-count-badge">6 รายการ</div>
+    </div>
+    <div class="checklist" id="cl3">
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c3-1"><label for="c3-1">
+          <strong>ทดสอบ Dine-in:</strong> สแกน QR Code → เลือกเมนู → ออเดอร์เข้า LINE OA ✓
+          <span class="note">ทดสอบหลายโต๊ะ ตรวจว่าเลขโต๊ะถูกต้อง</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c3-2"><label for="c3-2">
+          <strong>ทดสอบ Delivery:</strong> กรอกที่อยู่ → ออเดอร์เข้า LINE OA พร้อมข้อมูลส่ง ✓
+          <span class="note">ตรวจว่า ชื่อ+เบอร์+ที่อยู่ ปรากฏใน LINE message</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c3-3"><label for="c3-3">
+          <strong>ทดสอบภาษา EN:</strong> กดสลับ EN → ชื่อ/desc/หมวด/badge/options เปลี่ยนครบ ✓
+          <span class="note">ตรวจทุก text ที่เห็นบนหน้าจอ ไม่ให้มีภาษาไทยค้างเมื่อสลับเป็น EN</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c3-4"><label for="c3-4">
+          <strong>ทดสอบแก้ราคาใน Supabase:</strong> อัปเดตราคา → รีเฟรชแอปเห็นทันที ✓
+          <span class="note">เปิด Supabase Table Editor + แอปไว้คู่กัน</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c3-5"><label for="c3-5">
+          <strong>ทดสอบซ่อนเมนู:</strong> ตั้ง is_available = false → เมนูหายจากแอปทันที ✓
+          <span class="note">แล้วก็ตั้งกลับเป็น true ให้เมนูกลับมา</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c3-6"><label for="c3-6">
+          <strong>ทดสอบบนมือถือจริง</strong> iOS + Android หน้าจอแสดงผลปกติ ✓
+          <span class="note">ใช้อย่างน้อย 2 browser: Safari (iOS) และ Chrome (Android)</span>
+        </label>
+      </div>
+    </div>
+    <div class="progress-tracker">
+      <div class="tracker-label" id="p3-label">0 / 6</div>
+      <div class="tracker-bar-wrap">
+        <div class="tracker-bar" id="p3-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PHASE 4 ─── -->
+  <div class="phase-section" id="phase4">
+    <div class="phase-header">
+      <div class="phase-num">4</div>
+      <div class="phase-title">
+        <h2>ขั้นที่ 4 — ส่งมอบงาน</h2>
+        <div class="phase-sub">วันที่ 4–5 · ส่งผ่าน LINE ทั้งหมด</div>
+      </div>
+      <div class="phase-count-badge">5 รายการ</div>
+    </div>
+    <div class="checklist" id="cl4">
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c4-1"><label for="c4-1">
+          <strong>ส่ง URL เมนู + QR Code PNG</strong> ทุกโต๊ะทาง LINE
+          <span class="note">แพ็กเป็น ZIP ถ้าโต๊ะเยอะ · แนะนำให้ปริ้นท์ A5 แลมิเนต</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c4-2"><label for="c4-2">
+          <strong>ส่ง E-Book คู่มือ Premium</strong> (ebook-premium.pdf) ทาง LINE
+          <span class="note">ให้ลูกค้า bookmark ไว้อ่านเวลาลืมวิธีใช้</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c4-3"><label for="c4-3">
+          <strong>ส่ง Credentials Supabase</strong> — email + password ทาง LINE
+          <span class="tag tag-warn">⚠️ ลับ</span>
+          <span class="note">ส่งใน chat ส่วนตัว ไม่ส่งในกลุ่ม · แนะนำให้ลูกค้าเปลี่ยน password หลังรับ</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c4-4"><label for="c4-4">
+          <strong>แจ้งสิทธิ์แก้ไขฟรี 5 ครั้ง</strong> ภายใน 90 วัน
+          <span class="note">บอกวันหมดสิทธิ์ชัดเจน = วันส่งมอบ + 90 วัน</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c4-5"><label for="c4-5">
+          <strong>นัดวัน Zoom สอนการใช้งาน</strong> 30 นาที
+          <span class="note">นัดภายใน 7 วันหลังส่งมอบ · ใช้ Google Meet หรือ Zoom</span>
+        </label>
+      </div>
+    </div>
+    <div class="progress-tracker">
+      <div class="tracker-label" id="p4-label">0 / 5</div>
+      <div class="tracker-bar-wrap">
+        <div class="tracker-bar" id="p4-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PHASE 5 ─── -->
+  <div class="phase-section" id="phase5">
+    <div class="phase-header">
+      <div class="phase-num">5</div>
+      <div class="phase-title">
+        <h2>ขั้นที่ 5 — Zoom สอนการใช้งาน 30 นาที</h2>
+        <div class="phase-sub">หลังส่งมอบ · นัดล่วงหน้าผ่าน LINE</div>
+      </div>
+      <div class="phase-count-badge">7 รายการ</div>
+    </div>
+    <div class="checklist" id="cl5">
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c5-1"><label for="c5-1">
+          <strong>สอนดูออเดอร์ใน LINE OA</strong>
+          <span class="note">แสดงว่าข้อความออเดอร์มีข้อมูลอะไรบ้าง · วิธี reply ลูกค้า</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c5-2"><label for="c5-2">
+          <strong>สอนแก้ราคาใน Supabase Table Editor</strong>
+          <span class="note">login → Table Editor → menu_items → ดับเบิลคลิก price → Save</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c5-3"><label for="c5-3">
+          <strong>สอนซ่อน/แสดงเมนู</strong> (is_available = true/false)
+          <span class="note">แสดงให้เห็นว่าเมนูหายจากแอปทันที และกลับมาได้</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c5-4"><label for="c5-4">
+          <strong>สอนเพิ่มเมนูใหม่</strong> (Insert row ใน Supabase)
+          <span class="note">กรอก field ที่จำเป็น: name_th, name_en, price, category_id, is_available</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c5-5"><label for="c5-5">
+          <strong>สอนสลับภาษา ไทย / EN</strong>
+          <span class="note">แสดงปุ่มสลับในแอป · อธิบายว่าข้อมูล EN ใส่ไว้ที่ไหน</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c5-6"><label for="c5-6">
+          <strong>ตอบคำถามที่สงสัย</strong>
+          <span class="note">เผื่อเวลาอย่างน้อย 10 นาทีสำหรับ Q&amp;A</span>
+        </label>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <input type="checkbox" id="c5-7"><label for="c5-7">
+          <strong>แนะนำวิธีขอแก้ไขฟรี</strong> (ครั้งที่ 1–5)
+          <span class="note">แจ้ง LINE @khaomoo · ระบุว่าอยากแก้อะไร · รอ 1-2 วันทำการ</span>
+        </label>
+      </div>
+    </div>
+    <div class="progress-tracker">
+      <div class="tracker-label" id="p5-label">0 / 7</div>
+      <div class="tracker-bar-wrap">
+        <div class="tracker-bar" id="p5-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLETION -->
+  <div class="completion-card" id="completion-card" style="display:none;">
+    <h3>🎉 งานเสร็จสมบูรณ์แล้ว!</h3>
+    <p>ส่งมอบงานแพ็ก Premium ครบทุกขั้นตอนแล้ว<br>
+    ลูกค้ายังมีสิทธิ์แก้ไขฟรี 5 ครั้ง ภายใน 90 วัน</p>
+    <div class="line-contact">LINE: @khaomoo</div>
+  </div>
+
+</div>
+
+<script>
+  const phaseDefs = [
+    { id: 'cl1', total: 9, barId: 'p1-bar', labelId: 'p1-label' },
+    { id: 'cl2', total: 5, barId: 'p2-bar', labelId: 'p2-label' },
+    { id: 'cl3', total: 6, barId: 'p3-bar', labelId: 'p3-label' },
+    { id: 'cl4', total: 5, barId: 'p4-bar', labelId: 'p4-label' },
+    { id: 'cl5', total: 7, barId: 'p5-bar', labelId: 'p5-label' },
+  ];
+
+  function toggle(row) {
+    const cb = row.querySelector('input[type="checkbox"]');
+    if (event.target !== cb) cb.checked = !cb.checked;
+    row.classList.toggle('done', cb.checked);
+    updateProgress();
+    saveState();
+  }
+
+  function updateProgress() {
+    let allDone = true;
+    phaseDefs.forEach(p => {
+      const checks = document.querySelectorAll(`#${p.id} input[type="checkbox"]`);
+      const done = Array.from(checks).filter(c => c.checked).length;
+      const pct = Math.round((done / p.total) * 100);
+      document.getElementById(p.barId).style.width = pct + '%';
+      document.getElementById(p.labelId).textContent = done + ' / ' + p.total;
+      if (done < p.total) allDone = false;
+    });
+    document.getElementById('completion-card').style.display = allDone ? 'block' : 'none';
+  }
+
+  function saveState() {
+    const state = {};
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      state[cb.id] = cb.checked;
+    });
+    try { localStorage.setItem('checklist-premium', JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const state = JSON.parse(localStorage.getItem('checklist-premium') || '{}');
+      document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        if (state[cb.id]) {
+          cb.checked = true;
+          cb.closest('.check-item').classList.add('done');
+        }
+      });
+      updateProgress();
+    } catch(e) {}
+  }
+
+  function resetAll() {
+    if (!confirm('รีเซ็ต checklist ทั้งหมด?')) return;
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.checked = false;
+      cb.closest('.check-item').classList.remove('done');
+    });
+    updateProgress();
+    saveState();
+  }
+
+  loadState();
+</script>
+</body>
+</html>
