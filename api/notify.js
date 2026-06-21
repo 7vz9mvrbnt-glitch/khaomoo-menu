@@ -18,6 +18,10 @@ export default async function handler(req, res) {
       }),
     });
     const data = await r.json();
+    if (!r.ok) {
+      console.error("LINE broadcast failed:", r.status, JSON.stringify(data));
+      return res.status(r.status).json({ ok: false, error: data });
+    }
     res.status(200).json({ ok: true, data });
   } catch (err) {
     res.status(500).json({ error: err.message });
